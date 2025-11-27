@@ -364,6 +364,20 @@ function loadGuestbook() {
 
 // --- Data: Gallery ---
 const galleryData = [
+    // NEW PHOTOS - Batch 4
+    {
+        id: 'mateo_bed',
+        img: 'images/mateo_bed.jpg',
+        title: 'El Dueño del Reino 👑',
+        desc: 'Con una actitud de rey, Mateo se adueña de cada espacio. "¿Por qué estás en MI cuarto?" dice su mirada traviesa. Porque cuando eres tan adorable, todo el mundo es tuyo.'
+    },
+    {
+        id: 'mateo_star',
+        img: 'images/mateo_star.jpg',
+        title: 'Eres una Estrella, Hijo ⭐',
+        desc: 'Con su chaqueta verde y esa sonrisa que ilumina todo, Mateo nos recuerda que no necesitas un escenario para brillar. Cada paso que da es un show de talento puro.'
+    },
+    // Previous photos
     { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
     { id: 'three_generations', img: 'images/three_generations.jpg', title: 'Raíces y Alas 🌳', desc: 'Abuelo, padre e hijo. El pasado que nos sostiene, el presente que construimos y el futuro que soñamos. La fortaleza de la sangre en una sola imagen.' },
     { id: 'laughing_bed', img: 'images/laughing_bed.jpg', title: 'La Melodía de la Felicidad 🎶', desc: 'No existe sonido más puro que su carcajada espontánea. Es la música que llena nuestro hogar y nos recuerda que la felicidad está en los momentos más simples.' },
