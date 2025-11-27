@@ -1064,6 +1064,51 @@ if (postModal) {
     }
 }
 
+// Modal Like Button
+if (modalLikeBtn && db) {
+    modalLikeBtn.addEventListener('click', () => {
+        if (!currentPostId) return;
+
+        const likeRef = db.collection('likes').doc(currentPostId);
+
+        likeRef.get().then(doc => {
+            const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+            likeRef.set({ count: currentCount + 1 });
+
+            // Visual feedback
+            modalLikeBtn.classList.add('liked');
+            modalLikeBtn.innerHTML = '<i class="fas fa-heart"></i>';
+            celebrateLike(modalLikeBtn);
+        });
+    });
+}
+
+// Comment Form
+if (commentForm && db) {
+    commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!currentPostId) return;
+
+        const name = document.getElementById('commentName').value;
+        const text = document.getElementById('commentText').value;
+
+        db.collection('comments').add({
+            photoId: currentPostId,
+            name: name,
+            text: text,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            commentForm.reset();
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.6 }
+            });
+        });
+    });
+}
+
 window.onclick = (e) => {
     if (e.target == postModal) postModal.style.display = 'none';
     if (e.target == document.getElementById('loginModal')) document.getElementById('loginModal').style.display = 'none';
