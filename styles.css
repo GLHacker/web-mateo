@@ -1249,4 +1249,272 @@ body.dark-mode #darkModeToggle i {
         display: none;
         /* Hide on mobile for space */
     }
+}/* ========================================
+   🎬 FASE 3: DYNAMIC CONTENT STYLES
+   ======================================== */
+
+/* Mateo Today Section */
+.mateo-today-section {
+    padding: 100px 5%;
+}
+
+.mateo-today-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.today-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.today-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+.card-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    animation: bounce 2s infinite;
+}
+
+.today-card h3 {
+    color: #FFD700;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.photo-of-day {
+    width: 100%;
+    height: 250px;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.photo-of-day img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.today-card:hover .photo-of-day img {
+    transform: scale(1.1);
+}
+
+.quote-box {
+    background: rgba(255, 215, 0, 0.1);
+    border-left: 4px solid #FFD700;
+    padding: 20px;
+    border-radius: 10px;
+    font-style: italic;
+}
+
+.quote-box p {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.quote-author {
+    display: block;
+    text-align: right;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.activity-box {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.activity-box p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Fun Facts Section */
+.fun-facts-section {
+    padding: 100px 5%;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.facts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.fact-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.fact-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+.fact-card:hover::before {
+    left: 100%;
+}
+
+.fact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+    border-color: #FFD700;
+}
+
+.fact-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.fact-card h3 {
+    color: #FFD700;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.fact-card p {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+/* Music Section */
+.music-section {
+    padding: 100px 5%;
+}
+
+.playlist-container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.playlist-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.playlist-header i {
+    font-size: 2.5rem;
+    color: #1DB954;
+    /* Spotify green */
+}
+
+.playlist-header h3 {
+    font-size: 1.8rem;
+    color: #FFD700;
+}
+
+.playlist-items {
+    margin-bottom: 30px;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.playlist-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(10px);
+}
+
+.song-emoji {
+    font-size: 2rem;
+    min-width: 40px;
+}
+
+.song-info {
+    flex: 1;
+}
+
+.song-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--text);
+}
+
+.song-artist {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.play-btn {
+    background: var(--gradient);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.play-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(255, 0, 204, 0.5);
+}
+
+.play-btn.playing {
+    animation: pulse 1s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .mateo-today-grid,
+    .facts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-icon,
+    .fact-icon {
+        font-size: 2rem;
+    }
 }

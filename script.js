@@ -362,6 +362,117 @@ function loadGuestbook() {
         });
 }
 
+// ========================================
+// 🎬 FASE 3: DYNAMIC CONTENT
+// ========================================
+
+// --- Mateo's Age Calculator ---
+function calculateAge() {
+    const birthDate = new Date('2023-01-15'); // Ajusta la fecha real de nacimiento
+    const today = new Date();
+
+    const months = (today.getFullYear() - birthDate.getFullYear()) * 12 +
+        (today.getMonth() - birthDate.getMonth());
+    const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
+
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+
+    let ageText = '';
+    if (years > 0) {
+        ageText = `${years} año${years > 1 ? 's' : ''} y ${remainingMonths} mes${remainingMonths !== 1 ? 'es' : ''}`;
+    } else {
+        ageText = `${months} mes${months !== 1 ? 'es' : ''}`;
+    }
+
+    const ageElement = document.getElementById('mateoAge');
+    if (ageElement) {
+        ageElement.textContent = ageText;
+    }
+}
+
+// --- Daily Quotes Rotation ---
+const dailyQuotes = [
+    { quote: "¿Por qué estás en MI cuarto?", author: "Mateo, siendo el rey 👑" },
+    { quote: "¡Vroom vroom!", author: "Mateo, piloto profesional 🏎️" },
+    { quote: "*Risas contagiosas*", author: "Mateo, experto en felicidad 😊" },
+    { quote: "¡Mira abuelo!", author: "Mateo, amando a la familia 👴" },
+    { quote: "¡Más juegos!", author: "Mateo, el incansable 🎮" }
+];
+
+function loadDailyQuote() {
+    const today = new Date().getDate();
+    const quoteIndex = today % dailyQuotes.length;
+    const selectedQuote = dailyQuotes[quoteIndex];
+
+    const quoteElement = document.getElementById('dailyQuote');
+    const authorElement = document.querySelector('.quote-author');
+
+    if (quoteElement && authorElement) {
+        quoteElement.textContent = `"${selectedQuote.quote}"`;
+        authorElement.textContent = `- ${selectedQuote.author}`;
+    }
+}
+
+// --- Playlist Data ---
+const playlistSongs = [
+    { title: "Baby Shark", artist: "Pinkfong", emoji: "🦈" },
+    { title: "Wheels on the Bus", artist: "Canciones Infantiles", emoji: "🚌" },
+    { title: "Twinkle Twinkle Little Star", artist: "Clásicos", emoji: "⭐" },
+    { title: "Old MacDonald", artist: "Canciones de Granja", emoji: "🐄" },
+    { title: "If You're Happy", artist: "Canciones Alegres", emoji: "😊" },
+    { title: "Head Shoulders Knees", artist: "Canciones de Movimiento", emoji: "🎵" }
+];
+
+function loadPlaylist() {
+    const playlistContainer = document.getElementById('playlistItems');
+    if (!playlistContainer) return;
+
+    playlistContainer.innerHTML = playlistSongs.map((song, index) => `
+        <div class="playlist-item" data-aos="fade-right" data-aos-delay="${index * 50}">
+            <div class="song-emoji">${song.emoji}</div>
+            <div class="song-info">
+                <div class="song-title">${song.title}</div>
+                <div class="song-artist">${song.artist}</div>
+            </div>
+            <button class="play-btn" onclick="playSong(${index})">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+function playSong(index) {
+    const song = playlistSongs[index];
+    confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 }
+    });
+
+    // Simular reproducción
+    const playBtns = document.querySelectorAll('.play-btn');
+    playBtns.forEach((btn, i) => {
+        if (i === index) {
+            btn.innerHTML = '<i class="fas fa-pause"></i>';
+            btn.classList.add('playing');
+        } else {
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            btn.classList.remove('playing');
+        }
+    });
+}
+
+// Initialize FASE 3 features
+document.addEventListener('DOMContentLoaded', () => {
+    calculateAge();
+    loadDailyQuote();
+    loadPlaylist();
+
+    // Update age every day
+    setInterval(calculateAge, 1000 * 60 * 60 * 24);
+});
+
 // --- Data: Gallery ---
 const galleryData = [
     // NEW PHOTOS - Batch 4
