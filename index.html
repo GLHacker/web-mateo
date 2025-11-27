@@ -20,6 +20,12 @@
     <!-- Animations (AOS) -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
+    <!-- 3D & Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
     <link rel="stylesheet" href="styles.css">
 
     <!-- Firebase -->
@@ -31,15 +37,11 @@
 
 <body>
 
-    <!-- ✨ Canvas de Partículas Interactivas -->
-    <!-- Particles Canvas Removed for Clean Design -->
+    <!-- ✨ 3D Background Canvas -->
+    <canvas id="webgl-canvas"></canvas>
 
-    <!-- Animated Background -->
-    <div class="bg-animation">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-    </div>
+    <!-- Overlay Gradient for readability -->
+    <div class="overlay-gradient"></div>
 
     <!-- Custom Cursor Trail -->
     <!-- Custom Cursor Trail Removed for Clean Design -->
