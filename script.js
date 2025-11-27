@@ -750,8 +750,41 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(calculateAge, 1000 * 60 * 60 * 24);
 });
 
-// --- Data: Gallery (MIGRADO A FIREBASE) ---
-const galleryData = []; // Las fotos ahora se cargan 100% desde el Panel de Administración
+// --- Data: Gallery ---
+const galleryData = [
+    // NEW PHOTOS - Batch 4
+    {
+        id: 'mateo_bed',
+        img: 'images/mateo_bed.jpg',
+        title: 'El Dueño del Reino 👑',
+        desc: 'Con una actitud de rey, Mateo se adueña de cada espacio. "¿Por qué estás en MI cuarto?" dice su mirada traviesa. Porque cuando eres tan adorable, todo el mundo es tuyo.'
+    },
+    {
+        id: 'mateo_star',
+        img: 'images/mateo_star.jpg',
+        title: 'Eres una Estrella, Hijo ⭐',
+        desc: 'Con su chaqueta verde y esa sonrisa que ilumina todo, Mateo nos recuerda que no necesitas un escenario para brillar. Cada paso que da es un show de talento puro.'
+    },
+    // Previous photos
+    { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
+    { id: 'three_generations', img: 'images/three_generations.jpg', title: 'Raíces y Alas 🌳', desc: 'Abuelo, padre e hijo. El pasado que nos sostiene, el presente que construimos y el futuro que soñamos. La fortaleza de la sangre en una sola imagen.' },
+    { id: 'laughing_bed', img: 'images/laughing_bed.jpg', title: 'La Melodía de la Felicidad 🎶', desc: 'No existe sonido más puro que su carcajada espontánea. Es la música que llena nuestro hogar y nos recuerda que la felicidad está en los momentos más simples.' },
+    { id: 'videocall_yellow', img: 'images/videocall_yellow.jpg', title: 'Distancia Cero 💫', desc: 'La tecnología se vuelve cálida cuando hay amor del otro lado. Sus ojos curiosos traspasan la pantalla, haciéndonos sentir que estamos en la misma habitación.' },
+    { id: 'videocall_party', img: 'images/videocall_party.jpg', title: 'Fiesta en el Corazón 🎉', desc: 'Con su energía inagotable, Mateo nos enseña que la vida es una celebración constante. Cada día es una oportunidad para sonreír y bailar.' },
+    { id: 'grandpa', img: 'images/grandpa.jpg', title: 'El Legado del Amor 👴👶', desc: 'Tres generaciones unidas por un mismo hilo invisible. En los brazos del abuelo, Mateo descubre que el amor es un tesoro que se hereda y crece con el tiempo.' },
+    { id: 'videocall_smile', img: 'images/videocall_smile.jpg', title: 'Cerca del Corazón 📱', desc: 'Aunque haya kilómetros de distancia, una sonrisa suya rompe cualquier barrera. La tecnología nos une, pero es su alegría la que nos mantiene cerca.' },
+    { id: 'videocall_dad', img: 'images/videocall_dad.jpg', title: 'Siempre Contigo ❤️', desc: 'No importa la pantalla, la conexión entre padre e hijo traspasa cualquier cristal. Un vínculo que no conoce de distancias ni horarios.' },
+    { id: 'red_car_1', img: 'images/red_car_1.jpg', title: 'Piloto de Aventuras 🏎️', desc: 'Con su bólido rojo, Mateo está listo para conquistar cada rincón de la casa. ¡Cuidado mundo, ahí va el conductor más adorable!' },
+    { id: 'red_car_2', img: 'images/red_car_2.jpg', title: 'Velocidad y Risas 🏁', desc: 'La felicidad tiene cuatro ruedas y un conductor con la sonrisa más traviesa. Cada paseo es una nueva historia que contar.' },
+    { id: 'elmo', img: 'images/elmo.jpg', title: 'El Pequeño Guardián Rojo 🧸', desc: 'Dicen que la risa de Mateo tiene un poder secreto: es capaz de pintar de colores hasta el día más gris. Vestido de rojo, nos recuerda que la felicidad es un superpoder.' },
+    { id: 'standing', img: 'images/standing.jpg', title: 'El Explorador de Mundos 🌍', desc: 'Para Mateo, el suelo no es solo suelo, es un mapa inexplorado. Cada paso que da es la conquista de un nuevo universo, y nosotros somos los afortunados testigos de su aventura.' },
+    { id: 'closeup', img: 'images/closeup.jpg', title: 'Ventanas al Alma ✨', desc: 'Si miras de cerca, verás galaxias enteras en sus ojos. Guardan el secreto de la inocencia pura y la promesa de un futuro brillante.' },
+    { id: 'img3', img: 'images/img3.jpg', title: 'El Triángulo de Amor ❤️', desc: 'Luis, Jennifer y Mateo. Tres corazones que aprendieron a latir al mismo ritmo. Juntos, construyeron un refugio donde el amor nunca se agota.' },
+    { id: 'img1', img: 'images/img1.jpg', title: 'La Gran Carrera 🏎️', desc: 'No es solo un juguete, es su primer viaje hacia la libertad. Con las manos al volante, Mateo nos enseña que la vida hay que vivirla a toda velocidad y con una sonrisa.' },
+    { id: 'img2', img: 'images/img2.jpg', title: 'Sueños de Neón 🌃', desc: 'Aquella noche, las luces de la ciudad intentaron competir con su brillo, pero perdieron. Un momento congelado en el tiempo donde solo existía la magia.' },
+    { id: 'img4', img: 'images/img4.jpg', title: 'Héroe y Aprendiz 🦸‍♂️', desc: 'Un padre que enseña a volar, un hijo que enseña a soñar. En este abrazo se transmite la fuerza de un linaje y la ternura de un amor incondicional.' },
+    { id: 'img5', img: 'images/img5.jpg', title: 'La Fiesta de la Vida 🎉', desc: 'Porque cada día juntos es una celebración. Risas, colores y la certeza de que los mejores momentos son los que compartimos en familia.' }
+];
 
 // --- Data: Stories ---
 const storiesData = [
@@ -823,42 +856,9 @@ let currentPostId = null;
 // --- Render Gallery ---
 function renderGallery() {
     if (!galleryContainer) return;
-    galleryContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Cargando galería...</div>';
 
-    // Cargar fotos EXCLUSIVAMENTE desde Firebase
-    if (db) {
-        db.collection('photos').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
-            const photos = [];
-
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                photos.push({
-                    id: doc.id,
-                    img: data.url,
-                    title: data.caption || 'Sin título',
-                    desc: data.category || 'General',
-                    isFirebase: true
-                });
-            });
-
-            if (photos.length === 0) {
-                galleryContainer.innerHTML = `
-                    <div class="empty-gallery">
-                        <i class="fas fa-images"></i>
-                        <p>No hay fotos publicadas aún.</p>
-                        <p class="subtitle">Sube fotos desde el Panel de Administración</p>
-                    </div>
-                `;
-            } else {
-                renderPhotosToDOM(photos);
-            }
-        }, error => {
-            console.error("Error recibiendo fotos:", error);
-            galleryContainer.innerHTML = '<p class="error-msg">Error de conexión. Intenta recargar.</p>';
-        });
-    } else {
-        galleryContainer.innerHTML = '<p class="error-msg">Error: Base de datos no conectada.</p>';
-    }
+    // Renderizar directamente las fotos estáticas del array galleryData
+    renderPhotosToDOM(galleryData);
 }
 
 // Función auxiliar para renderizar las fotos en el DOM
