@@ -855,82 +855,140 @@ const backToMenuBtn = document.getElementById('backToMenuBtn');
 let currentPostId = null;
 
 // --- Render Gallery ---
-function renderGallery() {
+async function renderGallery() {
     if (!galleryContainer) return;
-    galleryContainer.innerHTML = '';
+    galleryContainer.innerHTML = '<p style="text-align: center; color: #fff; padding: 40px;">Cargando fotos...</p>';
 
-    galleryData.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'glass-card';
-        card.setAttribute('data-aos', 'zoom-in-up');
-        card.setAttribute('data-aos-delay', (index % 5) * 100); // Stagger animations
-        card.setAttribute('data-id', item.id);
+    try {
+        // Combinar fotos estáticas con fotos de Firebase
+        let allPhotos = [...galleryData];
 
-        card.innerHTML = `
-            <div class="card-image">
-                <img src="${item.img}" alt="${item.title}">
-                <div class="card-overlay">
-                    <button class="view-btn"><i class="fas fa-expand"></i></button>
-                </div>
-            </div>
-            <div class="card-content">
-                <h3>${item.title}</h3>
-                <p>${item.desc}</p>
-                <div class="card-actions">
-                    <button class="action-btn like-btn" data-id="${item.id}"><i class="far fa-heart"></i> <span class="count">0</span></button>
-                    <button class="action-btn comment-btn" data-id="${item.id}"><i class="far fa-comment"></i> <span class="count">0</span></button>
-                    <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
-                </div>
-            </div>
-        `;
+        // Cargar fotos desde Firebase
+        if (db) {
+            const photosSnapshot = await db.collection('photos').orderBy('timestamp', 'desc').get();
 
-        // Add Event Listeners immediately
-        card.querySelector('.card-image').addEventListener('click', () => openPostModal(item.img, item.id, item.title, item.desc));
-
-        // Like button functionality
-        const likeBtn = card.querySelector('.like-btn');
-        if (likeBtn && db) {
-            likeBtn.addEventListener('click', () => {
-                const photoId = item.id;
-                const likeRef = db.collection('likes').doc(photoId);
-
-                likeRef.get().then(doc => {
-                    const currentCount = doc.exists ? (doc.data().count || 0) : 0;
-                    likeRef.set({ count: currentCount + 1 });
-
-                    // Celebration effect
-                    celebrateLike(likeBtn);
+            photosSnapshot.forEach(doc => {
+                const data = doc.data();
+                // Agregar fotos de Firebase al principio
+                allPhotos.unshift({
+                    id: doc.id,
+                    img: data.url,
+                    title: data.caption || 'Sin título',
+                    desc: data.category || 'Foto de la familia',
+                    isFirebase: true
                 });
             });
         }
 
-        // Comment button functionality
-        const commentBtn = card.querySelector('.comment-btn');
-        if (commentBtn) {
-            commentBtn.addEventListener('click', () => {
-                openPostModal(item.img, item.id, item.title, item.desc);
-            });
-        }
+        // Limpiar el contenedor
+        galleryContainer.innerHTML = '';
 
-        // Load initial likes count
-        if (db) {
-            db.collection('likes').doc(item.id).onSnapshot(doc => {
-                if (doc.exists) {
-                    const count = doc.data().count || 0;
-                    const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
-                    if (countSpan) countSpan.textContent = count;
+        // Renderizar todas las fotos
+        allPhotos.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'glass-card';
+            card.setAttribute('data-aos', 'zoom-in-up');
+            card.setAttribute('data-aos-delay', (index % 5) * 100);
+            card.setAttribute('data-id', item.id);
+
+            card.innerHTML = `
+                <div class="card-image">
+                    <img src="${item.img}" alt="${item.title}">
+                    <div class="card-overlay">
+                        <button class="view-btn"><i class="fas fa-expand"></i></button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <h3>${item.title}</h3>
+                    <p>${item.desc}</p>
+                    <div class="card-actions">
+                        <button class="action-btn like-btn" data-id="${item.id}"><i class="far fa-heart"></i> <span class="count">0</span></button>
+                        <button class="action-btn comment-btn" data-id="${item.id}"><i class="far fa-comment"></i> <span class="count">0</span></button>
+                        <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            `;
+
+            // Add Event Listeners
+            card.querySelector('.card-image').addEventListener('click', () => openPostModal(item.img, item.id, item.title, item.desc));
+
+            // Like button functionality
+            const likeBtn = card.querySelector('.like-btn');
+            if (likeBtn && db) {
+                likeBtn.addEventListener('click', () => {
+                    const photoId = item.id;
+
+                    // Para fotos de Firebase, usar la colección 'photos'
+                    if (item.isFirebase) {
+                        const photoRef = db.collection('photos').doc(photoId);
+                        photoRef.get().then(doc => {
+                            if (doc.exists) {
+                                const currentLikes = doc.data().likes || 0;
+                                photoRef.update({ likes: currentLikes + 1 });
+                                celebrateLike(likeBtn);
+                            }
+                        });
+                    } else {
+                        // Para fotos estáticas, usar la colección 'likes'
+                        const likeRef = db.collection('likes').doc(photoId);
+                        likeRef.get().then(doc => {
+                            const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+                            likeRef.set({ count: currentCount + 1 });
+                            celebrateLike(likeBtn);
+                        });
+                    }
+                });
+            }
+
+            // Comment button functionality
+            const commentBtn = card.querySelector('.comment-btn');
+            if (commentBtn) {
+                commentBtn.addEventListener('click', () => {
+                    openPostModal(item.img, item.id, item.title, item.desc);
+                });
+            }
+
+            // Load initial likes count
+            if (db) {
+                if (item.isFirebase) {
+                    // Para fotos de Firebase
+                    db.collection('photos').doc(item.id).onSnapshot(doc => {
+                        if (doc.exists) {
+                            const count = doc.data().likes || 0;
+                            const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
+                            if (countSpan) countSpan.textContent = count;
+                        }
+                    });
+                } else {
+                    // Para fotos estáticas
+                    db.collection('likes').doc(item.id).onSnapshot(doc => {
+                        if (doc.exists) {
+                            const count = doc.data().count || 0;
+                            const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
+                            if (countSpan) countSpan.textContent = count;
+                        }
+                    });
                 }
-            });
 
-            // Load initial comments count
-            db.collection('comments').where('photoId', '==', item.id).onSnapshot(snapshot => {
-                const countSpan = card.querySelector(`.comment-btn[data-id="${item.id}"] .count`);
-                if (countSpan) countSpan.textContent = snapshot.size;
-            });
+                // Load initial comments count
+                db.collection('comments').where('photoId', '==', item.id).onSnapshot(snapshot => {
+                    const countSpan = card.querySelector(`.comment-btn[data-id="${item.id}"] .count`);
+                    if (countSpan) countSpan.textContent = snapshot.size;
+                });
+            }
+
+            galleryContainer.appendChild(card);
+        });
+
+        // Reiniciar AOS para las nuevas fotos
+        if (typeof AOS !== 'undefined') {
+            AOS.refresh();
         }
 
-        galleryContainer.appendChild(card);
-    });
+    } catch (error) {
+        console.error('Error loading gallery:', error);
+        galleryContainer.innerHTML = '<p style="text-align: center; color: #ff4444; padding: 40px;">Error al cargar las fotos</p>';
+    }
 }
 
 // Call render on load
