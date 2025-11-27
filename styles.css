@@ -1074,6 +1074,376 @@ html {
     animation: floatParticle 3s ease-in-out infinite;
 }
 
+/* ========================================
+   🎭 ANIMACIONES 3D ULTRA-PREMIUM
+   ======================================== */
+
+/* Cards Flotantes con Animación */
+@keyframes floatCard {
+
+    0%,
+    100% {
+        transform: translateY(0px) rotateZ(0deg);
+    }
+
+    25% {
+        transform: translateY(-20px) rotateZ(1deg);
+    }
+
+    50% {
+        transform: translateY(-10px) rotateZ(-1deg);
+    }
+
+    75% {
+        transform: translateY(-15px) rotateZ(0.5deg);
+    }
+}
+
+/* Reveal de Secciones con Efecto 3D */
+@keyframes sectionReveal {
+    0% {
+        opacity: 0;
+        transform: perspective(1000px) rotateX(-15deg) translateY(50px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: perspective(1000px) rotateX(0deg) translateY(0);
+    }
+}
+
+/* Botones con Efecto Líquido */
+.liquid-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 70%);
+    transform: scale(0);
+    animation: liquidExpand 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes liquidExpand {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Flip Cards 3D - Nueva Estructura */
+.glass-card {
+    perspective: 1000px;
+    /* Mover perspectiva al contenedor padre */
+    background: transparent;
+    /* El fondo ahora va en las caras */
+    border: none;
+}
+
+.card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    background: var(--glass);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-card.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.card-front {
+    background: var(--glass);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-back {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.secret-content {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.secret-icon {
+    font-size: 3rem;
+    animation: floatParticle 3s ease-in-out infinite;
+}
+
+.secret-decoration {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #FFD700, transparent);
+    margin: 10px 0;
+}
+
+.flip-back-btn {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.flip-back-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Ajuste para que el contenido de la card se vea bien en la nueva estructura */
+.card-image {
+    height: 60%;
+    /* Ajustar altura */
+}
+
+.card-content {
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Texto con Efecto Neón Pulsante */
+@keyframes neonPulse {
+
+    0%,
+    100% {
+        text-shadow:
+            0 0 10px currentColor,
+            0 0 20px currentColor,
+            0 0 30px currentColor,
+            0 0 40px currentColor,
+            0 0 50px currentColor;
+    }
+
+    50% {
+        text-shadow:
+            0 0 5px currentColor,
+            0 0 10px currentColor,
+            0 0 15px currentColor,
+            0 0 20px currentColor,
+            0 0 25px currentColor;
+    }
+}
+
+.section-title {
+    animation: neonPulse 3s ease-in-out infinite;
+}
+
+/* Morphing Dividers Entre Secciones */
+.morphing-divider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    transform: translateY(-100%);
+    z-index: 1;
+}
+
+.morphing-divider svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 120px;
+    animation: morphWave 10s ease-in-out infinite;
+}
+
+.morphing-divider .shape-fill {
+    fill: var(--glass);
+    opacity: 0.3;
+}
+
+@keyframes morphWave {
+
+    0%,
+    100% {
+        d: path("M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z");
+    }
+
+    50% {
+        d: path("M321.39,80c58-10.79,114.16-15,172-20,82.39-8,168.19-8,250.45,0C823.78,65,906.67,80,985.66,95c70.05,10,146.53,15,214.34,5V0H0V50A600.21,600.21,0,0,0,321.39,80Z");
+    }
+}
+
+/* Hero Section con Parallax 3D */
+.hero-content {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease-out;
+}
+
+.bg-animation {
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+}
+
+/* Efectos de Hover Premium en Cards */
+.glass-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.glass-card:hover::after {
+    opacity: 1;
+}
+
+/* Timeline Items 3D */
+.timeline-item {
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+}
+
+/* Efecto de Profundidad en Scroll */
+section {
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+/* Animación de Entrada para Elementos */
+.animate-in {
+    opacity: 0;
+    transform: translateY(50px) rotateX(-15deg);
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.animate-in.visible {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+}
+
+/* Botones con Brillos Dinámicos */
+.nav-btn,
+.gradient-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-btn::after,
+.gradient-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.nav-btn:active::after,
+.gradient-btn:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Hover con Elevación 3D */
+.fact-card,
+.stat-card,
+.today-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+}
+
+.fact-card:hover,
+.stat-card:hover,
+.today-card:hover {
+    transform: perspective(1000px) translateZ(30px) scale(1.05);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Efecto de Respiración en Icons */
+.fact-icon,
+.stat-icon,
+.card-icon {
+    animation: breathe 3s ease-in-out infinite;
+}
+
+@keyframes breathe {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Transiciones de Página */
+@keyframes pageTransition {
+    0% {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+body {
+    animation: pageTransition 0.5s ease-out;
+}
+
+/* Efecto de Profundidad de Campo */
+.blur-depth {
+    filter: blur(0px);
+    transition: filter 0.3s ease;
+}
+
+.blur-depth.deep {
+    filter: blur(3px);
+}
 
 /* Responsive */
 @media (max-width: 900px) {
