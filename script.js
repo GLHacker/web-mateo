@@ -855,7 +855,6 @@ const backToMenuBtn = document.getElementById('backToMenuBtn');
 let currentPostId = null;
 
 // --- Render Gallery ---
-// --- Render Gallery ---
 function renderGallery() {
     if (!galleryContainer) return;
     galleryContainer.innerHTML = '<p style="text-align: center; color: #fff; padding: 40px;">Cargando fotos...</p>';
@@ -937,13 +936,12 @@ function renderPhotosToDOM(photosList) {
                         }
                     });
                 } else {
-                    // Para fotos estáticas
-                    db.collection('likes').doc(item.id).onSnapshot(doc => {
-                        if (doc.exists) {
-                            const count = doc.data().count || 0;
-                            const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
-                            if (countSpan) countSpan.textContent = count;
-                        }
+                    // Para fotos estáticas, usar la colección 'likes'
+                    const likeRef = db.collection('likes').doc(photoId);
+                    likeRef.get().then(doc => {
+                        const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+                        likeRef.set({ count: currentCount + 1 });
+                        celebrateLike(likeBtn);
                     });
                 }
             });
