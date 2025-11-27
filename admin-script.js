@@ -541,15 +541,31 @@ document.getElementById('storyForm').addEventListener('submit', async (e) => {
     const title = document.getElementById('storyTitle').value;
     const emoji = document.getElementById('storyEmoji').value;
     const content = document.getElementById('storyContent').value;
-
-    const storyData = {
-        title,
-        emoji,
-        content,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
+    const imageFile = document.getElementById('storyImage').files[0];
 
     try {
+        let imageUrl = null;
+
+        // Upload image if selected
+        if (imageFile) {
+            showNotification('Subiendo imagen...', 'info');
+            const filename = `stories/${Date.now()}_${imageFile.name}`;
+            const storageRef = storage.ref(filename);
+            await storageRef.put(imageFile);
+            imageUrl = await storageRef.getDownloadURL();
+        }
+
+        const storyData = {
+            title,
+            emoji,
+            content,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        if (imageUrl) {
+            storyData.imageUrl = imageUrl;
+        }
+
         if (id) {
             // Update existing story
             await db.collection('stories').doc(id).update(storyData);

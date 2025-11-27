@@ -726,7 +726,7 @@ async function renderStories() {
                 const data = doc.data();
                 firebaseStories.push({
                     title: data.title,
-                    img: "images/standing.jpg", // Default image or random one since stories don't have images in admin yet
+                    img: data.imageUrl || "images/standing.jpg", // Use uploaded image or default
                     text: `<p>${data.content}</p>`
                 });
             });
