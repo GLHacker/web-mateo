@@ -134,24 +134,28 @@ const closeGamesMenuBtn = document.getElementById('closeGamesMenu');
 
 if (gamesBtn && gamesMenuModal) {
     gamesBtn.onclick = () => {
-        gamesMenuModal.style.display = 'flex';
+        gamesMenuModal.classList.add('active');
         // Update best scores
-        document.getElementById('memoryBestDisplay').textContent = localStorage.getItem('memoryBest') || '0';
-        document.getElementById('findBestDisplay').textContent = localStorage.getItem('findBest') || '0';
-        document.getElementById('catchBestDisplay').textContent = localStorage.getItem('catchBest') || '0';
+        const memoryBest = localStorage.getItem('memoryBest') || '0';
+        const findBest = localStorage.getItem('findBest') || '0';
+        const catchBest = localStorage.getItem('catchBest') || '0';
+
+        document.getElementById('memoryBestDisplay').textContent = memoryBest === '999' ? '0' : memoryBest;
+        document.getElementById('findBestDisplay').textContent = findBest;
+        document.getElementById('catchBestDisplay').textContent = catchBest;
     };
 }
 
 if (closeGamesMenuBtn) {
     closeGamesMenuBtn.onclick = () => {
-        gamesMenuModal.style.display = 'none';
+        gamesMenuModal.classList.remove('active');
     };
 }
 
 // Close games menu when clicking outside
 window.addEventListener('click', (e) => {
     if (e.target === gamesMenuModal) {
-        gamesMenuModal.style.display = 'none';
+        gamesMenuModal.classList.remove('active');
     }
 });
 
@@ -513,7 +517,11 @@ function playSong(index) {
     if (currentSongIndex === index && currentAudio) {
         const btn = document.getElementById(`playBtn${index}`);
         if (currentAudio.paused) {
-            currentAudio.play();
+            // Resume audio context (required by browsers)
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            currentAudio.play().catch(e => console.log('Play error:', e));
             btn.innerHTML = '<i class="fas fa-pause"></i>';
             btn.classList.add('playing');
             startVisualizer();
@@ -539,8 +547,11 @@ function playSong(index) {
         btn.classList.remove('playing');
     });
 
-    // Create new audio
-    currentAudio = new Audio(song.audioUrl);
+    // Create new audio with CORS settings
+    currentAudio = new Audio();
+    currentAudio.crossOrigin = "anonymous";
+    currentAudio.src = song.audioUrl;
+    currentAudio.volume = 0.7; // Set volume to 70%
     currentSongIndex = index;
 
     // Create or update player
@@ -581,9 +592,21 @@ function playSong(index) {
             </div>
             <span id="duration">0:00</span>
         </div>
+        <div class="volume-control">
+            <i class="fas fa-volume-up"></i>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70">
+        </div>
     `;
 
     playerContainer.style.display = 'block';
+
+    // Volume control
+    const volumeSlider = document.getElementById('volumeSlider');
+    volumeSlider.addEventListener('input', (e) => {
+        if (currentAudio) {
+            currentAudio.volume = e.target.value / 100;
+        }
+    });
 
     // Update button
     const btn = document.getElementById(`playBtn${index}`);
@@ -605,17 +628,133 @@ function playSong(index) {
         nextSong();
     });
 
-    // Play audio
-    currentAudio.play();
-    setupVisualizer();
-
-    // Confetti!
-    confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff00cc', '#FFD700', '#00d4ff']
+    currentAudio.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+        alert('Error al cargar el audio. Intenta con otra canción.');
     });
+
+    // Play audio
+    currentAudio.play().then(() => {
+        setupVisualizer();
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff00cc', '#FFD700', '#00d4ff']
+        });
+    }).catch(e => {
+        console.log('Autoplay prevented:', e);
+        alert('Toca el botón de play para iniciar la música');
+    });
+}
+
+// If same song, toggle play/pause
+if (currentSongIndex === index && currentAudio) {
+    const btn = document.getElementById(`playBtn${index}`);
+    if (currentAudio.paused) {
+        currentAudio.play();
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+        btn.classList.add('playing');
+        startVisualizer();
+    } else {
+        currentAudio.pause();
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        btn.classList.remove('playing');
+        stopVisualizer();
+    }
+    return;
+}
+
+// Stop current audio
+if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+    stopVisualizer();
+}
+
+// Reset all buttons
+document.querySelectorAll('.play-btn').forEach(btn => {
+    btn.innerHTML = '<i class="fas fa-play"></i>';
+    btn.classList.remove('playing');
+});
+
+// Create new audio
+currentAudio = new Audio(song.audioUrl);
+currentSongIndex = index;
+
+// Create or update player
+let playerContainer = document.getElementById('musicPlayer');
+if (!playerContainer) {
+    playerContainer = document.createElement('div');
+    playerContainer.id = 'musicPlayer';
+    playerContainer.className = 'music-player-container';
+    document.body.appendChild(playerContainer);
+}
+
+playerContainer.innerHTML = `
+        <div class="player-header">
+            <div class="now-playing">
+                <span class="pulse-dot"></span>
+                ${song.emoji} ${song.title}
+            </div>
+            <button class="close-player" onclick="closePlayer()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <canvas id="visualizer" width="360" height="100"></canvas>
+        <div class="player-controls">
+            <button class="control-btn" onclick="previousSong()">
+                <i class="fas fa-backward"></i>
+            </button>
+            <button class="control-btn play-pause-btn" onclick="togglePlay()" id="mainPlayBtn">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="control-btn" onclick="nextSong()">
+                <i class="fas fa-forward"></i>
+            </button>
+        </div>
+        <div class="progress-container">
+            <span id="currentTime">0:00</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span id="duration">0:00</span>
+        </div>
+    `;
+
+playerContainer.style.display = 'block';
+
+// Update button
+const btn = document.getElementById(`playBtn${index}`);
+btn.innerHTML = '<i class="fas fa-pause"></i>';
+btn.classList.add('playing');
+
+// Setup audio events
+currentAudio.addEventListener('loadedmetadata', () => {
+    document.getElementById('duration').textContent = formatTime(currentAudio.duration);
+});
+
+currentAudio.addEventListener('timeupdate', () => {
+    const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+    document.getElementById('currentTime').textContent = formatTime(currentAudio.currentTime);
+});
+
+currentAudio.addEventListener('ended', () => {
+    nextSong();
+});
+
+// Play audio
+currentAudio.play();
+setupVisualizer();
+
+// Confetti!
+confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+    colors: ['#ff00cc', '#FFD700', '#00d4ff']
+});
 }
 
 function setupVisualizer() {
@@ -1034,425 +1173,3 @@ window.onclick = (e) => {
     if (e.target == document.getElementById('loginModal')) document.getElementById('loginModal').style.display = 'none';
     if (e.target == document.getElementById('uploadModal')) document.getElementById('uploadModal').style.display = 'none';
 };
-
-// --- Interactions ---
-
-// Like
-modalLikeBtn.onclick = () => {
-    if (!db) return alert('Conecta Firebase');
-
-    const isLiked = modalLikeBtn.classList.contains('liked');
-    const ref = db.collection('likes').doc(currentPostId);
-
-    if (isLiked) {
-        modalLikeBtn.classList.remove('liked');
-        modalLikeBtn.innerHTML = '<i class="far fa-heart"></i>';
-        ref.get().then(doc => {
-            const count = doc.exists ? (doc.data().count || 0) : 0;
-            ref.set({ count: Math.max(0, count - 1) });
-        });
-    } else {
-        modalLikeBtn.classList.add('liked');
-        modalLikeBtn.innerHTML = '<i class="fas fa-heart"></i>';
-
-        // 🎊 CONFETTI CELEBRATION!
-        celebrateLike(modalLikeBtn);
-
-        ref.get().then(doc => {
-            const count = doc.exists ? (doc.data().count || 0) : 0;
-            ref.set({ count: count + 1 });
-        });
-    }
-};
-
-// Comment
-commentForm.onsubmit = (e) => {
-    e.preventDefault();
-    if (!db) return alert('Conecta Firebase');
-
-    const name = document.getElementById('commentName').value;
-    const text = document.getElementById('commentText').value;
-
-    db.collection('comments').add({
-        photoId: currentPostId,
-        name: name,
-        text: text,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        commentForm.reset();
-    });
-};
-
-// --- Admin ---
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const uploadBtn = document.getElementById('uploadBtn');
-const loginModal = document.getElementById('loginModal');
-const uploadModal = document.getElementById('uploadModal');
-
-if (auth) {
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            loginBtn.classList.add('hidden');
-            logoutBtn.classList.remove('hidden');
-            uploadBtn.classList.remove('hidden');
-        } else {
-            loginBtn.classList.remove('hidden');
-            logoutBtn.classList.add('hidden');
-            uploadBtn.classList.add('hidden');
-        }
-    });
-}
-
-loginBtn.onclick = () => loginModal.style.display = 'flex';
-document.querySelector('.close-simple-modal').onclick = () => loginModal.style.display = 'none';
-
-document.getElementById('loginForm').onsubmit = (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => loginModal.style.display = 'none')
-        .catch(err => alert(err.message));
-};
-
-logoutBtn.onclick = () => auth.signOut();
-
-uploadBtn.onclick = () => uploadModal.style.display = 'flex';
-
-document.getElementById('uploadForm').onsubmit = (e) => {
-    e.preventDefault();
-    const file = document.getElementById('photoFile').files[0];
-    if (!file) return;
-
-    const ref = storage.ref('photos/' + Date.now() + '_' + file.name);
-    ref.put(file).then(snapshot => {
-        snapshot.ref.getDownloadURL().then(url => {
-            db.collection('photos').add({
-                url: url,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                uploadModal.style.display = 'none';
-                alert('Foto subida');
-            });
-        });
-    });
-};
-// ========================================
-// 🎮 GAMES LOGIC - SUPER ADDICTIVE!
-// ========================================
-
-// --- Memory Game ---
-let memoryCards = [];
-let flippedCards = [];
-let moves = 0;
-let pairs = 0;
-let memoryBestScore = localStorage.getItem('memoryBest') || 999;
-
-const memoryImages = [
-    'images/mateo_star.jpg',
-    'images/mateo_bed.jpg',
-    'images/elmo.jpg',
-    'images/red_car_1.jpg',
-    'images/standing.jpg',
-    'images/closeup.jpg',
-    'images/grandpa.jpg',
-    'images/videocall_smile.jpg'
-];
-
-function openMemoryGame() {
-    document.getElementById('memoryGameModal').style.display = 'flex';
-    document.getElementById('memoryBest').textContent = memoryBestScore === 999 ? '0' : memoryBestScore;
-    resetMemoryGame();
-}
-
-function closeMemoryGame() {
-    document.getElementById('memoryGameModal').style.display = 'none';
-}
-
-function resetMemoryGame() {
-    moves = 0;
-    pairs = 0;
-    flippedCards = [];
-    document.getElementById('moves').textContent = '0';
-    document.getElementById('pairs').textContent = '0';
-
-    // Create card pairs
-    memoryCards = [...memoryImages, ...memoryImages]
-        .sort(() => Math.random() - 0.5);
-
-    const board = document.getElementById('memoryBoard');
-    board.innerHTML = '';
-
-    memoryCards.forEach((img, index) => {
-        const card = document.createElement('div');
-        card.className = 'memory-card';
-        card.dataset.index = index;
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-front">?</div>
-                <div class="card-back">
-                    <img src="${img}" alt="Mateo">
-                </div>
-            </div>
-        `;
-        card.addEventListener('click', flipCard);
-        board.appendChild(card);
-    });
-}
-
-function flipCard() {
-    if (flippedCards.length >= 2) return;
-    if (this.classList.contains('flipped')) return;
-
-    this.classList.add('flipped');
-    flippedCards.push(this);
-
-    if (flippedCards.length === 2) {
-        moves++;
-        document.getElementById('moves').textContent = moves;
-
-        const [card1, card2] = flippedCards;
-        const img1 = memoryCards[card1.dataset.index];
-        const img2 = memoryCards[card2.dataset.index];
-
-        if (img1 === img2) {
-            // Match!
-            pairs++;
-            document.getElementById('pairs').textContent = pairs;
-            flippedCards = [];
-
-            confetti({
-                particleCount: 50,
-                spread: 60,
-                origin: { y: 0.6 }
-            });
-
-            if (pairs === 8) {
-                setTimeout(() => {
-                    if (moves < memoryBestScore || memoryBestScore === 999) {
-                        memoryBestScore = moves;
-                        localStorage.setItem('memoryBest', moves);
-                        document.getElementById('memoryBest').textContent = moves;
-                    }
-                    confetti({
-                        particleCount: 200,
-                        spread: 100,
-                        origin: { y: 0.6 }
-                    });
-                    alert(`¡Ganaste! 🎉\nMovimientos: ${moves}`);
-                }, 500);
-            }
-        } else {
-            // No match
-            setTimeout(() => {
-                card1.classList.remove('flipped');
-                card2.classList.remove('flipped');
-                flippedCards = [];
-            }, 1000);
-        }
-    }
-}
-
-// --- Find Mateo Game ---
-let findTimer = 0;
-let findInterval = null;
-let findLevel = 1;
-let findBestTime = localStorage.getItem('findBest') || 0;
-
-function openFindGame() {
-    document.getElementById('findGameModal').style.display = 'flex';
-    document.getElementById('findBest').textContent = findBestTime || '0';
-    startFindGame();
-}
-
-function closeFindGame() {
-    document.getElementById('findGameModal').style.display = 'none';
-    if (findInterval) clearInterval(findInterval);
-}
-
-function startFindGame() {
-    findTimer = 0;
-    findLevel = 1;
-    document.getElementById('findTimer').textContent = '0';
-    document.getElementById('findLevel').textContent = '1';
-
-    if (findInterval) clearInterval(findInterval);
-    findInterval = setInterval(() => {
-        findTimer++;
-        document.getElementById('findTimer').textContent = findTimer;
-    }, 1000);
-
-    loadFindLevel();
-}
-
-function loadFindLevel() {
-    const board = document.getElementById('findBoard');
-    const gridSize = 3 + findLevel;
-    const totalCells = gridSize * gridSize;
-    const mateoPosition = Math.floor(Math.random() * totalCells);
-
-    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-    board.innerHTML = '';
-
-    for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement('div');
-        cell.className = 'find-cell';
-        cell.textContent = i === mateoPosition ? '👶' : '❓';
-        cell.dataset.isMateo = i === mateoPosition;
-
-        cell.addEventListener('click', function () {
-            if (this.dataset.isMateo === 'true') {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-
-                findLevel++;
-                document.getElementById('findLevel').textContent = findLevel;
-
-                if (findLevel > 5) {
-                    clearInterval(findInterval);
-                    if (!findBestTime || findTimer < findBestTime) {
-                        findBestTime = findTimer;
-                        localStorage.setItem('findBest', findTimer);
-                        document.getElementById('findBest').textContent = findTimer;
-                    }
-                    alert(`¡Ganaste! 🎉\nTiempo: ${findTimer}s`);
-                    closeFindGame();
-                } else {
-                    setTimeout(loadFindLevel, 500);
-                }
-            } else {
-                this.style.background = 'rgba(255, 0, 0, 0.3)';
-            }
-        });
-
-        board.appendChild(cell);
-    }
-}
-
-// --- Catch Stars Game ---
-let catchScore = 0;
-let catchTimeLeft = 30;
-let catchInterval = null;
-let catchGameActive = false;
-let catchBestScore = localStorage.getItem('catchBest') || 0;
-let stars = [];
-let playerX = 300;
-
-function openCatchGame() {
-    document.getElementById('catchGameModal').style.display = 'flex';
-    document.getElementById('catchBest').textContent = catchBestScore;
-    catchScore = 0;
-    catchTimeLeft = 30;
-    document.getElementById('catchScore').textContent = '0';
-    document.getElementById('catchTimer').textContent = '30';
-    document.getElementById('catchStartBtn').style.display = 'block';
-}
-
-function closeCatchGame() {
-    document.getElementById('catchGameModal').style.display = 'none';
-    catchGameActive = false;
-    if (catchInterval) clearInterval(catchInterval);
-}
-
-function startCatchGame() {
-    document.getElementById('catchStartBtn').style.display = 'none';
-    catchGameActive = true;
-    catchScore = 0;
-    catchTimeLeft = 30;
-    stars = [];
-    playerX = 300;
-
-    const canvas = document.getElementById('catchCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Timer
-    catchInterval = setInterval(() => {
-        catchTimeLeft--;
-        document.getElementById('catchTimer').textContent = catchTimeLeft;
-
-        if (catchTimeLeft <= 0) {
-            endCatchGame();
-        }
-    }, 1000);
-
-    // Mouse control
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        playerX = e.clientX - rect.left;
-    });
-
-    // Game loop
-    function gameLoop() {
-        if (!catchGameActive) return;
-
-        // Clear canvas
-        ctx.fillStyle = 'rgba(15, 15, 30, 0.8)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Add new stars
-        if (Math.random() < 0.05) {
-            stars.push({
-                x: Math.random() * canvas.width,
-                y: 0,
-                speed: 2 + Math.random() * 3
-            });
-        }
-
-        // Update and draw stars
-        stars = stars.filter(star => {
-            star.y += star.speed;
-
-            // Draw star
-            ctx.font = '30px Arial';
-            ctx.fillText('⭐', star.x, star.y);
-
-            // Check collision with player
-            if (star.y > canvas.height - 60 &&
-                star.x > playerX - 30 &&
-                star.x < playerX + 30) {
-                catchScore++;
-                document.getElementById('catchScore').textContent = catchScore;
-                confetti({
-                    particleCount: 20,
-                    spread: 40,
-                    origin: { x: star.x / canvas.width, y: 0.9 }
-                });
-                return false;
-            }
-
-            return star.y < canvas.height;
-        });
-
-        // Draw player (Mateo)
-        ctx.font = '40px Arial';
-        ctx.fillText('👶', playerX - 20, canvas.height - 20);
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    gameLoop();
-}
-
-function endCatchGame() {
-    catchGameActive = false;
-    clearInterval(catchInterval);
-
-    if (catchScore > catchBestScore) {
-        catchBestScore = catchScore;
-        localStorage.setItem('catchBest', catchScore);
-        document.getElementById('catchBest').textContent = catchScore;
-    }
-
-    confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 }
-    });
-
-    alert(`¡Juego terminado! 🎉\nPuntos: ${catchScore}`);
-    document.getElementById('catchStartBtn').style.display = 'block';
-}
