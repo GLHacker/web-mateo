@@ -1,5 +1,4 @@
 // Firebase Configuration
-// REPLACE THESE VALUES WITH YOUR OWN FROM FIREBASE CONSOLE
 const firebaseConfig = {
     apiKey: "AIzaSyDesr25T22dRcgQ_mckKnj-OlRs5rXZShw",
     authDomain: "web-mateo.firebaseapp.com",
@@ -43,6 +42,53 @@ const commentsList = document.getElementById('commentsList');
 const commentForm = document.getElementById('commentForm');
 let currentImageId = null;
 
+// --- Initialize Particles.js ---
+if (typeof particlesJS !== 'undefined') {
+    particlesJS('particles-js', {
+        particles: {
+            number: { value: 80, density: { enable: true, value_area: 800 } },
+            color: { value: '#667eea' },
+            shape: { type: 'circle' },
+            opacity: { value: 0.5, random: false },
+            size: { value: 3, random: true },
+            line_linked: {
+                enable: true,
+                distance: 150,
+                color: '#667eea',
+                opacity: 0.4,
+                width: 1
+            },
+            move: {
+                enable: true,
+                speed: 2,
+                direction: 'none',
+                random: false,
+                straight: false,
+                out_mode: 'out',
+                bounce: false
+            }
+        },
+        interactivity: {
+            detect_on: 'canvas',
+            events: {
+                onhover: { enable: true, mode: 'repulse' },
+                onclick: { enable: true, mode: 'push' },
+                resize: true
+            }
+        },
+        retina_detect: true
+    });
+}
+
+// --- Initialize AOS ---
+if (typeof AOS !== 'undefined') {
+    AOS.init({
+        duration: 1000,
+        once: true,
+        offset: 100
+    });
+}
+
 // --- Authentication ---
 
 // Check Auth State
@@ -63,32 +109,36 @@ if (auth) {
 }
 
 // Login
-loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            loginModal.style.display = "none";
-            loginForm.reset();
-            alert("¡Bienvenido Luis!");
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
-});
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                loginModal.style.display = "none";
+                loginForm.reset();
+                alert("¡Bienvenido Luis!");
+            })
+            .catch((error) => {
+                alert("Error: " + error.message);
+            });
+    });
+}
 
 // Logout
-logoutBtn.addEventListener('click', () => {
-    auth.signOut();
-});
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+        auth.signOut();
+    });
+}
 
 // --- Modals ---
-loginBtn.onclick = () => loginModal.style.display = "flex";
-closeLogin.onclick = () => loginModal.style.display = "none";
-uploadBtn.onclick = () => uploadModal.style.display = "flex";
-closeUpload.onclick = () => uploadModal.style.display = "none";
+if (loginBtn) loginBtn.onclick = () => loginModal.style.display = "flex";
+if (closeLogin) closeLogin.onclick = () => loginModal.style.display = "none";
+if (uploadBtn) uploadBtn.onclick = () => uploadModal.style.display = "flex";
+if (closeUpload) closeUpload.onclick = () => uploadModal.style.display = "none";
 
 window.onclick = (event) => {
     if (event.target == loginModal) loginModal.style.display = "none";
@@ -97,82 +147,49 @@ window.onclick = (event) => {
 }
 
 // --- Uploads ---
-uploadForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const file = document.getElementById('photoFile').files[0];
-    const caption = document.getElementById('photoCaption').value;
+if (uploadForm) {
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const file = document.getElementById('photoFile').files[0];
+        const caption = document.getElementById('photoCaption').value;
 
-    if (!file) return;
+        if (!file) return;
 
-    // Create a reference to 'images/mountains.jpg'
-    const storageRef = storage.ref('photos/' + new Date().getTime() + '_' + file.name);
-    const uploadTask = storageRef.put(file);
+        const storageRef = storage.ref('photos/' + new Date().getTime() + '_' + file.name);
+        const uploadTask = storageRef.put(file);
 
-    uploadTask.on('state_changed',
-        (snapshot) => {
-            // Progress function ...
-            console.log('Upload is ' + (snapshot.bytesTransferred / snapshot.totalBytes) * 100 + '% done');
-        },
-        (error) => {
-            alert("Error al subir: " + error.message);
-        },
-        () => {
-            // Complete
-            uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                // Save to Firestore
-                db.collection("photos").add({
-                    url: downloadURL,
-                    caption: caption,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                })
-                    .then(() => {
-                        uploadModal.style.display = "none";
-                        uploadForm.reset();
-                        alert("¡Foto subida con éxito!");
-                    });
-            });
-        }
-    );
-});
-
-// --- Gallery & Real-time Updates ---
-if (db) {
-    db.collection("photos").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
-        // Clear current grid (except static ones if we want to keep them, but let's replace for dynamic)
-        // For this demo, we will APPEND to the static ones or just use static ones if DB is empty
-
-        // Note: In a real app, we might want to clear and rebuild, or just prepend new ones.
-        // Let's just log for now as we don't have the DB connected yet.
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-                renderPhoto(change.doc);
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                console.log('Upload is ' + (snapshot.bytesTransferred / snapshot.totalBytes) * 100 + '% done');
+            },
+            (error) => {
+                alert("Error al subir: " + error.message);
+            },
+            () => {
+                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                    db.collection("photos").add({
+                        url: downloadURL,
+                        caption: caption,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    })
+                        .then(() => {
+                            uploadModal.style.display = "none";
+                            uploadForm.reset();
+                            alert("¡Foto subida con éxito!");
+                        });
+                });
             }
-        });
+        );
     });
-}
-
-function renderPhoto(doc) {
-    const data = doc.data();
-    const div = document.createElement('div');
-    div.className = 'gallery-item';
-    div.innerHTML = `
-        <img src="${data.url}" alt="${data.caption}" loading="lazy">
-        <div class="overlay"><span><i class="fas fa-heart"></i></span></div>
-    `;
-    div.addEventListener('click', () => openLightbox(data.url, doc.id));
-
-    // Prepend to grid
-    galleryGrid.insertBefore(div, galleryGrid.firstChild);
 }
 
 // --- Lightbox & Comments ---
 
-// Add click events to static images too
-document.querySelectorAll('.gallery-item').forEach(item => {
-    item.addEventListener('click', () => {
-        const img = item.querySelector('img');
-        // Use a dummy ID for static images
-        openLightbox(img.src, 'static_' + img.src);
+// Add click events to gallery cards
+document.querySelectorAll('.gallery-card').forEach(card => {
+    card.addEventListener('click', () => {
+        const img = card.querySelector('img');
+        openLightbox(img.src, 'static_' + img.alt);
     });
 });
 
@@ -183,9 +200,11 @@ function openLightbox(url, id) {
     loadComments(id);
 }
 
-closeLightbox.addEventListener('click', () => {
-    lightbox.style.display = 'none';
-});
+if (closeLightbox) {
+    closeLightbox.addEventListener('click', () => {
+        lightbox.style.display = 'none';
+    });
+}
 
 // Load Comments
 function loadComments(photoId) {
@@ -213,21 +232,34 @@ function loadComments(photoId) {
 }
 
 // Post Comment
-commentForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('commentName').value;
-    const text = document.getElementById('commentText').value;
+if (commentForm) {
+    commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('commentName').value;
+        const text = document.getElementById('commentText').value;
 
-    if (db && currentImageId) {
-        db.collection("comments").add({
-            photoId: currentImageId,
-            name: name,
-            text: text,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            commentForm.reset();
-        });
-    } else {
-        alert("Configura Firebase primero.");
-    }
+        if (db && currentImageId) {
+            db.collection("comments").add({
+                photoId: currentImageId,
+                name: name,
+                text: text,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                commentForm.reset();
+            });
+        } else {
+            alert("Configura Firebase primero.");
+        }
+    });
+}
+
+// Smooth scroll for navigation
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
 });
