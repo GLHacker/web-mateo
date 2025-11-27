@@ -169,43 +169,57 @@ body {
     animation: pulse 2s infinite;
 }
 
+/* Full Screen Modal - Fixed Positioning for Mobile */
 .glass-modal.full-screen {
+    position: fixed;
+    /* Force fixed to cover viewport */
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     max-width: none;
+    max-height: none;
     border-radius: 0;
+    margin: 0;
+    background: rgba(15, 15, 30, 0.98);
+    z-index: 9999;
+    /* Highest priority */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    background: rgba(20, 20, 40, 0.98);
-    /* Darker and more opaque */
-    padding-top: 60px;
-    /* Space for close button */
+    padding: 0;
+    /* Remove padding to let container handle it */
 }
 
-/* Close button specific for full screen */
+/* Close Button - High Z-Index & Fixed Position */
 .glass-modal.full-screen .close-modal {
+    position: absolute;
     top: 20px;
     right: 20px;
-    font-size: 3rem;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.1);
     width: 50px;
     height: 50px;
+    font-size: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 10000;
+    /* Above everything */
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Stories Container - Handles Scroll */
 .stories-container {
-    flex: 1;
     position: relative;
     width: 100%;
     height: 100%;
     overflow: hidden;
+    /* Slides handle overflow */
 }
 
+/* Individual Slide - Scrollable Content */
 .story-slide {
     position: absolute;
     top: 0;
@@ -213,72 +227,78 @@ body {
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s;
+
+    /* Flex layout for centering but allowing scroll */
     display: flex;
     flex-direction: column;
-    /* Stack vertically */
     align-items: center;
-    justify-content: flex-start;
-    /* Start from top */
+
+    /* Important for mobile scroll */
     overflow-y: auto;
-    /* Enable vertical scrolling */
-    padding: 20px;
-    pointer-events: none;
-    visibility: hidden;
-    /* Hide completely when not active */
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scroll on iOS */
+    padding: 80px 20px 40px 20px;
+    /* Top padding for close button */
 }
 
 .story-slide.active {
     opacity: 1;
-    pointer-events: auto;
     visibility: visible;
+    pointer-events: auto;
 }
 
 .story-content {
-    text-align: center;
-    color: white;
-    max-width: 800px;
     width: 100%;
-    padding-bottom: 50px;
-    /* Space for scroll */
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding-bottom: 60px;
+    /* Space for bottom controls */
 }
 
 .story-img {
     width: 100%;
-    max-height: 40vh;
-    /* Limit image height on mobile */
+    max-height: 300px;
+    /* Reasonable height for mobile */
     object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border-radius: 15px;
     margin-bottom: 2rem;
-    animation: float 6s ease-in-out infinite;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 .story-text h2 {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
-    /* Smaller font for mobile */
-    margin-bottom: 1rem;
     color: #FFD700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .story-text p {
     font-size: 1.1rem;
-    /* Readable font size */
-    line-height: 1.6;
+    line-height: 1.8;
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+    text-align: left;
+    /* Better for reading long text */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
 .story-controls {
-    text-align: center;
-    color: rgba(255, 255, 255, 0.5);
-    padding: 10px;
-    font-size: 0.8rem;
-    background: rgba(0, 0, 0, 0.3);
-    position: absolute;
+    position: fixed;
     bottom: 0;
+    left: 0;
     width: 100%;
-    z-index: 100;
+    padding: 15px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    text-align: center;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    pointer-events: none;
+    /* Let clicks pass through */
+    z-index: 10000;
 }
 
 @keyframes pulse {

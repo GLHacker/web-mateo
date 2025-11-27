@@ -58,18 +58,33 @@ const galleryData = [
 const storiesData = [
     {
         title: "El Viaje de la Estrella Curiosa",
-        img: "https://picsum.photos/id/1042/800/600", // Placeholder: Space/Night
-        text: "Había una vez una pequeña estrella que quería ver el mundo de día. Un día, bajó del cielo y aterrizó en el jardín de Mateo. Juntos descubrieron que la luz más brillante no está en el cielo, sino en la sonrisa de un niño feliz."
+        img: "https://picsum.photos/id/1042/800/600",
+        text: `
+            <p>En la inmensidad del cosmos, donde el silencio es música y la oscuridad es un lienzo, vivía una pequeña estrella llamada Lyra. A diferencia de sus hermanas, que se conformaban con brillar estáticas en sus constelaciones, Lyra sentía una inquietud vibrante en su núcleo de luz. Se preguntaba qué existía más allá del terciopelo negro de la noche, especialmente en ese pequeño punto azul y verde que giraba a lo lejos: la Tierra.</p>
+            <p>"No debes moverte", le decían las estrellas mayores con voz de gravedad. "Nuestro propósito es ser guías inmutables". Pero la curiosidad de Lyra era una fuerza más poderosa que la gravedad misma. Una noche, cuando la luna cerró sus ojos plateados, Lyra decidió emprender el viaje prohibido. Se soltó del firmamento y descendió como una lágrima de luz, cruzando nebulosas y esquivando cometas.</p>
+            <p>Al entrar en la atmósfera terrestre, sintió el calor de la velocidad y el miedo a lo desconocido. Aterrizó suavemente en un jardín silencioso, justo sobre una hoja de rocío. Allí, vio a un niño, Mateo, que miraba al cielo con un telescopio de cartón. Mateo no buscaba mapas ni guías; buscaba magia. Cuando sus ojos se encontraron con el destello de Lyra, ella comprendió su verdadero propósito.</p>
+            <p>No había bajado para ver el mundo, sino para iluminar el sueño de alguien. Esa noche, Lyra aprendió que incluso la estrella más pequeña puede ser el sol del universo de una persona. Y aunque regresó al cielo antes del amanecer, su luz cambió para siempre: ahora brillaba con la calidez de quien ha conocido la esperanza de cerca.</p>
+        `
     },
     {
         title: "El Bosque de los Susurros",
-        img: "https://picsum.photos/id/1039/800/600", // Placeholder: Forest/Nature
-        text: "En el bosque mágico, los árboles cuentan historias si te quedas muy quieto. Mateo aprendió a escuchar al viento y descubrió que cada hoja guarda un secreto de amistad y valentía."
+        img: "https://picsum.photos/id/1039/800/600",
+        text: `
+            <p>Existe un bosque que no aparece en los mapas, un lugar donde el tiempo no se mide en horas, sino en el crecimiento de los musgos y el canto de los grillos. Se llama el Bosque de los Susurros. Dicen los antiguos que los árboles allí no solo tienen raíces en la tierra, sino también en la memoria del mundo. Guardan secretos de épocas olvidadas y susurran verdades a quienes tienen el coraje de escuchar en silencio.</p>
+            <p>Un día, Mateo, con su espíritu aventurero, cruzó el umbral de este bosque. Al principio, el ruido de sus propios pasos sobre las hojas secas le impedía oír nada más. Pero a medida que se adentraba, se detuvo. Respiró hondo y cerró los ojos. Fue entonces cuando el bosque cobró vida. El viento no solo movía las ramas; cantaba melodías antiguas.</p>
+            <p>"La fuerza no está en la dureza del tronco", le susurró un viejo roble, "sino en la flexibilidad de las ramas ante la tormenta". Un arroyo cercano añadió con voz cristalina: "Y la constancia, pequeño viajero, es capaz de tallar la piedra más dura". Mateo escuchaba fascinado, entendiendo que la naturaleza era una biblioteca viva.</p>
+            <p>Pasó la tarde aprendiendo el idioma de las flores y la paciencia de las piedras. Al salir del bosque, Mateo ya no era el mismo niño que había entrado. Llevaba consigo la sabiduría de la tierra: que para crecer alto como un árbol, primero hay que tener raíces profundas y saber escuchar los susurros del mundo.</p>
+        `
     },
     {
         title: "El Océano de Nubes",
-        img: "https://picsum.photos/id/1053/800/600", // Placeholder: Water/Sky
-        text: "Mateo construyó un barco de papel y navegó por un mar de nubes blancas. Allí conoció a peces voladores que le enseñaron que los sueños, si crees en ellos, pueden llevarte a cualquier lugar."
+        img: "https://picsum.photos/id/1053/800/600",
+        text: `
+            <p>Mateo siempre había creído que el cielo era el límite, hasta que descubrió que podía navegar sobre él. Todo comenzó una tarde de lluvia, cuando dobló una hoja de papel con esmero y creó un pequeño barco. "Ojalá pudieras navegar de verdad", susurró. Y como si el universo estuviera esperando ese deseo, el barco comenzó a flotar, no sobre el agua, sino hacia arriba, hacia el techo, atravesándolo hasta llegar al cielo abierto.</p>
+            <p>Sin dudarlo, Mateo se sujetó a la vela de papel y subió. De pronto, se encontró navegando en un Océano de Nubes. Era un paisaje onírico, donde las montañas eran de algodón blanco y el sol pintaba olas de oro y rosa. Peces voladores con alas de libélula saltaban entre los cúmulos, y ballenas hechas de bruma cantaban canciones graves que hacían vibrar el aire.</p>
+            <p>Navegó hacia el horizonte, donde el día se encuentra con la noche. Allí conoció al Guardián del Atardecer, un anciano que pintaba las nubes de violeta antes de que salieran las estrellas. "¿Qué buscas tan lejos de casa?", le preguntó el Guardián. "Busco saber hasta dónde puedo llegar", respondió Mateo.</p>
+            <p>El anciano sonrió y le entregó un frasco con luz de estrella. "El único límite es tu propia imaginación", le dijo. Mateo regresó a su habitación justo cuando la lluvia paraba, pero en su bolsillo, el frasco brillaba intensamente. Había aprendido que el mundo es tan grande como uno se atreva a soñarlo.</p>
+        `
     }
 ];
 
