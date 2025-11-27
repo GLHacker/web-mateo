@@ -85,6 +85,24 @@ const storiesData = [
             <p>Navegó hacia el horizonte, donde el día se encuentra con la noche. Allí conoció al Guardián del Atardecer, un anciano que pintaba las nubes de violeta antes de que salieran las estrellas. "¿Qué buscas tan lejos de casa?", le preguntó el Guardián. "Busco saber hasta dónde puedo llegar", respondió Mateo.</p>
             <p>El anciano sonrió y le entregó un frasco con luz de estrella. "El único límite es tu propia imaginación", le dijo. Mateo regresó a su habitación justo cuando la lluvia paraba, pero en su bolsillo, el frasco brillaba intensamente. Había aprendido que el mundo es tan grande como uno se atreva a soñarlo.</p>
         `
+    },
+    {
+        title: "El Guardián de los Sueños",
+        img: "https://picsum.photos/id/1016/800/600",
+        text: `
+            <p>En el valle donde nacen los arcoíris, vive un pequeño guardián llamado Oliver. Su trabajo no es proteger tesoros de oro, sino algo mucho más valioso: los sueños de los niños. Oliver tiene una linterna mágica que no alumbra con luz, sino con imaginación. Cada noche, sube a la montaña más alta y abre su linterna, liberando miles de luciérnagas de colores.</p>
+            <p>Una noche, una de sus luciérnagas se perdió y llegó a la ventana de Mateo. Mateo estaba triste porque había tenido una pesadilla. La pequeña luz danzó sobre su almohada, pintando en el aire historias de dragones amigables y castillos de nubes. Mateo sonrió dormido, y Oliver, desde lejos, supo que su misión estaba cumplida.</p>
+            <p>Desde entonces, cada vez que Mateo cierra los ojos, Oliver le envía una luciérnaga especial. Porque los sueños felices son el ingrediente secreto que hace que los niños despierten con ganas de comerse el mundo.</p>
+        `
+    },
+    {
+        title: "La Melodía del Viento",
+        img: "https://picsum.photos/id/1025/800/600",
+        text: `
+            <p>El viento no solo sopla; también canta. Pero muy pocos saben escuchar su canción. Mateo descubrió este secreto una tarde de otoño, mientras jugaba con las hojas secas en el parque. Notó que si corría rápido, el viento silbaba una melodía alegre, pero si se quedaba quieto, el viento tarareaba una canción de cuna.</p>
+            <p>Intrigado, Mateo decidió formar una orquesta. Usó ramas como batutas y piedras como tambores. "¡Sopla fuerte!", gritó al cielo. Y el viento, encantado de tener un director, sopló con fuerza, haciendo bailar a los árboles y crujir a las hojas en una sinfonía perfecta. Los pájaros se unieron con sus trinos y hasta el río pareció aplaudir con sus olas.</p>
+            <p>Ese día, Mateo aprendió que la naturaleza está llena de música esperando a ser descubierta. Solo hace falta un corazón dispuesto a escuchar y un poco de imaginación para convertir un día cualquiera en un concierto inolvidable.</p>
+        `
     }
 ];
 
@@ -98,6 +116,7 @@ const commentForm = document.getElementById('commentForm');
 const galleryContainer = document.querySelector('.masonry-grid');
 const storiesBtn = document.getElementById('storiesBtn');
 const storiesModal = document.getElementById('storiesModal');
+const closeStoriesBtn = storiesModal ? storiesModal.querySelector('.close-modal') : null;
 
 let currentPostId = null;
 
@@ -153,10 +172,22 @@ function renderGallery() {
 document.addEventListener('DOMContentLoaded', renderGallery);
 
 // --- Stories Logic ---
-if (storiesBtn) {
-    storiesBtn.onclick = () => {
+if (storiesBtn && storiesModal) {
+    storiesBtn.onclick = (e) => {
+        e.preventDefault();
         renderStories();
         storiesModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    };
+}
+
+// Close Stories Logic
+if (closeStoriesBtn) {
+    closeStoriesBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation(); // Stop event bubbling
+        storiesModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore background scrolling
     };
 }
 
@@ -175,23 +206,27 @@ function renderStories() {
                 <img src="${story.img}" alt="${story.title}" class="story-img">
                 <div class="story-text">
                     <h2>${story.title}</h2>
-                    <p>${story.text}</p>
+                    ${story.text}
                 </div>
             </div>
         `;
         container.appendChild(slide);
     });
 
-    // Simple Carousel Logic
+    // Carousel Logic
     let currentStory = 0;
-    const slides = document.querySelectorAll('.story-slide');
+    const slides = document.getElementsByClassName('story-slide');
 
-    // Auto play or manual controls can be added here
-    // For now, just click to advance
-    container.onclick = () => {
+    container.onclick = (e) => {
+        // Don't advance if clicking the close button (just in case)
+        if (e.target.closest('.close-modal')) return;
+
         slides[currentStory].classList.remove('active');
         currentStory = (currentStory + 1) % slides.length;
         slides[currentStory].classList.add('active');
+
+        // Reset scroll to top for the new slide
+        slides[currentStory].scrollTop = 0;
     };
 }
 

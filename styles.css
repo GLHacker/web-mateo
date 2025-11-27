@@ -266,6 +266,10 @@ body {
     border-radius: 15px;
     margin-bottom: 2rem;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease forwards 0.3s;
+    /* Delay for entrance */
 }
 
 .story-text h2 {
@@ -274,6 +278,9 @@ body {
     color: #FFD700;
     margin-bottom: 1.5rem;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease forwards 0.5s;
 }
 
 .story-text p {
@@ -284,6 +291,16 @@ body {
     text-align: left;
     /* Better for reading long text */
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.8s ease forwards 0.7s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .story-controls {
