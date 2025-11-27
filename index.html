@@ -85,6 +85,61 @@
         </div>
     </main>
 
+    <!-- ========================================
+         🎮 FASE 2: INTERACTIVE SECTIONS
+         ======================================== -->
+
+    <!-- Quiz Section -->
+    <section class="quiz-section" id="quizSection">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">🎯 ¿Cuánto Conoces a Mateo?</h2>
+            <div class="quiz-container" data-aos="zoom-in">
+                <div id="quizContent" class="quiz-content">
+                    <!-- Quiz will be loaded here -->
+                </div>
+                <div id="quizResult" class="quiz-result hidden">
+                    <h3 id="resultTitle"></h3>
+                    <p id="resultMessage"></p>
+                    <button class="gradient-btn" onclick="restartQuiz()">Jugar de Nuevo</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="timeline-section" id="timelineSection">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">⏰ Línea de Tiempo Mágica</h2>
+            <div class="timeline" id="timeline">
+                <!-- Timeline will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Guestbook Section -->
+    <section class="guestbook-section" id="guestbookSection">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">💌 Libro de Visitas</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Deja un mensaje especial para Mateo y su familia
+            </p>
+
+            <div class="guestbook-form" data-aos="zoom-in">
+                <form id="guestbookForm">
+                    <input type="text" id="guestName" placeholder="Tu nombre" required>
+                    <textarea id="guestMessage" placeholder="Tu mensaje..." rows="4" required></textarea>
+                    <button type="submit" class="gradient-btn">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
+                    </button>
+                </form>
+            </div>
+
+            <div class="guestbook-messages" id="guestbookMessages">
+                <!-- Messages will be loaded here -->
+            </div>
+        </div>
+    </section>
+
     <!-- Modals (Glassmorphism Style) -->
 
     <!-- Stories Modal -->

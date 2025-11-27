@@ -141,6 +141,227 @@ function celebrateLike(element) {
     });
 }
 
+// ========================================
+// 🎮 FASE 2: INTERACTIVE FEATURES
+// ========================================
+
+// --- Quiz Data ---
+const quizData = [
+    {
+        question: "¿Cuál es el juguete favorito de Mateo?",
+        options: ["Pelota", "Coche rojo", "Muñeco de Elmo", "Bloques"],
+        correct: 2,
+        emoji: "🧸"
+    },
+    {
+        question: "¿Con quién le encanta hacer videollamadas?",
+        options: ["Sus amigos", "Su familia", "Sus primos", "Nadie"],
+        correct: 1,
+        emoji: "📱"
+    },
+    {
+        question: "¿Qué le gusta hacer más?",
+        options: ["Dormir", "Jugar", "Comer", "Llorar"],
+        correct: 1,
+        emoji: "🎮"
+    },
+    {
+        question: "¿Cuántas generaciones aparecen en las fotos?",
+        options: ["Una", "Dos", "Tres", "Cuatro"],
+        correct: 2,
+        emoji: "👨‍👩‍👦"
+    },
+    {
+        question: "¿Qué representa mejor a Mateo?",
+        options: ["Tristeza", "Alegría", "Enojo", "Sueño"],
+        correct: 1,
+        emoji: "😊"
+    }
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+function loadQuiz() {
+    const quizContent = document.getElementById('quizContent');
+    if (!quizContent || currentQuestion >= quizData.length) {
+        showQuizResult();
+        return;
+    }
+
+    const q = quizData[currentQuestion];
+    quizContent.innerHTML = `
+        <div class="quiz-question">${q.emoji} ${q.question}</div>
+        <div class="quiz-options">
+            ${q.options.map((option, index) => `
+                <div class="quiz-option" onclick="checkAnswer(${index})">
+                    ${option}
+                </div>
+            `).join('')}
+        </div>
+        <div class="quiz-progress">Pregunta ${currentQuestion + 1} de ${quizData.length}</div>
+    `;
+}
+
+function checkAnswer(selected) {
+    const q = quizData[currentQuestion];
+    const options = document.querySelectorAll('.quiz-option');
+
+    options.forEach((opt, index) => {
+        opt.style.pointerEvents = 'none';
+        if (index === q.correct) {
+            opt.classList.add('correct');
+        } else if (index === selected) {
+            opt.classList.add('wrong');
+        }
+    });
+
+    if (selected === q.correct) {
+        score++;
+        confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.6 }
+        });
+    }
+
+    setTimeout(() => {
+        currentQuestion++;
+        loadQuiz();
+    }, 1500);
+}
+
+function showQuizResult() {
+    const quizContent = document.getElementById('quizContent');
+    const quizResult = document.getElementById('quizResult');
+    const resultTitle = document.getElementById('resultTitle');
+    const resultMessage = document.getElementById('resultMessage');
+
+    quizContent.classList.add('hidden');
+    quizResult.classList.remove('hidden');
+
+    const percentage = (score / quizData.length) * 100;
+
+    if (percentage === 100) {
+        resultTitle.textContent = '🏆 ¡PERFECTO!';
+        resultMessage.textContent = `¡Conoces a Mateo mejor que nadie! ${score}/${quizData.length} correctas`;
+        confetti({
+            particleCount: 200,
+            spread: 100,
+            origin: { y: 0.6 }
+        });
+    } else if (percentage >= 60) {
+        resultTitle.textContent = '🌟 ¡Muy Bien!';
+        resultMessage.textContent = `¡Conoces bastante a Mateo! ${score}/${quizData.length} correctas`;
+    } else {
+        resultTitle.textContent = '💪 ¡Sigue Intentando!';
+        resultMessage.textContent = `Aún puedes aprender más sobre Mateo. ${score}/${quizData.length} correctas`;
+    }
+}
+
+function restartQuiz() {
+    currentQuestion = 0;
+    score = 0;
+    document.getElementById('quizContent').classList.remove('hidden');
+    document.getElementById('quizResult').classList.add('hidden');
+    loadQuiz();
+}
+
+// Initialize Quiz
+document.addEventListener('DOMContentLoaded', () => {
+    loadQuiz();
+    loadTimeline();
+    loadGuestbook();
+});
+
+// --- Timeline Data ---
+const timelineData = [
+    { date: '2023', icon: '🎂', title: 'Nace Mateo', desc: 'El día que cambió nuestras vidas para siempre. Una estrella brilló más fuerte ese día.' },
+    { date: '2024', icon: '👶', title: 'Primeros Pasos', desc: 'Mateo comenzó a explorar el mundo con sus propios pies, conquistando cada rincón de la casa.' },
+    { date: '2024', icon: '🚗', title: 'Primer Coche', desc: 'Su amor por los coches comenzó. Ahora es el piloto más rápido de la familia.' },
+    { date: '2024', icon: '❤️', title: 'Amor Familiar', desc: 'Cada día nos enseña el verdadero significado del amor incondicional.' },
+    { date: '2025', icon: '🌟', title: 'Futuro Brillante', desc: 'Las aventuras apenas comienzan. El mundo está esperando a este pequeño héroe.' }
+];
+
+function loadTimeline() {
+    const timeline = document.getElementById('timeline');
+    if (!timeline) return;
+
+    timeline.innerHTML = timelineData.map((item, index) => `
+        <div class="timeline-item" data-aos="fade-up" data-aos-delay="${index * 100}">
+            <div class="timeline-content">
+                <h3>${item.title}</h3>
+                <p>${item.desc}</p>
+            </div>
+            <div class="timeline-date">${item.date}</div>
+            <div class="timeline-icon">${item.icon}</div>
+        </div>
+    `).join('');
+}
+
+// --- Guestbook ---
+const guestbookForm = document.getElementById('guestbookForm');
+
+if (guestbookForm) {
+    guestbookForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!db) return alert('Conecta Firebase');
+
+        const name = document.getElementById('guestName').value;
+        const message = document.getElementById('guestMessage').value;
+
+        db.collection('guestbook').add({
+            name: name,
+            message: message,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            guestbookForm.reset();
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+        });
+    });
+}
+
+function loadGuestbook() {
+    if (!db) return;
+
+    const messagesContainer = document.getElementById('guestbookMessages');
+    if (!messagesContainer) return;
+
+    db.collection('guestbook')
+        .orderBy('timestamp', 'desc')
+        .limit(20)
+        .onSnapshot(snapshot => {
+            messagesContainer.innerHTML = '';
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const messageEl = document.createElement('div');
+                messageEl.className = 'guestbook-message';
+
+                const initial = data.name.charAt(0).toUpperCase();
+                const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString('es-ES') : 'Hoy';
+
+                messageEl.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-avatar">${initial}</div>
+                        <div class="message-info">
+                            <h4>${data.name}</h4>
+                            <div class="message-date">${date}</div>
+                        </div>
+                    </div>
+                    <div class="message-text">${data.message}</div>
+                `;
+
+                messagesContainer.appendChild(messageEl);
+            });
+        });
+}
+
 // --- Data: Gallery ---
 const galleryData = [
     { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
