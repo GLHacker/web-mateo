@@ -53,7 +53,6 @@
             <button id="darkModeToggle" class="nav-btn" title="Cambiar tema">
                 <i class="fas fa-moon"></i>
             </button>
-            <button id="gamesBtn" class="nav-btn highlight-btn"><i class="fas fa-gamepad"></i> Juegos</button>
             <button id="storiesBtn" class="nav-btn highlight-btn"><i class="fas fa-book-open"></i> Cuentos</button>
             <button id="loginBtn" class="nav-btn"><i class="fas fa-lock"></i> Admin</button>
             <button id="logoutBtn" class="nav-btn hidden"><i class="fas fa-sign-out-alt"></i> Salir</button>
@@ -251,224 +250,96 @@
         </div>
     </section>
 
-    <!-- ========================================
-         🎮 GAMES SECTION - SUPER ADDICTIVE!
-         ======================================== -->
 
-    <section class="games-section" id="gamesSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🎮 Juegos Divertidos</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                ¡Juega y diviértete con Mateo!
-            </p>
 
-            <div class="games-grid">
-                <!-- Memory Game -->
-                <div class="game-card" data-aos="flip-left">
-                    <div class="game-icon">🧠</div>
-                    <h3>Memoria de Mateo</h3>
-                    <p>Encuentra las parejas de fotos</p>
-                    <button class="gradient-btn" onclick="openMemoryGame()">
-                        <i class="fas fa-play"></i> Jugar
-                    </button>
-                    <div class="game-stats">
-                        <span>🏆 Mejor: <span id="memoryBest">0</span> movimientos</span>
+    <!-- Modals (Glassmorphism Style) -->
+
+    <!-- Stories Modal -->
+    <div id="storiesModal" class="modal-backdrop">
+        <div class="glass-modal full-screen">
+            <button class="close-modal">&times;</button> <!-- JS handles this now -->
+            <div id="storiesContainer" class="stories-container">
+                <!-- Stories will be loaded here -->
+            </div>
+
+            <!-- New Explicit Back Button -->
+            <button id="backToMenuBtn" class="floating-back-btn">
+                <i class="fas fa-arrow-left"></i> Volver al Menú
+            </button>
+
+            <div class="story-controls">
+                <span>Toca para leer el siguiente cuento...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox/Comment Modal -->
+    <div id="postModal" class="modal-backdrop">
+        <div class="glass-modal">
+            <button class="close-modal">&times;</button>
+            <div class="modal-layout">
+                <div class="modal-media">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-interactions">
+                    <div class="modal-header">
+                        <div class="avatar">F</div>
+                        <span>Familia Mateo</span>
+                    </div>
+                    <div class="comments-container" id="modalComments">
+                        <!-- Comments will load here -->
+                    </div>
+                    <div class="modal-footer">
+                        <div class="action-row">
+                            <button id="modalLikeBtn" class="action-icon"><i class="far fa-heart"></i></button>
+                            <button class="action-icon"><i class="far fa-comment"></i></button>
+                            <button class="action-icon"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                        <div class="likes-info"><span id="modalLikes">0</span> Me gusta</div>
+                        <form id="commentForm" class="comment-input-area">
+                            <input type="text" id="commentName" placeholder="Tu nombre" required>
+                            <input type="text" id="commentText" placeholder="Agrega un comentario..." required>
+                            <button type="submit">Publicar</button>
+                        </form>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
 
-                <!-- Find Mateo Game -->
-                <div class="game-card" data-aos="flip-left" data-aos-delay="100">
-                    <div class="game-icon">🔍</div>
-                    <h3>¿Dónde está Mateo?</h3>
-                    <p>Encuentra a Mateo lo más rápido posible</p>
-                    <button class="gradient-btn" onclick="openFindGame()">
-                        <i class="fas fa-play"></i> Jugar
-                    </button>
-                    <div class="game-stats">
-                        <span>⚡ Récord: <span id="findBest">0</span>s</span>
-                    </div>
-                </div>
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal-backdrop">
+        <div class="glass-modal small">
+            <button class="close-simple-modal">&times;</button>
+            <h2>Admin Access</h2>
+            <form id="loginForm">
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="gradient-btn">Entrar</button>
+            </form>
+        </div>
+    </div>
 
-                <!-- Catch Stars Game -->
-                <div class="game-card" data-aos="flip-left" data-aos-delay="200">
-                    <div class="game-icon">⭐</div>
-                    <h3>Atrapa Estrellas</h3>
-                    <p>Ayuda a Mateo a atrapar estrellas</p>
-                    <button class="gradient-btn" onclick="openCatchGame()">
-                        <i class="fas fa-play"></i> Jugar
-                    </button>
-                    <div class="game-stats">
-                        <span>🎯 Máximo: <span id="catchBest">0</span> puntos</span>
-                    </div>
-                    <!-- Game Modals -->
+    <div id="uploadModal" class="modal-backdrop">
+        <div class="glass-modal small">
+            <button class="close-simple-modal">&times;</button>
+            <h2>Subir Recuerdo</h2>
+            <form id="uploadForm">
+                <input type="file" id="photoFile" required>
+                <input type="text" id="photoCaption" placeholder="Título o historia...">
+                <button type="submit" class="gradient-btn">Subir</button>
+            </form>
+        </div>
+    </div>
 
-                    <!-- Games Menu Modal -->
-                    <div id="gamesMenuModal" class="modal-backdrop">
-                        <div class="glass-modal games-menu-modal">
-                            <button class="close-modal" id="closeGamesMenu">&times;</button>
-                            <h2 class="modal-title">🎮 Juegos Divertidos</h2>
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-                            <div class="games-menu-grid">
-                                <div class="game-menu-card" onclick="openMemoryGame()">
-                                    <div class="game-menu-icon">🧠</div>
-                                    <h3>Memoria</h3>
-                                    <p>Encuentra las parejas</p>
-                                    <div class="game-best">🏆 Mejor: <span id="memoryBestDisplay">0</span></div>
-                                </div>
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-                                <div class="game-menu-card" onclick="openFindGame()">
-                                    <div class="game-menu-icon">🔍</div>
-                                    <h3>Encuentra a Mateo</h3>
-                                    <p>¿Dónde está?</p>
-                                    <div class="game-best">⚡ Récord: <span id="findBestDisplay">0</span>s</div>
-                                </div>
-
-                                <div class="game-menu-card" onclick="openCatchGame()">
-                                    <div class="game-menu-icon">⭐</div>
-                                    <h3>Atrapa Estrellas</h3>
-                                    <p>Ayuda a Mateo</p>
-                                    <div class="game-best">🎯 Máximo: <span id="catchBestDisplay">0</span></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Memory Game Modal -->
-                    <div id="memoryGameModal" class="modal-backdrop">
-                        <div class="glass-modal game-modal-content">
-                            <button class="close-modal" onclick="closeMemoryGame()">&times;</button>
-                            <h2 class="modal-title">🧠 Memoria de Mateo</h2>
-                            <div class="game-info">
-                                <span>Movimientos: <span id="moves">0</span></span>
-                                <span>Parejas: <span id="pairs">0</span>/8</span>
-                                <button class="reset-btn" onclick="resetMemoryGame()">
-                                    <i class="fas fa-redo"></i> Reiniciar
-                                </button>
-                            </div>
-                            <div id="memoryBoard" class="memory-board"></div>
-                        </div>
-                    </div>
-
-                    <!-- Find Mateo Game Modal -->
-                    <div id="findGameModal" class="modal-backdrop">
-                        <div class="glass-modal game-modal-content">
-                            <button class="close-modal" onclick="closeFindGame()">&times;</button>
-                            <h2 class="modal-title">🔍 ¿Dónde está Mateo?</h2>
-                            <div class="game-info">
-                                <span>Tiempo: <span id="findTimer">0</span>s</span>
-                                <span>Nivel: <span id="findLevel">1</span></span>
-                            </div>
-                            <div id="findBoard" class="find-board"></div>
-                        </div>
-                    </div>
-
-                    <!-- Catch Stars Game Modal -->
-                    <div id="catchGameModal" class="modal-backdrop">
-                        <div class="glass-modal game-modal-content catch-game-content">
-                            <button class="close-modal" onclick="closeCatchGame()">&times;</button>
-                            <h2 class="modal-title">⭐ Atrapa Estrellas</h2>
-                            <div class="game-info">
-                                <span>Puntos: <span id="catchScore">0</span></span>
-                                <span>Tiempo: <span id="catchTimer">30</span>s</span>
-                            </div>
-                            <canvas id="catchCanvas" width="600" height="400"></canvas>
-                            <button class="gradient-btn" onclick="startCatchGame()" id="catchStartBtn">
-                                <i class="fas fa-play"></i> Comenzar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Modals (Glassmorphism Style) -->
-
-                    <!-- Stories Modal -->
-                    <div id="storiesModal" class="modal-backdrop">
-                        <div class="glass-modal full-screen">
-                            <button class="close-modal">&times;</button> <!-- JS handles this now -->
-                            <div id="storiesContainer" class="stories-container">
-                                <!-- Stories will be loaded here -->
-                            </div>
-
-                            <!-- New Explicit Back Button -->
-                            <button id="backToMenuBtn" class="floating-back-btn">
-                                <i class="fas fa-arrow-left"></i> Volver al Menú
-                            </button>
-
-                            <div class="story-controls">
-                                <span>Toca para leer el siguiente cuento...</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Lightbox/Comment Modal -->
-                    <div id="postModal" class="modal-backdrop">
-                        <div class="glass-modal">
-                            <button class="close-modal">&times;</button>
-                            <div class="modal-layout">
-                                <div class="modal-media">
-                                    <img id="modalImg" src="" alt="">
-                                </div>
-                                <div class="modal-interactions">
-                                    <div class="modal-header">
-                                        <div class="avatar">F</div>
-                                        <span>Familia Mateo</span>
-                                    </div>
-                                    <div class="comments-container" id="modalComments">
-                                        <!-- Comments will load here -->
-                                    </div>
-                                    <div class="modal-footer">
-                                        <div class="action-row">
-                                            <button id="modalLikeBtn" class="action-icon"><i
-                                                    class="far fa-heart"></i></button>
-                                            <button class="action-icon"><i class="far fa-comment"></i></button>
-                                            <button class="action-icon"><i class="far fa-paper-plane"></i></button>
-                                        </div>
-                                        <div class="likes-info"><span id="modalLikes">0</span> Me gusta</div>
-                                        <form id="commentForm" class="comment-input-area">
-                                            <input type="text" id="commentName" placeholder="Tu nombre" required>
-                                            <input type="text" id="commentText" placeholder="Agrega un comentario..."
-                                                required>
-                                            <button type="submit">Publicar</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Auth Modals -->
-                    <div id="loginModal" class="modal-backdrop">
-                        <div class="glass-modal small">
-                            <button class="close-simple-modal">&times;</button>
-                            <h2>Admin Access</h2>
-                            <form id="loginForm">
-                                <input type="email" id="email" placeholder="Email" required>
-                                <input type="password" id="password" placeholder="Password" required>
-                                <button type="submit" class="gradient-btn">Entrar</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div id="uploadModal" class="modal-backdrop">
-                        <div class="glass-modal small">
-                            <button class="close-simple-modal">&times;</button>
-                            <h2>Subir Recuerdo</h2>
-                            <form id="uploadForm">
-                                <input type="file" id="photoFile" required>
-                                <input type="text" id="photoCaption" placeholder="Título o historia...">
-                                <button type="submit" class="gradient-btn">Subir</button>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- Scripts -->
-                    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-                    <!-- Confetti Library -->
-                    <script
-                        src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-                    <!-- Custom Script -->
-                    <script src="script.js"></script>
+    <!-- Custom Script -->
+    <script src="script.js"></script>
 </body>
 
 </html>
