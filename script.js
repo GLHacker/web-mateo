@@ -32,6 +32,47 @@ if (typeof AOS !== 'undefined') {
     });
 }
 
+// --- Data: Gallery ---
+const galleryData = [
+    { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
+    { id: 'three_generations', img: 'images/three_generations.jpg', title: 'Raíces y Alas 🌳', desc: 'Abuelo, padre e hijo. El pasado que nos sostiene, el presente que construimos y el futuro que soñamos. La fortaleza de la sangre en una sola imagen.' },
+    { id: 'laughing_bed', img: 'images/laughing_bed.jpg', title: 'La Melodía de la Felicidad 🎶', desc: 'No existe sonido más puro que su carcajada espontánea. Es la música que llena nuestro hogar y nos recuerda que la felicidad está en los momentos más simples.' },
+    { id: 'videocall_yellow', img: 'images/videocall_yellow.jpg', title: 'Distancia Cero 💫', desc: 'La tecnología se vuelve cálida cuando hay amor del otro lado. Sus ojos curiosos traspasan la pantalla, haciéndonos sentir que estamos en la misma habitación.' },
+    { id: 'videocall_party', img: 'images/videocall_party.jpg', title: 'Fiesta en el Corazón 🎉', desc: 'Con su energía inagotable, Mateo nos enseña que la vida es una celebración constante. Cada día es una oportunidad para sonreír y bailar.' },
+    { id: 'grandpa', img: 'images/grandpa.jpg', title: 'El Legado del Amor 👴👶', desc: 'Tres generaciones unidas por un mismo hilo invisible. En los brazos del abuelo, Mateo descubre que el amor es un tesoro que se hereda y crece con el tiempo.' },
+    { id: 'videocall_smile', img: 'images/videocall_smile.jpg', title: 'Cerca del Corazón 📱', desc: 'Aunque haya kilómetros de distancia, una sonrisa suya rompe cualquier barrera. La tecnología nos une, pero es su alegría la que nos mantiene cerca.' },
+    { id: 'videocall_dad', img: 'images/videocall_dad.jpg', title: 'Siempre Contigo ❤️', desc: 'No importa la pantalla, la conexión entre padre e hijo traspasa cualquier cristal. Un vínculo que no conoce de distancias ni horarios.' },
+    { id: 'red_car_1', img: 'images/red_car_1.jpg', title: 'Piloto de Aventuras 🏎️', desc: 'Con su bólido rojo, Mateo está listo para conquistar cada rincón de la casa. ¡Cuidado mundo, ahí va el conductor más adorable!' },
+    { id: 'red_car_2', img: 'images/red_car_2.jpg', title: 'Velocidad y Risas 🏁', desc: 'La felicidad tiene cuatro ruedas y un conductor con la sonrisa más traviesa. Cada paseo es una nueva historia que contar.' },
+    { id: 'elmo', img: 'images/elmo.jpg', title: 'El Pequeño Guardián Rojo 🧸', desc: 'Dicen que la risa de Mateo tiene un poder secreto: es capaz de pintar de colores hasta el día más gris. Vestido de rojo, nos recuerda que la felicidad es un superpoder.' },
+    { id: 'standing', img: 'images/standing.jpg', title: 'El Explorador de Mundos 🌍', desc: 'Para Mateo, el suelo no es solo suelo, es un mapa inexplorado. Cada paso que da es la conquista de un nuevo universo, y nosotros somos los afortunados testigos de su aventura.' },
+    { id: 'closeup', img: 'images/closeup.jpg', title: 'Ventanas al Alma ✨', desc: 'Si miras de cerca, verás galaxias enteras en sus ojos. Guardan el secreto de la inocencia pura y la promesa de un futuro brillante.' },
+    { id: 'img3', img: 'images/img3.jpg', title: 'El Triángulo de Amor ❤️', desc: 'Luis, Jennifer y Mateo. Tres corazones que aprendieron a latir al mismo ritmo. Juntos, construyeron un refugio donde el amor nunca se agota.' },
+    { id: 'img1', img: 'images/img1.jpg', title: 'La Gran Carrera 🏎️', desc: 'No es solo un juguete, es su primer viaje hacia la libertad. Con las manos al volante, Mateo nos enseña que la vida hay que vivirla a toda velocidad y con una sonrisa.' },
+    { id: 'img2', img: 'images/img2.jpg', title: 'Sueños de Neón 🌃', desc: 'Aquella noche, las luces de la ciudad intentaron competir con su brillo, pero perdieron. Un momento congelado en el tiempo donde solo existía la magia.' },
+    { id: 'img4', img: 'images/img4.jpg', title: 'Héroe y Aprendiz 🦸‍♂️', desc: 'Un padre que enseña a volar, un hijo que enseña a soñar. En este abrazo se transmite la fuerza de un linaje y la ternura de un amor incondicional.' },
+    { id: 'img5', img: 'images/img5.jpg', title: 'La Fiesta de la Vida 🎉', desc: 'Porque cada día juntos es una celebración. Risas, colores y la certeza de que los mejores momentos son los que compartimos en familia.' }
+];
+
+// --- Data: Stories ---
+const storiesData = [
+    {
+        title: "El Viaje de la Estrella Curiosa",
+        img: "https://picsum.photos/id/1042/800/600", // Placeholder: Space/Night
+        text: "Había una vez una pequeña estrella que quería ver el mundo de día. Un día, bajó del cielo y aterrizó en el jardín de Mateo. Juntos descubrieron que la luz más brillante no está en el cielo, sino en la sonrisa de un niño feliz."
+    },
+    {
+        title: "El Bosque de los Susurros",
+        img: "https://picsum.photos/id/1039/800/600", // Placeholder: Forest/Nature
+        text: "En el bosque mágico, los árboles cuentan historias si te quedas muy quieto. Mateo aprendió a escuchar al viento y descubrió que cada hoja guarda un secreto de amistad y valentía."
+    },
+    {
+        title: "El Océano de Nubes",
+        img: "https://picsum.photos/id/1053/800/600", // Placeholder: Water/Sky
+        text: "Mateo construyó un barco de papel y navegó por un mar de nubes blancas. Allí conoció a peces voladores que le enseñaron que los sueños, si crees en ellos, pueden llevarte a cualquier lugar."
+    }
+];
+
 // DOM Elements
 const postModal = document.getElementById('postModal');
 const modalImg = document.getElementById('modalImg');
@@ -39,24 +80,107 @@ const modalComments = document.getElementById('modalComments');
 const modalLikeBtn = document.getElementById('modalLikeBtn');
 const modalLikes = document.getElementById('modalLikes');
 const commentForm = document.getElementById('commentForm');
+const galleryContainer = document.querySelector('.masonry-grid');
+const storiesBtn = document.getElementById('storiesBtn');
+const storiesModal = document.getElementById('storiesModal');
 
 let currentPostId = null;
 
-// --- Modal Logic ---
-document.querySelectorAll('.glass-card').forEach(card => {
-    // Click on image or view button opens modal
-    const openModal = () => {
-        const img = card.querySelector('img');
-        const id = card.getAttribute('data-id');
-        const title = card.querySelector('h3').textContent;
-        const desc = card.querySelector('p').textContent;
+// --- Render Gallery ---
+function renderGallery() {
+    if (!galleryContainer) return;
+    galleryContainer.innerHTML = '';
 
-        openPostModal(img.src, id, title, desc);
+    galleryData.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = 'glass-card';
+        card.setAttribute('data-aos', 'zoom-in-up');
+        card.setAttribute('data-aos-delay', (index % 5) * 100); // Stagger animations
+        card.setAttribute('data-id', item.id);
+
+        card.innerHTML = `
+            <div class="card-image">
+                <img src="${item.img}" alt="${item.title}">
+                <div class="card-overlay">
+                    <button class="view-btn"><i class="fas fa-expand"></i></button>
+                </div>
+            </div>
+            <div class="card-content">
+                <h3>${item.title}</h3>
+                <p>${item.desc}</p>
+                <div class="card-actions">
+                    <button class="action-btn like-btn" data-id="${item.id}"><i class="far fa-heart"></i> <span class="count">0</span></button>
+                    <button class="action-btn comment-btn" data-id="${item.id}"><i class="far fa-comment"></i> <span class="count">0</span></button>
+                    <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                </div>
+            </div>
+        `;
+
+        // Add Event Listeners immediately
+        card.querySelector('.card-image').addEventListener('click', () => openPostModal(item.img, item.id, item.title, item.desc));
+
+        // Load initial likes count
+        if (db) {
+            db.collection('likes').doc(item.id).onSnapshot(doc => {
+                if (doc.exists) {
+                    const count = doc.data().count || 0;
+                    const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
+                    if (countSpan) countSpan.textContent = count;
+                }
+            });
+        }
+
+        galleryContainer.appendChild(card);
+    });
+}
+
+// Call render on load
+document.addEventListener('DOMContentLoaded', renderGallery);
+
+// --- Stories Logic ---
+if (storiesBtn) {
+    storiesBtn.onclick = () => {
+        renderStories();
+        storiesModal.style.display = 'flex';
     };
+}
 
-    card.querySelector('.card-image').addEventListener('click', openModal);
-});
+function renderStories() {
+    const container = document.getElementById('storiesContainer');
+    if (!container) return;
+    container.innerHTML = '';
 
+    storiesData.forEach((story, index) => {
+        const slide = document.createElement('div');
+        slide.className = 'story-slide';
+        if (index === 0) slide.classList.add('active');
+
+        slide.innerHTML = `
+            <div class="story-content">
+                <img src="${story.img}" alt="${story.title}" class="story-img">
+                <div class="story-text">
+                    <h2>${story.title}</h2>
+                    <p>${story.text}</p>
+                </div>
+            </div>
+        `;
+        container.appendChild(slide);
+    });
+
+    // Simple Carousel Logic
+    let currentStory = 0;
+    const slides = document.querySelectorAll('.story-slide');
+
+    // Auto play or manual controls can be added here
+    // For now, just click to advance
+    container.onclick = () => {
+        slides[currentStory].classList.remove('active');
+        currentStory = (currentStory + 1) % slides.length;
+        slides[currentStory].classList.add('active');
+    };
+}
+
+// --- Modal Logic ---
 function openPostModal(src, id, title, desc) {
     postModal.style.display = 'flex';
     modalImg.src = src;
