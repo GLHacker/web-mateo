@@ -368,7 +368,7 @@ function loadGuestbook() {
 
 // --- Mateo's Age Calculator ---
 function calculateAge() {
-    const birthDate = new Date('2023-01-15'); // Ajusta la fecha real de nacimiento
+    const birthDate = new Date('2024-01-15'); // Mateo tiene 1 año
     const today = new Date();
 
     const months = (today.getFullYear() - birthDate.getFullYear()) * 12 +
@@ -414,15 +414,48 @@ function loadDailyQuote() {
     }
 }
 
-// --- Playlist Data ---
+// --- Playlist Data with REAL YouTube Videos ---
 const playlistSongs = [
-    { title: "Baby Shark", artist: "Pinkfong", emoji: "🦈" },
-    { title: "Wheels on the Bus", artist: "Canciones Infantiles", emoji: "🚌" },
-    { title: "Twinkle Twinkle Little Star", artist: "Clásicos", emoji: "⭐" },
-    { title: "Old MacDonald", artist: "Canciones de Granja", emoji: "🐄" },
-    { title: "If You're Happy", artist: "Canciones Alegres", emoji: "😊" },
-    { title: "Head Shoulders Knees", artist: "Canciones de Movimiento", emoji: "🎵" }
+    {
+        title: "Baby Shark",
+        artist: "Pinkfong",
+        emoji: "🦈",
+        youtubeId: "XqZsoesa55w" // Baby Shark Dance
+    },
+    {
+        title: "Wheels on the Bus",
+        artist: "Cocomelon",
+        emoji: "🚌",
+        youtubeId: "e_04ZrNroTo" // Wheels on the Bus
+    },
+    {
+        title: "Twinkle Twinkle Little Star",
+        artist: "Super Simple Songs",
+        emoji: "⭐",
+        youtubeId: "yCjJyiqpAuU" // Twinkle Twinkle
+    },
+    {
+        title: "Old MacDonald",
+        artist: "Cocomelon",
+        emoji: "🐄",
+        youtubeId: "hlWiI4xVXKY" // Old MacDonald
+    },
+    {
+        title: "If You're Happy",
+        artist: "Super Simple Songs",
+        emoji: "😊",
+        youtubeId: "l4WNrvVjiTw" // If You're Happy
+    },
+    {
+        title: "Head Shoulders Knees",
+        artist: "Super Simple Songs",
+        emoji: "🎵",
+        youtubeId: "h4eueDYPTIg" // Head Shoulders
+    }
 ];
+
+let currentPlayer = null;
+let currentSongIndex = -1;
 
 function loadPlaylist() {
     const playlistContainer = document.getElementById('playlistItems');
@@ -435,7 +468,7 @@ function loadPlaylist() {
                 <div class="song-title">${song.title}</div>
                 <div class="song-artist">${song.artist}</div>
             </div>
-            <button class="play-btn" onclick="playSong(${index})">
+            <button class="play-btn" onclick="playSong(${index})" id="playBtn${index}">
                 <i class="fas fa-play"></i>
             </button>
         </div>
@@ -444,23 +477,92 @@ function loadPlaylist() {
 
 function playSong(index) {
     const song = playlistSongs[index];
-    confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.6 }
-    });
 
-    // Simular reproducción
-    const playBtns = document.querySelectorAll('.play-btn');
-    playBtns.forEach((btn, i) => {
-        if (i === index) {
-            btn.innerHTML = '<i class="fas fa-pause"></i>';
-            btn.classList.add('playing');
-        } else {
+    // Create or update video player
+    let playerContainer = document.getElementById('musicPlayer');
+    if (!playerContainer) {
+        playerContainer = document.createElement('div');
+        playerContainer.id = 'musicPlayer';
+        playerContainer.className = 'music-player-container';
+        document.body.appendChild(playerContainer);
+    }
+
+    // If same song, toggle play/pause
+    if (currentSongIndex === index && currentPlayer) {
+        const btn = document.getElementById(`playBtn${index}`);
+        if (btn.classList.contains('playing')) {
+            currentPlayer.pauseVideo();
             btn.innerHTML = '<i class="fas fa-play"></i>';
             btn.classList.remove('playing');
+        } else {
+            currentPlayer.playVideo();
+            btn.innerHTML = '<i class="fas fa-pause"></i>';
+            btn.classList.add('playing');
         }
+        return;
+    }
+
+    // Reset all buttons
+    document.querySelectorAll('.play-btn').forEach(btn => {
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        btn.classList.remove('playing');
     });
+
+    // Update current song
+    currentSongIndex = index;
+
+    // Show player with YouTube embed
+    playerContainer.innerHTML = `
+        <div class="player-header">
+            <div class="now-playing">
+                <span class="pulse-dot"></span>
+                Reproduciendo: ${song.emoji} ${song.title}
+            </div>
+            <button class="close-player" onclick="closePlayer()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <iframe
+            id="youtubePlayer"
+            width="100%"
+            height="200"
+            src="https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+        </iframe>
+    `;
+
+    playerContainer.style.display = 'block';
+
+    // Update button
+    const btn = document.getElementById(`playBtn${index}`);
+    btn.innerHTML = '<i class="fas fa-pause"></i>';
+    btn.classList.add('playing');
+
+    // Confetti!
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#ff00cc', '#FFD700', '#00d4ff']
+    });
+}
+
+function closePlayer() {
+    const playerContainer = document.getElementById('musicPlayer');
+    if (playerContainer) {
+        playerContainer.style.display = 'none';
+        playerContainer.innerHTML = '';
+    }
+
+    // Reset buttons
+    document.querySelectorAll('.play-btn').forEach(btn => {
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        btn.classList.remove('playing');
+    });
+
+    currentSongIndex = -1;
 }
 
 // Initialize FASE 3 features
