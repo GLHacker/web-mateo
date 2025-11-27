@@ -414,43 +414,43 @@ function loadDailyQuote() {
     }
 }
 
-// --- Playlist Data with Audio URLs ---
+// --- Playlist Data with Working Audio URLs ---
 const playlistSongs = [
     {
         title: "Baby Shark",
         artist: "Pinkfong",
         emoji: "🦈",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_01_-_Backbay_Lounge.mp3"
     },
     {
         title: "Wheels on the Bus",
         artist: "Cocomelon",
         emoji: "🚌",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_02_-_Bossa_Antigua.mp3"
     },
     {
         title: "Twinkle Twinkle Little Star",
         artist: "Super Simple Songs",
         emoji: "⭐",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_03_-_Carefree.mp3"
     },
     {
         title: "Old MacDonald",
         artist: "Cocomelon",
         emoji: "🐄",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_04_-_Wallpaper.mp3"
     },
     {
         title: "If You're Happy",
         artist: "Super Simple Songs",
         emoji: "😊",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_05_-_Fluffing_a_Duck.mp3"
     },
     {
         title: "Head Shoulders Knees",
         artist: "Super Simple Songs",
         emoji: "🎵",
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
+        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_06_-_Parting_of_the_Ways.mp3"
     }
 ];
 
@@ -1110,3 +1110,321 @@ document.getElementById('uploadForm').onsubmit = (e) => {
         });
     });
 };
+// ========================================
+// 🎮 GAMES LOGIC - SUPER ADDICTIVE!
+// ========================================
+
+// --- Memory Game ---
+let memoryCards = [];
+let flippedCards = [];
+let moves = 0;
+let pairs = 0;
+let memoryBestScore = localStorage.getItem('memoryBest') || 999;
+
+const memoryImages = [
+    'images/mateo_star.jpg',
+    'images/mateo_bed.jpg',
+    'images/elmo.jpg',
+    'images/red_car_1.jpg',
+    'images/standing.jpg',
+    'images/closeup.jpg',
+    'images/grandpa.jpg',
+    'images/videocall_smile.jpg'
+];
+
+function openMemoryGame() {
+    document.getElementById('memoryGameModal').style.display = 'flex';
+    document.getElementById('memoryBest').textContent = memoryBestScore === 999 ? '0' : memoryBestScore;
+    resetMemoryGame();
+}
+
+function closeMemoryGame() {
+    document.getElementById('memoryGameModal').style.display = 'none';
+}
+
+function resetMemoryGame() {
+    moves = 0;
+    pairs = 0;
+    flippedCards = [];
+    document.getElementById('moves').textContent = '0';
+    document.getElementById('pairs').textContent = '0';
+
+    // Create card pairs
+    memoryCards = [...memoryImages, ...memoryImages]
+        .sort(() => Math.random() - 0.5);
+
+    const board = document.getElementById('memoryBoard');
+    board.innerHTML = '';
+
+    memoryCards.forEach((img, index) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.index = index;
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-front">?</div>
+                <div class="card-back">
+                    <img src="${img}" alt="Mateo">
+                </div>
+            </div>
+        `;
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+    });
+}
+
+function flipCard() {
+    if (flippedCards.length >= 2) return;
+    if (this.classList.contains('flipped')) return;
+
+    this.classList.add('flipped');
+    flippedCards.push(this);
+
+    if (flippedCards.length === 2) {
+        moves++;
+        document.getElementById('moves').textContent = moves;
+
+        const [card1, card2] = flippedCards;
+        const img1 = memoryCards[card1.dataset.index];
+        const img2 = memoryCards[card2.dataset.index];
+
+        if (img1 === img2) {
+            // Match!
+            pairs++;
+            document.getElementById('pairs').textContent = pairs;
+            flippedCards = [];
+
+            confetti({
+                particleCount: 50,
+                spread: 60,
+                origin: { y: 0.6 }
+            });
+
+            if (pairs === 8) {
+                setTimeout(() => {
+                    if (moves < memoryBestScore || memoryBestScore === 999) {
+                        memoryBestScore = moves;
+                        localStorage.setItem('memoryBest', moves);
+                        document.getElementById('memoryBest').textContent = moves;
+                    }
+                    confetti({
+                        particleCount: 200,
+                        spread: 100,
+                        origin: { y: 0.6 }
+                    });
+                    alert(`¡Ganaste! 🎉\nMovimientos: ${moves}`);
+                }, 500);
+            }
+        } else {
+            // No match
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                flippedCards = [];
+            }, 1000);
+        }
+    }
+}
+
+// --- Find Mateo Game ---
+let findTimer = 0;
+let findInterval = null;
+let findLevel = 1;
+let findBestTime = localStorage.getItem('findBest') || 0;
+
+function openFindGame() {
+    document.getElementById('findGameModal').style.display = 'flex';
+    document.getElementById('findBest').textContent = findBestTime || '0';
+    startFindGame();
+}
+
+function closeFindGame() {
+    document.getElementById('findGameModal').style.display = 'none';
+    if (findInterval) clearInterval(findInterval);
+}
+
+function startFindGame() {
+    findTimer = 0;
+    findLevel = 1;
+    document.getElementById('findTimer').textContent = '0';
+    document.getElementById('findLevel').textContent = '1';
+
+    if (findInterval) clearInterval(findInterval);
+    findInterval = setInterval(() => {
+        findTimer++;
+        document.getElementById('findTimer').textContent = findTimer;
+    }, 1000);
+
+    loadFindLevel();
+}
+
+function loadFindLevel() {
+    const board = document.getElementById('findBoard');
+    const gridSize = 3 + findLevel;
+    const totalCells = gridSize * gridSize;
+    const mateoPosition = Math.floor(Math.random() * totalCells);
+
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    board.innerHTML = '';
+
+    for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'find-cell';
+        cell.textContent = i === mateoPosition ? '👶' : '❓';
+        cell.dataset.isMateo = i === mateoPosition;
+
+        cell.addEventListener('click', function () {
+            if (this.dataset.isMateo === 'true') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                findLevel++;
+                document.getElementById('findLevel').textContent = findLevel;
+
+                if (findLevel > 5) {
+                    clearInterval(findInterval);
+                    if (!findBestTime || findTimer < findBestTime) {
+                        findBestTime = findTimer;
+                        localStorage.setItem('findBest', findTimer);
+                        document.getElementById('findBest').textContent = findTimer;
+                    }
+                    alert(`¡Ganaste! 🎉\nTiempo: ${findTimer}s`);
+                    closeFindGame();
+                } else {
+                    setTimeout(loadFindLevel, 500);
+                }
+            } else {
+                this.style.background = 'rgba(255, 0, 0, 0.3)';
+            }
+        });
+
+        board.appendChild(cell);
+    }
+}
+
+// --- Catch Stars Game ---
+let catchScore = 0;
+let catchTimeLeft = 30;
+let catchInterval = null;
+let catchGameActive = false;
+let catchBestScore = localStorage.getItem('catchBest') || 0;
+let stars = [];
+let playerX = 300;
+
+function openCatchGame() {
+    document.getElementById('catchGameModal').style.display = 'flex';
+    document.getElementById('catchBest').textContent = catchBestScore;
+    catchScore = 0;
+    catchTimeLeft = 30;
+    document.getElementById('catchScore').textContent = '0';
+    document.getElementById('catchTimer').textContent = '30';
+    document.getElementById('catchStartBtn').style.display = 'block';
+}
+
+function closeCatchGame() {
+    document.getElementById('catchGameModal').style.display = 'none';
+    catchGameActive = false;
+    if (catchInterval) clearInterval(catchInterval);
+}
+
+function startCatchGame() {
+    document.getElementById('catchStartBtn').style.display = 'none';
+    catchGameActive = true;
+    catchScore = 0;
+    catchTimeLeft = 30;
+    stars = [];
+    playerX = 300;
+
+    const canvas = document.getElementById('catchCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Timer
+    catchInterval = setInterval(() => {
+        catchTimeLeft--;
+        document.getElementById('catchTimer').textContent = catchTimeLeft;
+
+        if (catchTimeLeft <= 0) {
+            endCatchGame();
+        }
+    }, 1000);
+
+    // Mouse control
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        playerX = e.clientX - rect.left;
+    });
+
+    // Game loop
+    function gameLoop() {
+        if (!catchGameActive) return;
+
+        // Clear canvas
+        ctx.fillStyle = 'rgba(15, 15, 30, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Add new stars
+        if (Math.random() < 0.05) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: 0,
+                speed: 2 + Math.random() * 3
+            });
+        }
+
+        // Update and draw stars
+        stars = stars.filter(star => {
+            star.y += star.speed;
+
+            // Draw star
+            ctx.font = '30px Arial';
+            ctx.fillText('⭐', star.x, star.y);
+
+            // Check collision with player
+            if (star.y > canvas.height - 60 &&
+                star.x > playerX - 30 &&
+                star.x < playerX + 30) {
+                catchScore++;
+                document.getElementById('catchScore').textContent = catchScore;
+                confetti({
+                    particleCount: 20,
+                    spread: 40,
+                    origin: { x: star.x / canvas.width, y: 0.9 }
+                });
+                return false;
+            }
+
+            return star.y < canvas.height;
+        });
+
+        // Draw player (Mateo)
+        ctx.font = '40px Arial';
+        ctx.fillText('👶', playerX - 20, canvas.height - 20);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+}
+
+function endCatchGame() {
+    catchGameActive = false;
+    clearInterval(catchInterval);
+
+    if (catchScore > catchBestScore) {
+        catchBestScore = catchScore;
+        localStorage.setItem('catchBest', catchScore);
+        document.getElementById('catchBest').textContent = catchScore;
+    }
+
+    confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 }
+    });
+
+    alert(`¡Juego terminado! 🎉\nPuntos: ${catchScore}`);
+    document.getElementById('catchStartBtn').style.display = 'block';
+}

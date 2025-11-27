@@ -250,6 +250,117 @@
         </div>
     </section>
 
+    <!-- ========================================
+         🎮 GAMES SECTION - SUPER ADDICTIVE!
+         ======================================== -->
+
+    <section class="games-section" id="gamesSection">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">🎮 Juegos Divertidos</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                ¡Juega y diviértete con Mateo!
+            </p>
+
+            <div class="games-grid">
+                <!-- Memory Game -->
+                <div class="game-card" data-aos="flip-left">
+                    <div class="game-icon">🧠</div>
+                    <h3>Memoria de Mateo</h3>
+                    <p>Encuentra las parejas de fotos</p>
+                    <button class="gradient-btn" onclick="openMemoryGame()">
+                        <i class="fas fa-play"></i> Jugar
+                    </button>
+                    <div class="game-stats">
+                        <span>🏆 Mejor: <span id="memoryBest">0</span> movimientos</span>
+                    </div>
+                </div>
+
+                <!-- Find Mateo Game -->
+                <div class="game-card" data-aos="flip-left" data-aos-delay="100">
+                    <div class="game-icon">🔍</div>
+                    <h3>¿Dónde está Mateo?</h3>
+                    <p>Encuentra a Mateo lo más rápido posible</p>
+                    <button class="gradient-btn" onclick="openFindGame()">
+                        <i class="fas fa-play"></i> Jugar
+                    </button>
+                    <div class="game-stats">
+                        <span>⚡ Récord: <span id="findBest">0</span>s</span>
+                    </div>
+                </div>
+
+                <!-- Catch Stars Game -->
+                <div class="game-card" data-aos="flip-left" data-aos-delay="200">
+                    <div class="game-icon">⭐</div>
+                    <h3>Atrapa Estrellas</h3>
+                    <p>Ayuda a Mateo a atrapar estrellas</p>
+                    <button class="gradient-btn" onclick="openCatchGame()">
+                        <i class="fas fa-play"></i> Jugar
+                    </button>
+                    <div class="game-stats">
+                        <span>🎯 Máximo: <span id="catchBest">0</span> puntos</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game Modals -->
+
+    <!-- Memory Game Modal -->
+    <div id="memoryGameModal" class="game-modal">
+        <div class="game-modal-content">
+            <button class="close-game" onclick="closeMemoryGame()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>🧠 Memoria de Mateo</h2>
+            <div class="game-info">
+                <span>Movimientos: <span id="moves">0</span></span>
+                <span>Parejas: <span id="pairs">0</span>/8</span>
+                <button class="reset-btn" onclick="resetMemoryGame()">
+                    <i class="fas fa-redo"></i> Reiniciar
+                </button>
+            </div>
+            <div id="memoryBoard" class="memory-board">
+                <!-- Cards will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Find Mateo Game Modal -->
+    <div id="findGameModal" class="game-modal">
+        <div class="game-modal-content">
+            <button class="close-game" onclick="closeFindGame()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>🔍 ¿Dónde está Mateo?</h2>
+            <div class="game-info">
+                <span>Tiempo: <span id="findTimer">0</span>s</span>
+                <span>Nivel: <span id="findLevel">1</span></span>
+            </div>
+            <div id="findBoard" class="find-board">
+                <!-- Grid will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Catch Stars Game Modal -->
+    <div id="catchGameModal" class="game-modal">
+        <div class="game-modal-content catch-game-content">
+            <button class="close-game" onclick="closeCatchGame()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>⭐ Atrapa Estrellas</h2>
+            <div class="game-info">
+                <span>Puntos: <span id="catchScore">0</span></span>
+                <span>Tiempo: <span id="catchTimer">30</span>s</span>
+            </div>
+            <canvas id="catchCanvas" width="600" height="400"></canvas>
+            <button class="gradient-btn" onclick="startCatchGame()" id="catchStartBtn">
+                <i class="fas fa-play"></i> Comenzar
+            </button>
+        </div>
+    </div>
+
     <!-- Modals (Glassmorphism Style) -->
 
     <!-- Stories Modal -->
