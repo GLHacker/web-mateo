@@ -185,10 +185,10 @@ if (uploadForm) {
 
 // --- Lightbox & Comments ---
 
-// Add click events to gallery cards
-document.querySelectorAll('.gallery-card').forEach(card => {
-    card.addEventListener('click', () => {
-        const img = card.querySelector('img');
+// Add click events to photo cards
+document.querySelectorAll('.photo-frame').forEach(frame => {
+    frame.addEventListener('click', () => {
+        const img = frame.querySelector('img');
         openLightbox(img.src, 'static_' + img.alt);
     });
 });
