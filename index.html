@@ -235,28 +235,7 @@
         </div>
     </section>
 
-    <!-- Music Section -->
-    <section class="music-section" id="musicSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🎵 Playlist de Mateo</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Las canciones que le encantan
-            </p>
-
-            <div class="playlist-container" data-aos="zoom-in">
-                <div class="playlist-header">
-                    <i class="fab fa-spotify"></i>
-                    <h3>Canciones Favoritas</h3>
-                </div>
-                <div class="playlist-items" id="playlistItems">
-                    <!-- Playlist will be loaded here -->
-                </div>
-                <a href="https://open.spotify.com/playlist/37i9dQZF1DXdPec7aLTmlC" target="_blank" class="gradient-btn">
-                    <i class="fab fa-spotify"></i> Abrir en Spotify
-                </a>
-            </div>
-        </div>
-    </section>
+    <!-- Music Section Removed -->
 
     <!-- ========================================
          ✨ NUEVAS FUNCIONALIDADES PREMIUM
@@ -561,6 +540,52 @@
     <!-- <script src="particles.js"></script> -->
     <!-- <script src="effects.js"></script> -->
     <!-- <script src="premium-3d.js"></script> -->
+
+    <!-- 🎵 Floating Music Player -->
+    <div id="musicWidget" class="music-widget">
+        <button id="toggleMusicBtn" class="music-toggle-btn">
+            <div class="music-waves">
+                <span></span><span></span><span></span>
+            </div>
+            <i class="fas fa-music"></i>
+        </button>
+        <div class="music-panel glass-card">
+            <div class="music-header">
+                <h3>Playlist de Mateo 🎵</h3>
+                <button id="closeMusicBtn" class="icon-btn"><i class="fas fa-chevron-down"></i></button>
+            </div>
+
+            <div class="current-song-display">
+                <div class="song-art">
+                    <i class="fas fa-compact-disc spin-animation"></i>
+                </div>
+                <div class="song-details">
+                    <span id="currentSongTitle" class="scrolling-text">Selecciona una canción</span>
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="player-controls">
+                <button id="prevBtn" class="control-btn"><i class="fas fa-step-backward"></i></button>
+                <button id="playBtn" class="control-btn play-btn"><i class="fas fa-play"></i></button>
+                <button id="nextBtn" class="control-btn"><i class="fas fa-step-forward"></i></button>
+            </div>
+
+            <div class="progress-area" id="progressArea">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="playlist-wrapper">
+                <div id="playlistContainer" class="playlist-list">
+                    <!-- Songs will be loaded here -->
+                </div>
+            </div>
+        </div>
+        <audio id="audioPlayer"></audio>
+    </div>
 
     <!-- Custom Script -->
     <script src="script.js"></script>
