@@ -551,6 +551,40 @@
         </div>
     </div>
 
+    <!-- Edit Photo Modal -->
+    <div id="editPhotoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Foto</h2>
+                <button class="close-modal" onclick="closeModal('editPhotoModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editPhotoForm">
+                <input type="hidden" id="editPhotoId">
+                <div class="form-group">
+                    <label>Nuevo Título/Descripción</label>
+                    <input type="text" id="editPhotoTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="editPhotoCategory" class="form-select">
+                        <option value="family">Familia</option>
+                        <option value="fun">Diversión</option>
+                        <option value="special">Momentos Especiales</option>
+                        <option value="daily">Día a Día</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('editPhotoModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
 </body>
 

@@ -398,16 +398,57 @@ document.getElementById('photoFileInput').addEventListener('change', (e) => {
 });
 
 async function deletePhoto(id) {
-    if (!confirm('¿Estás seguro de eliminar esta foto?')) return;
+    if (!confirm('¿Estás seguro de eliminar esta foto? Esta acción no se puede deshacer.')) return;
 
     try {
         await db.collection('photos').doc(id).delete();
-        showNotification('Foto eliminada', 'success');
+        showNotification('Foto eliminada correctamente', 'success');
         loadPhotosManager();
     } catch (error) {
         showNotification('Error al eliminar: ' + error.message, 'error');
     }
 }
+
+// --- Edit Photo Logic ---
+
+async function editPhoto(id) {
+    try {
+        const doc = await db.collection('photos').doc(id).get();
+        if (doc.exists) {
+            const data = doc.data();
+            document.getElementById('editPhotoId').value = id;
+            document.getElementById('editPhotoTitle').value = data.caption || '';
+            document.getElementById('editPhotoCategory').value = data.category || 'family';
+
+            document.getElementById('editPhotoModal').classList.add('active');
+        } else {
+            showNotification('La foto no existe', 'error');
+        }
+    } catch (error) {
+        showNotification('Error al cargar datos de la foto', 'error');
+    }
+}
+
+document.getElementById('editPhotoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('editPhotoId').value;
+    const caption = document.getElementById('editPhotoTitle').value;
+    const category = document.getElementById('editPhotoCategory').value;
+
+    try {
+        await db.collection('photos').doc(id).update({
+            caption: caption,
+            category: category
+        });
+
+        showNotification('Foto actualizada correctamente', 'success');
+        closeModal('editPhotoModal');
+        loadPhotosManager();
+    } catch (error) {
+        showNotification('Error al actualizar: ' + error.message, 'error');
+    }
+});
 
 // ========================================
 // 📚 STORIES MANAGER
