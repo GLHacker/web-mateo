@@ -648,115 +648,6 @@ function playSong(index) {
     });
 }
 
-// If same song, toggle play/pause
-if (currentSongIndex === index && currentAudio) {
-    const btn = document.getElementById(`playBtn${index}`);
-    if (currentAudio.paused) {
-        currentAudio.play();
-        btn.innerHTML = '<i class="fas fa-pause"></i>';
-        btn.classList.add('playing');
-        startVisualizer();
-    } else {
-        currentAudio.pause();
-        btn.innerHTML = '<i class="fas fa-play"></i>';
-        btn.classList.remove('playing');
-        stopVisualizer();
-    }
-    return;
-}
-
-// Stop current audio
-if (currentAudio) {
-    currentAudio.pause();
-    currentAudio = null;
-    stopVisualizer();
-}
-
-// Reset all buttons
-document.querySelectorAll('.play-btn').forEach(btn => {
-    btn.innerHTML = '<i class="fas fa-play"></i>';
-    btn.classList.remove('playing');
-});
-
-// Create new audio
-currentAudio = new Audio(song.audioUrl);
-currentSongIndex = index;
-
-// Create or update player
-let playerContainer = document.getElementById('musicPlayer');
-if (!playerContainer) {
-    playerContainer = document.createElement('div');
-    playerContainer.id = 'musicPlayer';
-    playerContainer.className = 'music-player-container';
-    document.body.appendChild(playerContainer);
-}
-
-playerContainer.innerHTML = `
-        <div class="player-header">
-            <div class="now-playing">
-                <span class="pulse-dot"></span>
-                ${song.emoji} ${song.title}
-            </div>
-            <button class="close-player" onclick="closePlayer()">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <canvas id="visualizer" width="360" height="100"></canvas>
-        <div class="player-controls">
-            <button class="control-btn" onclick="previousSong()">
-                <i class="fas fa-backward"></i>
-            </button>
-            <button class="control-btn play-pause-btn" onclick="togglePlay()" id="mainPlayBtn">
-                <i class="fas fa-pause"></i>
-            </button>
-            <button class="control-btn" onclick="nextSong()">
-                <i class="fas fa-forward"></i>
-            </button>
-        </div>
-        <div class="progress-container">
-            <span id="currentTime">0:00</span>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <span id="duration">0:00</span>
-        </div>
-    `;
-
-playerContainer.style.display = 'block';
-
-// Update button
-const btn = document.getElementById(`playBtn${index}`);
-btn.innerHTML = '<i class="fas fa-pause"></i>';
-btn.classList.add('playing');
-
-// Setup audio events
-currentAudio.addEventListener('loadedmetadata', () => {
-    document.getElementById('duration').textContent = formatTime(currentAudio.duration);
-});
-
-currentAudio.addEventListener('timeupdate', () => {
-    const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
-    document.getElementById('progressFill').style.width = progress + '%';
-    document.getElementById('currentTime').textContent = formatTime(currentAudio.currentTime);
-});
-
-currentAudio.addEventListener('ended', () => {
-    nextSong();
-});
-
-// Play audio
-currentAudio.play();
-setupVisualizer();
-
-// Confetti!
-confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 },
-    colors: ['#ff00cc', '#FFD700', '#00d4ff']
-});
-}
-
 function setupVisualizer() {
     const canvas = document.getElementById('visualizer');
     if (!canvas) return;
@@ -1173,3 +1064,359 @@ window.onclick = (e) => {
     if (e.target == document.getElementById('loginModal')) document.getElementById('loginModal').style.display = 'none';
     if (e.target == document.getElementById('uploadModal')) document.getElementById('uploadModal').style.display = 'none';
 };
+
+// ========================================
+// 🎮 GAMES LOGIC
+// ========================================
+
+// --- Memory Game ---
+let memoryCards = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let moves = 0;
+
+const memoryEmojis = ['🎂', '🚗', '❤️', '⭐', '🎮', '🎨', '🎵', '🌟'];
+
+function openMemoryGame() {
+    const modal = document.getElementById('memoryGameModal');
+    if (modal) {
+        modal.classList.add('active');
+        if (document.getElementById('gamesMenuModal')) {
+            document.getElementById('gamesMenuModal').classList.remove('active');
+        }
+        resetMemoryGame();
+    }
+}
+
+function closeMemoryGame() {
+    const modal = document.getElementById('memoryGameModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function resetMemoryGame() {
+    matchedPairs = 0;
+    moves = 0;
+    flippedCards = [];
+    document.getElementById('moves').textContent = '0';
+    document.getElementById('pairs').textContent = '0';
+
+    // Create card pairs
+    const cardPairs = [...memoryEmojis, ...memoryEmojis];
+    cardPairs.sort(() => Math.random() - 0.5);
+
+    const board = document.getElementById('memoryBoard');
+    board.innerHTML = '';
+
+    cardPairs.forEach((emoji, index) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.emoji = emoji;
+        card.dataset.index = index;
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-front">?</div>
+                <div class="card-back">${emoji}</div>
+            </div>
+        `;
+        card.addEventListener('click', flipCard);
+        board.appendChild(card);
+    });
+}
+
+function flipCard() {
+    if (flippedCards.length >= 2) return;
+    if (this.classList.contains('flipped')) return;
+
+    this.classList.add('flipped');
+    flippedCards.push(this);
+
+    if (flippedCards.length === 2) {
+        moves++;
+        document.getElementById('moves').textContent = moves;
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const [card1, card2] = flippedCards;
+    const emoji1 = card1.dataset.emoji;
+    const emoji2 = card2.dataset.emoji;
+
+    if (emoji1 === emoji2) {
+        matchedPairs++;
+        document.getElementById('pairs').textContent = matchedPairs;
+        flippedCards = [];
+
+        confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.6 }
+        });
+
+        if (matchedPairs === memoryEmojis.length) {
+            setTimeout(() => {
+                const best = localStorage.getItem('memoryBest') || 999;
+                if (moves < best) {
+                    localStorage.setItem('memoryBest', moves);
+                    alert(`¡Nuevo récord! ${moves} movimientos 🏆`);
+                } else {
+                    alert(`¡Ganaste en ${moves} movimientos! 🎉`);
+                }
+            }, 500);
+        }
+    } else {
+        setTimeout(() => {
+            card1.classList.remove('flipped');
+            card2.classList.remove('flipped');
+            flippedCards = [];
+        }, 1000);
+    }
+}
+
+// --- Find Mateo Game ---
+let findTimer = 0;
+let findInterval = null;
+let findLevel = 1;
+
+function openFindGame() {
+    const modal = document.getElementById('findGameModal');
+    if (modal) {
+        modal.classList.add('active');
+        if (document.getElementById('gamesMenuModal')) {
+            document.getElementById('gamesMenuModal').classList.remove('active');
+        }
+        startFindGame();
+    }
+}
+
+function closeFindGame() {
+    const modal = document.getElementById('findGameModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    if (findInterval) {
+        clearInterval(findInterval);
+    }
+}
+
+function startFindGame() {
+    findTimer = 0;
+    findLevel = 1;
+    document.getElementById('findTimer').textContent = '0';
+    document.getElementById('findLevel').textContent = '1';
+
+    if (findInterval) clearInterval(findInterval);
+    findInterval = setInterval(() => {
+        findTimer++;
+        document.getElementById('findTimer').textContent = findTimer;
+    }, 1000);
+
+    createFindBoard();
+}
+
+function createFindBoard() {
+    const board = document.getElementById('findBoard');
+    const gridSize = Math.min(3 + findLevel, 6);
+    board.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+    board.innerHTML = '';
+
+    const totalCells = gridSize * gridSize;
+    const mateoPosition = Math.floor(Math.random() * totalCells);
+
+    for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'find-cell';
+        cell.textContent = i === mateoPosition ? '👶' : '❓';
+        cell.dataset.isMateo = i === mateoPosition;
+        cell.addEventListener('click', checkFindCell);
+        board.appendChild(cell);
+    }
+}
+
+function checkFindCell() {
+    if (this.dataset.isMateo === 'true') {
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        findLevel++;
+        document.getElementById('findLevel').textContent = findLevel;
+
+        if (findLevel > 5) {
+            clearInterval(findInterval);
+            const best = localStorage.getItem('findBest') || 999;
+            if (findTimer < best || best === 999) {
+                localStorage.setItem('findBest', findTimer);
+                alert(`¡Nuevo récord! ${findTimer} segundos 🏆`);
+            } else {
+                alert(`¡Completaste todos los niveles en ${findTimer} segundos! 🎉`);
+            }
+            closeFindGame();
+        } else {
+            setTimeout(createFindBoard, 500);
+        }
+    } else {
+        this.textContent = '❌';
+        this.style.pointerEvents = 'none';
+    }
+}
+
+// --- Catch Stars Game ---
+let catchCanvas, catchCtx;
+let catchScore = 0;
+let catchTimeLeft = 30;
+let catchGameActive = false;
+let catchPlayer = { x: 300, y: 350, width: 60, height: 60 };
+let catchStars = [];
+let catchAnimationId = null;
+
+function openCatchGame() {
+    const modal = document.getElementById('catchGameModal');
+    if (modal) {
+        modal.classList.add('active');
+        if (document.getElementById('gamesMenuModal')) {
+            document.getElementById('gamesMenuModal').classList.remove('active');
+        }
+        catchCanvas = document.getElementById('catchCanvas');
+        catchCtx = catchCanvas.getContext('2d');
+        catchScore = 0;
+        catchTimeLeft = 30;
+        catchGameActive = false;
+        document.getElementById('catchScore').textContent = '0';
+        document.getElementById('catchTimer').textContent = '30';
+        document.getElementById('catchStartBtn').style.display = 'block';
+    }
+}
+
+function closeCatchGame() {
+    const modal = document.getElementById('catchGameModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    catchGameActive = false;
+    if (catchAnimationId) {
+        cancelAnimationFrame(catchAnimationId);
+    }
+}
+
+function startCatchGame() {
+    catchScore = 0;
+    catchTimeLeft = 30;
+    catchGameActive = true;
+    catchStars = [];
+    document.getElementById('catchScore').textContent = '0';
+    document.getElementById('catchTimer').textContent = '30';
+    document.getElementById('catchStartBtn').style.display = 'none';
+
+    catchPlayer.x = catchCanvas.width / 2 - catchPlayer.width / 2;
+
+    const timerInterval = setInterval(() => {
+        if (!catchGameActive) {
+            clearInterval(timerInterval);
+            return;
+        }
+        catchTimeLeft--;
+        document.getElementById('catchTimer').textContent = catchTimeLeft;
+
+        if (catchTimeLeft <= 0) {
+            clearInterval(timerInterval);
+            endCatchGame();
+        }
+    }, 1000);
+
+    catchCanvas.addEventListener('mousemove', moveCatchPlayer);
+    catchCanvas.addEventListener('touchmove', moveCatchPlayerTouch);
+
+    catchGameLoop();
+}
+
+function moveCatchPlayer(e) {
+    const rect = catchCanvas.getBoundingClientRect();
+    catchPlayer.x = e.clientX - rect.left - catchPlayer.width / 2;
+    catchPlayer.x = Math.max(0, Math.min(catchCanvas.width - catchPlayer.width, catchPlayer.x));
+}
+
+function moveCatchPlayerTouch(e) {
+    e.preventDefault();
+    const rect = catchCanvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    catchPlayer.x = touch.clientX - rect.left - catchPlayer.width / 2;
+    catchPlayer.x = Math.max(0, Math.min(catchCanvas.width - catchPlayer.width, catchPlayer.x));
+}
+
+function catchGameLoop() {
+    if (!catchGameActive) return;
+
+    catchCtx.clearRect(0, 0, catchCanvas.width, catchCanvas.height);
+
+    // Spawn stars
+    if (Math.random() < 0.03) {
+        catchStars.push({
+            x: Math.random() * (catchCanvas.width - 30),
+            y: -30,
+            width: 30,
+            height: 30,
+            speed: 2 + Math.random() * 2
+        });
+    }
+
+    // Update and draw stars
+    catchStars.forEach((star, index) => {
+        star.y += star.speed;
+
+        catchCtx.font = '30px Arial';
+        catchCtx.fillText('⭐', star.x, star.y);
+
+        // Check collision
+        if (star.x < catchPlayer.x + catchPlayer.width &&
+            star.x + star.width > catchPlayer.x &&
+            star.y < catchPlayer.y + catchPlayer.height &&
+            star.y + star.height > catchPlayer.y) {
+            catchScore++;
+            document.getElementById('catchScore').textContent = catchScore;
+            catchStars.splice(index, 1);
+
+            confetti({
+                particleCount: 20,
+                spread: 40,
+                origin: {
+                    x: (catchPlayer.x + catchPlayer.width / 2) / catchCanvas.width,
+                    y: (catchPlayer.y + catchPlayer.height / 2) / catchCanvas.height
+                }
+            });
+        }
+
+        // Remove if off screen
+        if (star.y > catchCanvas.height) {
+            catchStars.splice(index, 1);
+        }
+    });
+
+    // Draw player (Mateo)
+    catchCtx.font = '60px Arial';
+    catchCtx.fillText('👶', catchPlayer.x, catchPlayer.y + catchPlayer.height);
+
+    catchAnimationId = requestAnimationFrame(catchGameLoop);
+}
+
+function endCatchGame() {
+    catchGameActive = false;
+    const best = localStorage.getItem('catchBest') || 0;
+    if (catchScore > best) {
+        localStorage.setItem('catchBest', catchScore);
+        alert(`¡Nuevo récord! ${catchScore} estrellas 🏆`);
+    } else {
+        alert(`¡Atrapaste ${catchScore} estrellas! 🎉`);
+    }
+    document.getElementById('catchStartBtn').style.display = 'block';
+
+    confetti({
+        particleCount: 200,
+        spread: 100,
+        origin: { y: 0.6 }
+    });
+}
