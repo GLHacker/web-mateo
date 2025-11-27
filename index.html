@@ -4,17 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Familia Mateo, Luis & Jennifer</title>
-    <meta name="description" content="Momentos especiales de nuestra familia">
+    <title>Mateo, Luis & Jennifer | Family Album</title>
+    <meta name="description" content="Un viaje mágico por nuestros recuerdos">
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@400;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;1,400&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Animations (AOS) -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -23,199 +31,214 @@
 
 <body>
 
-    <header class="header">
-        <div class="container">
-            <h1 class="logo">Familia Mateo</h1>
-            <nav>
-                <a href="#home">Inicio</a>
-                <a href="#gallery">Galería</a>
-                <button id="loginBtn" class="btn-icon"><i class="fas fa-lock"></i></button>
-                <button id="logoutBtn" class="btn-icon hidden"><i class="fas fa-sign-out-alt"></i></button>
-            </nav>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav">
+        <div class="logo">Familia <span class="highlight">Mateo</span></div>
+        <div class="nav-links">
+            <button id="loginBtn" class="nav-btn"><i class="fas fa-lock"></i> Admin</button>
+            <button id="logoutBtn" class="nav-btn hidden"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            <button id="uploadBtn" class="nav-btn hidden"><i class="fas fa-cloud-upload-alt"></i> Subir</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-content" data-aos="fade-up" data-aos-duration="1500">
+            <span class="badge">Bienvenido a nuestro mundo</span>
+            <h1>Mateo, Luis <br>& <span class="gradient-text">Jennifer</span></h1>
+            <p>Cada sonrisa cuenta una historia. Cada foto guarda un momento eterno.</p>
+            <div class="scroll-indicator">
+                <span>Descubre más</span>
+                <i class="fas fa-chevron-down bounce"></i>
+            </div>
         </div>
     </header>
 
-    <main>
-        <section id="home" class="hero">
-            <div class="container">
-                <div class="hero-text">
-                    <h2>Mateo, Luis & Jennifer</h2>
-                    <p>Nuestra familia, nuestros momentos</p>
-                    <a href="#gallery" class="btn-primary">Ver Galería</a>
-                    <button id="uploadBtn" class="btn-secondary hidden">Subir Foto</button>
+    <!-- Gallery Section -->
+    <main class="gallery-section">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-right">Nuestros Momentos 📸</h2>
+
+            <div class="masonry-grid">
+
+                <!-- New Photo: Elmo -->
+                <div class="glass-card" data-aos="zoom-in-up" data-id="elmo">
+                    <div class="card-image">
+                        <img src="images/elmo.jpg" alt="Mateo Elmo">
+                        <div class="card-overlay">
+                            <button class="view-btn"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>¡Sonrisa Elmo! 😄</h3>
+                        <p>La alegría más pura en un disfraz rojo.</p>
+                        <div class="card-actions">
+                            <button class="action-btn like-btn" data-id="elmo"><i class="far fa-heart"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn comment-btn" data-id="elmo"><i class="far fa-comment"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                    </div>
                 </div>
-                <div class="hero-img">
-                    <img src="images/img3.jpg" alt="Familia">
+
+                <!-- New Photo: Standing -->
+                <div class="glass-card" data-aos="zoom-in-up" data-aos-delay="100" data-id="standing">
+                    <div class="card-image">
+                        <img src="images/standing.jpg" alt="Mateo Jugando">
+                        <div class="card-overlay">
+                            <button class="view-btn"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Explorando el Mundo 🌍</h3>
+                        <p>Cada paso es una nueva aventura.</p>
+                        <div class="card-actions">
+                            <button class="action-btn like-btn" data-id="standing"><i class="far fa-heart"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn comment-btn" data-id="standing"><i class="far fa-comment"></i>
+                                <span class="count">0</span></button>
+                            <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- New Photo: Close up -->
+                <div class="glass-card" data-aos="zoom-in-up" data-aos-delay="200" data-id="closeup">
+                    <div class="card-image">
+                        <img src="images/closeup.jpg" alt="Mateo Close Up">
+                        <div class="card-overlay">
+                            <button class="view-btn"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Esa Mirada ✨</h3>
+                        <p>Ojos que iluminan nuestros días.</p>
+                        <div class="card-actions">
+                            <button class="action-btn like-btn" data-id="closeup"><i class="far fa-heart"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn comment-btn" data-id="closeup"><i class="far fa-comment"></i>
+                                <span class="count">0</span></button>
+                            <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Existing Photos -->
+                <div class="glass-card" data-aos="zoom-in-up" data-aos-delay="300" data-id="img3">
+                    <div class="card-image">
+                        <img src="images/img3.jpg" alt="Familia">
+                        <div class="card-overlay">
+                            <button class="view-btn"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Familia Unida ❤️</h3>
+                        <p>Mateo, Luis y Jennifer. Amor infinito.</p>
+                        <div class="card-actions">
+                            <button class="action-btn like-btn" data-id="img3"><i class="far fa-heart"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn comment-btn" data-id="img3"><i class="far fa-comment"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card" data-aos="zoom-in-up" data-aos-delay="400" data-id="img1">
+                    <div class="card-image">
+                        <img src="images/img1.jpg" alt="Primer Auto">
+                        <div class="card-overlay">
+                            <button class="view-btn"><i class="fas fa-expand"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <h3>Primer Auto 🚗</h3>
+                        <p>¡A toda velocidad hacia la diversión!</p>
+                        <div class="card-actions">
+                            <button class="action-btn like-btn" data-id="img1"><i class="far fa-heart"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn comment-btn" data-id="img1"><i class="far fa-comment"></i> <span
+                                    class="count">0</span></button>
+                            <button class="action-btn share-btn"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </section>
-
-        <section id="gallery" class="gallery">
-            <div class="container">
-                <h3>Galería Familiar</h3>
-
-                <div class="photos-grid">
-                    <!-- Photo 1 -->
-                    <div class="photo-item">
-                        <img src="images/img1.jpg" alt="Mateo con su carrito">
-                        <div class="photo-info">
-                            <p class="photo-caption">Mateo descubriendo su primer carrito</p>
-                            <div class="photo-actions">
-                                <button class="action-btn like-btn" data-photo="img1">
-                                    <i class="far fa-heart"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn comment-btn" data-photo="img1">
-                                    <i class="far fa-comment"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn share-btn" data-photo="img1">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Photo 2 -->
-                    <div class="photo-item">
-                        <img src="images/img2.jpg" alt="Noche especial">
-                        <div class="photo-info">
-                            <p class="photo-caption">Una noche mágica en familia</p>
-                            <div class="photo-actions">
-                                <button class="action-btn like-btn" data-photo="img2">
-                                    <i class="far fa-heart"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn comment-btn" data-photo="img2">
-                                    <i class="far fa-comment"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn share-btn" data-photo="img2">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Photo 3 -->
-                    <div class="photo-item large">
-                        <img src="images/img3.jpg" alt="Familia unida">
-                        <div class="photo-info">
-                            <p class="photo-caption">Mateo, Luis y Jennifer - Familia unida</p>
-                            <div class="photo-actions">
-                                <button class="action-btn like-btn" data-photo="img3">
-                                    <i class="far fa-heart"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn comment-btn" data-photo="img3">
-                                    <i class="far fa-comment"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn share-btn" data-photo="img3">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Photo 4 -->
-                    <div class="photo-item">
-                        <img src="images/img5.jpg" alt="Celebración">
-                        <div class="photo-info">
-                            <p class="photo-caption">Celebrando momentos especiales</p>
-                            <div class="photo-actions">
-                                <button class="action-btn like-btn" data-photo="img5">
-                                    <i class="far fa-heart"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn comment-btn" data-photo="img5">
-                                    <i class="far fa-comment"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn share-btn" data-photo="img5">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Photo 5 -->
-                    <div class="photo-item">
-                        <img src="images/img4.jpg" alt="Luis y Mateo">
-                        <div class="photo-info">
-                            <p class="photo-caption">El vínculo especial entre padre e hijo</p>
-                            <div class="photo-actions">
-                                <button class="action-btn like-btn" data-photo="img4">
-                                    <i class="far fa-heart"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn comment-btn" data-photo="img4">
-                                    <i class="far fa-comment"></i>
-                                    <span class="count">0</span>
-                                </button>
-                                <button class="action-btn share-btn" data-photo="img4">
-                                    <i class="fas fa-share-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        </div>
     </main>
 
-    <footer class="footer">
-        <div class="container">
-            <p>© 2025 Familia Mateo, Luis & Jennifer</p>
-        </div>
-    </footer>
+    <!-- Modals (Glassmorphism Style) -->
 
-    <!-- Lightbox Modal -->
-    <div id="lightbox" class="lightbox">
-        <span class="close-lightbox">&times;</span>
-        <div class="lightbox-container">
-            <div class="lightbox-image-wrapper">
-                <img class="lightbox-content" id="lightbox-img">
-            </div>
-            <div class="lightbox-comments">
-                <h3>Comentarios</h3>
-                <div id="commentsList" class="comments-list"></div>
-                <form id="commentForm" class="comment-form">
-                    <input type="text" id="commentName" placeholder="Tu Nombre" required>
-                    <input type="text" id="commentText" placeholder="Escribe un comentario..." required>
-                    <button type="submit">Enviar</button>
-                </form>
+    <!-- Lightbox/Comment Modal -->
+    <div id="postModal" class="modal-backdrop">
+        <div class="glass-modal">
+            <button class="close-modal">&times;</button>
+            <div class="modal-layout">
+                <div class="modal-media">
+                    <img id="modalImg" src="" alt="">
+                </div>
+                <div class="modal-interactions">
+                    <div class="modal-header">
+                        <div class="avatar">F</div>
+                        <span>Familia Mateo</span>
+                    </div>
+                    <div class="comments-container" id="modalComments">
+                        <!-- Comments will load here -->
+                    </div>
+                    <div class="modal-footer">
+                        <div class="action-row">
+                            <button id="modalLikeBtn" class="action-icon"><i class="far fa-heart"></i></button>
+                            <button class="action-icon"><i class="far fa-comment"></i></button>
+                            <button class="action-icon"><i class="far fa-paper-plane"></i></button>
+                        </div>
+                        <div class="likes-info"><span id="modalLikes">0</span> Me gusta</div>
+                        <form id="commentForm" class="comment-input-area">
+                            <input type="text" id="commentName" placeholder="Tu nombre" required>
+                            <input type="text" id="commentText" placeholder="Agrega un comentario..." required>
+                            <button type="submit">Publicar</button>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeLogin">&times;</span>
-            <h2>Acceso Familiar</h2>
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal-backdrop">
+        <div class="glass-modal small">
+            <button class="close-simple-modal">&times;</button>
+            <h2>Admin Access</h2>
             <form id="loginForm">
                 <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Contraseña" required>
-                <button type="submit" class="btn-primary">Entrar</button>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit" class="gradient-btn">Entrar</button>
             </form>
         </div>
     </div>
 
-    <!-- Upload Modal -->
-    <div id="uploadModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="closeUpload">&times;</span>
-            <h2>Subir Nueva Foto</h2>
+    <div id="uploadModal" class="modal-backdrop">
+        <div class="glass-modal small">
+            <button class="close-simple-modal">&times;</button>
+            <h2>Subir Recuerdo</h2>
             <form id="uploadForm">
-                <input type="file" id="photoFile" accept="image/*" required>
-                <input type="text" id="photoCaption" placeholder="Descripción (opcional)">
-                <button type="submit" class="btn-primary">Subir</button>
-                <div id="uploadProgress" class="progress-bar hidden"></div>
+                <input type="file" id="photoFile" required>
+                <input type="text" id="photoCaption" placeholder="Título o historia...">
+                <button type="submit" class="gradient-btn">Subir</button>
             </form>
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="script.js"></script>
 </body>
 
