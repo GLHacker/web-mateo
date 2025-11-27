@@ -154,7 +154,10 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: gradientText 3s ease infinite;
+    background-size: 200% auto;
+    /* Restore background size for flow animation */
+    animation: gradientFlow 3s linear infinite;
+    /* Restore original animation name */
 }
 
 /* --- Stories Button & Modal --- */
@@ -167,23 +170,40 @@ body {
 }
 
 .glass-modal.full-screen {
-    width: 95vw;
-    height: 90vh;
+    width: 100%;
+    height: 100%;
     max-width: none;
+    border-radius: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: rgba(20, 20, 40, 0.95);
-    /* Darker background for stories */
+    background: rgba(20, 20, 40, 0.98);
+    /* Darker and more opaque */
+    padding-top: 60px;
+    /* Space for close button */
+}
+
+/* Close button specific for full screen */
+.glass-modal.full-screen .close-modal {
+    top: 20px;
+    right: 20px;
+    font-size: 3rem;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.1);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stories-container {
     flex: 1;
     position: relative;
+    width: 100%;
+    height: 100%;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .story-slide {
@@ -193,29 +213,40 @@ body {
     width: 100%;
     height: 100%;
     opacity: 0;
-    transition: opacity 1s ease-in-out;
+    transition: opacity 0.5s ease-in-out;
     display: flex;
+    flex-direction: column;
+    /* Stack vertically */
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    /* Start from top */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding: 20px;
     pointer-events: none;
-    /* Allow clicks to pass through to container */
+    visibility: hidden;
+    /* Hide completely when not active */
 }
 
 .story-slide.active {
     opacity: 1;
     pointer-events: auto;
+    visibility: visible;
 }
 
 .story-content {
     text-align: center;
     color: white;
     max-width: 800px;
-    padding: 2rem;
+    width: 100%;
+    padding-bottom: 50px;
+    /* Space for scroll */
 }
 
 .story-img {
     width: 100%;
-    max-height: 50vh;
+    max-height: 40vh;
+    /* Limit image height on mobile */
     object-fit: cover;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -225,22 +256,29 @@ body {
 
 .story-text h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 3rem;
+    font-size: 2rem;
+    /* Smaller font for mobile */
     margin-bottom: 1rem;
     color: #FFD700;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
 }
 
 .story-text p {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
+    /* Readable font size */
     line-height: 1.6;
 }
 
 .story-controls {
     text-align: center;
     color: rgba(255, 255, 255, 0.5);
-    padding: 1rem;
-    font-size: 0.9rem;
+    padding: 10px;
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.3);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
 }
 
 @keyframes pulse {
