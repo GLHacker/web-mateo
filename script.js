@@ -127,6 +127,34 @@ if (db) {
     initVisitorCounter();
 }
 
+// --- Games Menu Button ---
+const gamesBtn = document.getElementById('gamesBtn');
+const gamesMenuModal = document.getElementById('gamesMenuModal');
+const closeGamesMenuBtn = document.getElementById('closeGamesMenu');
+
+if (gamesBtn && gamesMenuModal) {
+    gamesBtn.onclick = () => {
+        gamesMenuModal.style.display = 'flex';
+        // Update best scores
+        document.getElementById('memoryBestDisplay').textContent = localStorage.getItem('memoryBest') || '0';
+        document.getElementById('findBestDisplay').textContent = localStorage.getItem('findBest') || '0';
+        document.getElementById('catchBestDisplay').textContent = localStorage.getItem('catchBest') || '0';
+    };
+}
+
+if (closeGamesMenuBtn) {
+    closeGamesMenuBtn.onclick = () => {
+        gamesMenuModal.style.display = 'none';
+    };
+}
+
+// Close games menu when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === gamesMenuModal) {
+        gamesMenuModal.style.display = 'none';
+    }
+});
+
 // --- Confetti on Like ---
 function celebrateLike(element) {
     const rect = element.getBoundingClientRect();
@@ -414,43 +442,43 @@ function loadDailyQuote() {
     }
 }
 
-// --- Playlist Data with Working Audio URLs ---
+// --- Playlist Data with WORKING Audio URLs ---
 const playlistSongs = [
     {
         title: "Baby Shark",
         artist: "Pinkfong",
         emoji: "🦈",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_01_-_Backbay_Lounge.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-01.mp3"
     },
     {
         title: "Wheels on the Bus",
         artist: "Cocomelon",
         emoji: "🚌",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_02_-_Bossa_Antigua.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-02.mp3"
     },
     {
         title: "Twinkle Twinkle Little Star",
         artist: "Super Simple Songs",
         emoji: "⭐",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_03_-_Carefree.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-03.mp3"
     },
     {
         title: "Old MacDonald",
         artist: "Cocomelon",
         emoji: "🐄",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_04_-_Wallpaper.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-04.mp3"
     },
     {
         title: "If You're Happy",
         artist: "Super Simple Songs",
         emoji: "😊",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_05_-_Fluffing_a_Duck.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-05.mp3"
     },
     {
         title: "Head Shoulders Knees",
         artist: "Super Simple Songs",
         emoji: "🎵",
-        audioUrl: "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_06_-_Parting_of_the_Ways.mp3"
+        audioUrl: "https://www.soundjay.com/human/sounds/applause-06.mp3"
     }
 ];
 

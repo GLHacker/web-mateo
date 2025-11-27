@@ -1955,4 +1955,91 @@ body.dark-mode #darkModeToggle i {
         width: 100%;
         height: auto;
     }
+}/* Games Menu Modal */
+.games-menu-modal {
+    max-width: 900px;
+    padding: 40px;
+}
+
+.modal-title {
+    text-align: center;
+    color: #FFD700;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.games-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.game-menu-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.game-menu-card:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #FFD700;
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+}
+
+.game-menu-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: bounce 2s infinite;
+}
+
+.game-menu-card h3 {
+    color: #FFD700;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.game-menu-card p {
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 15px;
+}
+
+.game-best {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Game Modal Content */
+.game-modal-content {
+    max-width: 700px;
+    padding: 30px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.game-info span {
+    color: white;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .games-menu-grid {
+        grid-template-columns: 1fr;
+    }
 }
