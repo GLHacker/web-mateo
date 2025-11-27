@@ -851,9 +851,10 @@ if (backToMenuBtn) {
 async function renderStories() {
     const container = document.getElementById('storiesContainer');
     if (!container) return;
-    container.innerHTML = '';
+    container.innerHTML = ''; // Clear previous content
 
-    let allStories = [...storiesData];
+    let allStories = [...storiesData]; // Start with static stories
+    console.log("Static stories loaded:", allStories.length);
 
     if (db) {
         try {
@@ -867,46 +868,50 @@ async function renderStories() {
                     text: `<p>${data.content}</p>`
                 });
             });
-            allStories = [...firebaseStories, ...allStories];
+            console.log("Firebase stories loaded:", firebaseStories.length);
+            allStories = [...firebaseStories, ...allStories]; // Add Firebase stories before static ones
         } catch (error) {
-            console.error("Error loading stories:", error);
+            console.error("Error loading stories from Firebase:", error);
+            // Even if Firebase fails, we proceed with static stories
         }
     }
 
-    allStories.forEach((story, index) => {
-        const slide = document.createElement('div');
-        slide.className = 'story-slide';
-        if (index === 0) slide.classList.add('active');
+    // Render whatever stories we have
+    if (allStories.length > 0) {
+        allStories.forEach((story, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'story-slide';
+            if (index === 0) slide.classList.add('active');
 
-        slide.innerHTML = `
-            <div class="story-content">
-                <img src="${story.img}" alt="${story.title}" class="story-img">
-                <div class="story-text">
-                    <h2>${story.title}</h2>
-                    ${story.text}
+            slide.innerHTML = `
+                <div class="story-content">
+                    <img src="${story.img}" alt="${story.title}" class="story-img">
+                    <div class="story-text">
+                        <h2>${story.title}</h2>
+                        ${story.text}
+                    </div>
                 </div>
-            </div>
-        `;
-        container.appendChild(slide);
-    });
+            `;
+            container.appendChild(slide);
+        });
 
-    // Carousel Logic
-    let currentStory = 0;
-    const slides = document.getElementsByClassName('story-slide');
+        // Carousel Logic
+        let currentStory = 0;
+        const slides = document.getElementsByClassName('story-slide');
 
-    container.onclick = (e) => {
-        // Don't advance if clicking the close button (just in case)
-        if (e.target.closest('.close-modal')) return;
+        container.onclick = (e) => {
+            if (e.target.closest('.close-modal') || e.target.closest('.floating-back-btn')) return;
 
-        if (slides.length > 0) {
-            slides[currentStory].classList.remove('active');
-            currentStory = (currentStory + 1) % slides.length;
-            slides[currentStory].classList.add('active');
-
-            // Reset scroll to top for the new slide
-            slides[currentStory].scrollTop = 0;
-        }
-    };
+            if (slides.length > 0) {
+                slides[currentStory].classList.remove('active');
+                currentStory = (currentStory + 1) % slides.length;
+                slides[currentStory].classList.add('active');
+                slides[currentStory].scrollTop = 0;
+            }
+        };
+    } else {
+        container.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">No hay cuentos disponibles en este momento.</p>';
+    }
 }
 
 // --- Modal Logic ---
