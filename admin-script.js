@@ -914,14 +914,132 @@ async function saveSiteInfo() {
 }
 
 async function exportData() {
-    showNotification('Exportando datos...', 'info');
-    // Implementation for data export
-    showNotification('Función en desarrollo', 'info');
+    if (!confirm('¿Quieres descargar una copia de seguridad de todos los datos del sitio?')) return;
+
+    showNotification('Generando copia de seguridad...', 'info');
+
+    const backup = {
+        timestamp: new Date().toISOString(),
+        photos: [],
+        stories: [],
+        achievements: [],
+        milestones: [],
+        music: [],
+        settings: {}
+    };
+
+    try {
+        // 1. Export Photos
+        const photosSnap = await db.collection('photos').get();
+        photosSnap.forEach(doc => backup.photos.push({ id: doc.id, ...doc.data() }));
+
+        // 2. Export Stories
+        const storiesSnap = await db.collection('stories').get();
+        storiesSnap.forEach(doc => backup.stories.push({ id: doc.id, ...doc.data() }));
+
+        // 3. Export Achievements
+        const achSnap = await db.collection('achievements').get();
+        achSnap.forEach(doc => backup.achievements.push({ id: doc.id, ...doc.data() }));
+
+        // 4. Export Milestones
+        const mileSnap = await db.collection('milestones').get();
+        mileSnap.forEach(doc => backup.milestones.push({ id: doc.id, ...doc.data() }));
+
+        // 5. Export Music
+        const musicSnap = await db.collection('music').get();
+        musicSnap.forEach(doc => backup.music.push({ id: doc.id, ...doc.data() }));
+
+        // 6. Export Settings
+        const settingsSnap = await db.collection('settings').get();
+        settingsSnap.forEach(doc => backup.settings[doc.id] = doc.data());
+
+        // Create and download JSON file
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `backup_mateo_web_${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchorNode); // required for firefox
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+
+        showNotification('¡Copia de seguridad descargada!', 'success');
+
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('Error al exportar: ' + error.message, 'error');
+    }
 }
 
 async function importData() {
-    showNotification('Función en desarrollo', 'info');
+    document.getElementById('importFileInput').click();
 }
+
+// Handle File Import
+document.getElementById('importFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!confirm('⚠️ ADVERTENCIA: Importar datos sobrescribirá la información existente con el mismo ID. ¿Estás seguro de continuar?')) {
+        e.target.value = ''; // Reset input
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+        try {
+            const data = JSON.parse(event.target.result);
+            showNotification('Iniciando restauración...', 'info');
+            let count = 0;
+
+            // Helper to restore collection
+            const restoreCollection = async (collectionName, items) => {
+                if (!items || !Array.isArray(items)) return;
+                const batch = db.batch();
+                items.forEach(item => {
+                    const { id, ...docData } = item;
+                    // Convert timestamps back to Firestore Timestamps if needed
+                    if (docData.timestamp && typeof docData.timestamp === 'string') {
+                        // Simple check, might need more robust parsing if strictly needed as Timestamp object
+                        // But Firestore accepts Date objects or ISO strings usually
+                    }
+                    const ref = db.collection(collectionName).doc(id);
+                    batch.set(ref, docData, { merge: true });
+                    count++;
+                });
+                await batch.commit();
+            };
+
+            // Restore all collections
+            await restoreCollection('photos', data.photos);
+            await restoreCollection('stories', data.stories);
+            await restoreCollection('achievements', data.achievements);
+            await restoreCollection('milestones', data.milestones);
+            await restoreCollection('music', data.music);
+
+            // Restore Settings
+            if (data.settings) {
+                for (const [key, value] of Object.entries(data.settings)) {
+                    await db.collection('settings').doc(key).set(value, { merge: true });
+                }
+            }
+
+            showNotification(`¡Restauración completada! ${count} elementos procesados.`, 'success');
+
+            // Reload current view
+            const activeNav = document.querySelector('.nav-item.active');
+            if (activeNav) {
+                loadSectionData(activeNav.dataset.section);
+            }
+
+        } catch (error) {
+            console.error('Import error:', error);
+            showNotification('Error al importar archivo: ' + error.message, 'error');
+        }
+        e.target.value = ''; // Reset input
+    };
+
+    reader.readAsText(file);
+});
 
 async function clearCache() {
     if (!confirm('¿Limpiar caché del navegador?')) return;
