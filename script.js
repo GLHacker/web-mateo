@@ -1115,4 +1115,342 @@ window.onclick = (e) => {
     if (e.target == document.getElementById('uploadModal')) document.getElementById('uploadModal').style.display = 'none';
 };
 
+// ========================================
+// ✨ NUEVAS FUNCIONALIDADES PREMIUM
+// ========================================
+
+// --- Dashboard de Estadísticas ---
+function updateStatsDashboard() {
+    const birthDate = new Date('2024-01-15');
+    const now = new Date();
+
+    // Calcular días vivos
+    const daysAlive = Math.floor((now - birthDate) / (1000 * 60 * 60 * 24));
+    const hoursAlive = Math.floor((now - birthDate) / (1000 * 60 * 60));
+
+    // Estimar pasos (promedio de pasos por día para un niño pequeño)
+    const estimatedSteps = daysAlive * 2000;
+
+    // Animar contadores
+    animateValue('daysAlive', 0, daysAlive, 2000);
+    animateValue('hoursAlive', 0, hoursAlive, 2000);
+
+    const stepsElement = document.getElementById('stepsEstimate');
+    if (stepsElement) {
+        stepsElement.textContent = estimatedSteps.toLocaleString() + '+';
+    }
+}
+
+function animateValue(id, start, end, duration) {
+    const element = document.getElementById(id);
+    if (!element) return;
+
+    const range = end - start;
+    const increment = range / (duration / 16);
+    let current = start;
+
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= end) {
+            element.textContent = Math.floor(end).toLocaleString();
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(current).toLocaleString();
+        }
+    }, 16);
+}
+
+// --- Sistema de Logros ---
+const achievementsData = [
+    {
+        id: 'first_steps',
+        badge: '👣',
+        title: 'Primeros Pasos',
+        desc: 'Conquistó el mundo con sus primeros pasos',
+        unlocked: true,
+        date: 'Enero 2024'
+    },
+    {
+        id: 'car_master',
+        badge: '🏎️',
+        title: 'Maestro del Coche',
+        desc: 'Experto en conducir su coche rojo',
+        unlocked: true,
+        date: 'Marzo 2024'
+    },
+    {
+        id: 'smile_king',
+        badge: '😊',
+        title: 'Rey de las Sonrisas',
+        desc: 'Alegró más de 1000 días',
+        unlocked: true,
+        date: 'Todo el tiempo'
+    },
+    {
+        id: 'explorer',
+        badge: '🗺️',
+        title: 'Explorador Valiente',
+        desc: 'Descubrió cada rincón de la casa',
+        unlocked: true,
+        date: 'Febrero 2024'
+    },
+    {
+        id: 'family_love',
+        badge: '❤️',
+        title: 'Amor Familiar',
+        desc: 'Unió a la familia con su ternura',
+        unlocked: true,
+        date: 'Desde siempre'
+    },
+    {
+        id: 'future_star',
+        badge: '⭐',
+        title: 'Estrella del Futuro',
+        desc: 'Desbloqueado al cumplir 2 años',
+        unlocked: false,
+        date: '???'
+    }
+];
+
+function loadAchievements() {
+    const grid = document.getElementById('achievementsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = achievementsData.map((achievement, index) => `
+        <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}" 
+             data-aos="zoom-in" 
+             data-aos-delay="${index * 100}">
+            <div class="achievement-badge">${achievement.badge}</div>
+            <h4 class="achievement-title">${achievement.title}</h4>
+            <p class="achievement-desc">${achievement.desc}</p>
+            <div class="achievement-date">${achievement.unlocked ? achievement.date : '🔒 Bloqueado'}</div>
+        </div>
+    `).join('');
+
+    // Efecto de confetti al hacer hover en logros desbloqueados
+    document.querySelectorAll('.achievement-card.unlocked').forEach(card => {
+        card.addEventListener('mouseenter', function () {
+            const rect = this.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+            confetti({
+                particleCount: 30,
+                spread: 50,
+                origin: { x, y },
+                colors: ['#FFD700', '#ff00cc', '#00d4ff']
+            });
+        });
+    });
+}
+
+// --- Calendario de Hitos ---
+const milestonesData = [
+    { date: '2024-01-15', icon: '🎂', title: 'Nace Mateo', desc: 'El día más feliz de nuestras vidas' },
+    { date: '2024-02-10', icon: '👶', title: 'Primera Sonrisa', desc: 'Iluminó nuestro mundo' },
+    { date: '2024-03-20', icon: '👣', title: 'Primeros Pasos', desc: 'Comenzó su gran aventura' },
+    { date: '2024-04-15', icon: '🚗', title: 'Primer Coche', desc: 'Amor a primera vista con su coche rojo' },
+    { date: '2024-06-01', icon: '🗣️', title: 'Primeras Palabras', desc: 'Mamá y Papá nunca sonaron tan bien' },
+    { date: '2024-08-10', icon: '🎉', title: 'Primera Fiesta', desc: 'Celebró con toda la familia' },
+    { date: '2024-10-20', icon: '🏃', title: 'Corriendo', desc: 'Ya no hay quien lo alcance' },
+    { date: '2024-11-15', icon: '❤️', title: 'Amor Infinito', desc: 'Cada día nos enseña a amar más' }
+];
+
+let currentYear = 2024;
+
+function loadMilestones() {
+    const list = document.getElementById('milestonesList');
+    if (!list) return;
+
+    list.innerHTML = milestonesData.map((milestone, index) => `
+        <div class="milestone-item" data-aos="fade-left" data-aos-delay="${index * 50}">
+            <div class="milestone-icon">${milestone.icon}</div>
+            <div class="milestone-content">
+                <h4>${milestone.title}</h4>
+                <p>${milestone.desc}</p>
+            </div>
+            <div class="milestone-date">${new Date(milestone.date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</div>
+        </div>
+    `).join('');
+}
+
+function loadCalendar() {
+    const monthElement = document.getElementById('calendarMonth');
+    const gridElement = document.getElementById('calendarGrid');
+
+    if (!monthElement || !gridElement) return;
+
+    monthElement.textContent = currentYear;
+
+    // Crear calendario simple mostrando meses con hitos
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+
+    gridElement.innerHTML = months.map((month, index) => {
+        const monthNum = (index + 1).toString().padStart(2, '0');
+        const hasMilestone = milestonesData.some(m => m.date.startsWith(`${currentYear}-${monthNum}`));
+
+        return `
+            <div class="calendar-day ${hasMilestone ? 'has-milestone' : ''}" 
+                 onclick="showMonthMilestones(${index + 1})">
+                ${month}
+            </div>
+        `;
+    }).join('');
+}
+
+function showMonthMilestones(month) {
+    const monthStr = month.toString().padStart(2, '0');
+    const monthMilestones = milestonesData.filter(m => m.date.startsWith(`${currentYear}-${monthStr}`));
+
+    if (monthMilestones.length > 0) {
+        const messages = monthMilestones.map(m => `${m.icon} ${m.title}`).join('\n');
+        alert(`Hitos de este mes:\n\n${messages}`);
+    }
+}
+
+// Navegación del calendario
+document.getElementById('prevMonth')?.addEventListener('click', () => {
+    currentYear--;
+    loadCalendar();
+});
+
+document.getElementById('nextMonth')?.addEventListener('click', () => {
+    currentYear++;
+    loadCalendar();
+});
+
+// --- Selector de Temas ---
+function initThemeSelector() {
+    const themeCards = document.querySelectorAll('.theme-card');
+    const currentTheme = localStorage.getItem('selectedTheme') || 'default';
+
+    // Aplicar tema guardado
+    document.body.setAttribute('data-theme', currentTheme);
+
+    // Marcar tema activo
+    themeCards.forEach(card => {
+        if (card.getAttribute('data-theme') === currentTheme) {
+            card.classList.add('active');
+        }
+
+        card.addEventListener('click', function () {
+            const theme = this.getAttribute('data-theme');
+
+            // Remover clase active de todas las tarjetas
+            themeCards.forEach(c => c.classList.remove('active'));
+
+            // Agregar clase active a la tarjeta seleccionada
+            this.classList.add('active');
+
+            // Aplicar tema
+            document.body.setAttribute('data-theme', theme);
+            localStorage.setItem('selectedTheme', theme);
+
+            // Efecto de confetti
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Actualizar blobs de fondo
+            updateBackgroundBlobs(theme);
+        });
+    });
+}
+
+function updateBackgroundBlobs(theme) {
+    const blobs = document.querySelectorAll('.blob');
+    const colors = {
+        default: ['#ff00cc', '#333399', '#00d4ff'],
+        ocean: ['#0077be', '#00a8cc', '#00d4ff'],
+        sunset: ['#ff6b6b', '#ffa500', '#ffd700'],
+        forest: ['#2d5016', '#4a7c2e', '#6fa84a']
+    };
+
+    const themeColors = colors[theme] || colors.default;
+
+    blobs.forEach((blob, index) => {
+        blob.style.background = themeColors[index % themeColors.length];
+    });
+}
+
+// --- Comparador de Fotos ---
+function initPhotoCompare() {
+    const divider = document.getElementById('compareDivider');
+    const afterImage = document.querySelector('.compare-image.after');
+    const slider = document.querySelector('.compare-slider');
+
+    if (!divider || !afterImage || !slider) return;
+
+    let isDragging = false;
+
+    function updateComparison(x) {
+        const rect = slider.getBoundingClientRect();
+        const position = ((x - rect.left) / rect.width) * 100;
+
+        if (position >= 0 && position <= 100) {
+            divider.style.left = position + '%';
+            afterImage.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
+        }
+    }
+
+    // Mouse events
+    divider.addEventListener('mousedown', () => {
+        isDragging = true;
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            updateComparison(e.clientX);
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    // Touch events
+    divider.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            const touch = e.touches[0];
+            updateComparison(touch.clientX);
+        }
+    });
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+
+    // Click en el slider para mover el divisor
+    slider.addEventListener('click', (e) => {
+        if (e.target !== divider && !e.target.closest('.compare-handle')) {
+            updateComparison(e.clientX);
+        }
+    });
+}
+
+// --- Inicializar todas las nuevas funcionalidades ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Funcionalidades existentes
+    updateStatsDashboard();
+    loadAchievements();
+    loadMilestones();
+    loadCalendar();
+    initThemeSelector();
+    initPhotoCompare();
+
+    // Actualizar estadísticas cada hora
+    setInterval(updateStatsDashboard, 1000 * 60 * 60);
+
+    // Reinicializar AOS para las nuevas secciones
+    if (typeof AOS !== 'undefined') {
+        AOS.refresh();
+    }
+});
 

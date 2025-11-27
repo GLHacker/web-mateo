@@ -250,6 +250,217 @@
         </div>
     </section>
 
+    <!-- ========================================
+         ✨ NUEVAS FUNCIONALIDADES PREMIUM
+         ======================================== -->
+
+    <!-- Dashboard de Estadísticas -->
+    <section class="stats-dashboard-section" id="statsDashboard">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">📊 Dashboard de Mateo</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Estadísticas mágicas en tiempo real
+            </p>
+
+            <div class="stats-grid">
+                <div class="stat-card" data-aos="flip-up">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="daysAlive">0</div>
+                    <div class="stat-label">Días de Vida</div>
+                    <div class="stat-progress">
+                        <div class="stat-progress-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-aos="flip-up" data-aos-delay="100">
+                    <div class="stat-icon">⏰</div>
+                    <div class="stat-value" id="hoursAlive">0</div>
+                    <div class="stat-label">Horas de Aventuras</div>
+                    <div class="stat-progress">
+                        <div class="stat-progress-bar" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-aos="flip-up" data-aos-delay="200">
+                    <div class="stat-icon">😊</div>
+                    <div class="stat-value">∞</div>
+                    <div class="stat-label">Sonrisas Dadas</div>
+                    <div class="stat-progress">
+                        <div class="stat-progress-bar" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card" data-aos="flip-up" data-aos-delay="300">
+                    <div class="stat-icon">🚶</div>
+                    <div class="stat-value" id="stepsEstimate">5,000+</div>
+                    <div class="stat-label">Pasos Dados</div>
+                    <div class="stat-progress">
+                        <div class="stat-progress-bar" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Medidor de Crecimiento -->
+    <section class="growth-meter-section" id="growthMeter">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">📏 Medidor de Crecimiento</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                ¡Mira cómo crece nuestro pequeño gigante!
+            </p>
+
+            <div class="growth-container" data-aos="zoom-in">
+                <div class="growth-ruler">
+                    <div class="ruler-marks">
+                        <div class="ruler-mark" style="bottom: 0%"><span>0 cm</span></div>
+                        <div class="ruler-mark" style="bottom: 25%"><span>25 cm</span></div>
+                        <div class="ruler-mark" style="bottom: 50%"><span>50 cm</span></div>
+                        <div class="ruler-mark" style="bottom: 75%"><span>75 cm</span></div>
+                        <div class="ruler-mark" style="bottom: 100%"><span>100 cm</span></div>
+                    </div>
+                    <div class="growth-indicator" id="growthIndicator">
+                        <div class="growth-marker">
+                            <span class="growth-value" id="heightValue">85 cm</span>
+                            <div class="growth-emoji">👶</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="growth-stats">
+                    <div class="growth-stat-item">
+                        <div class="growth-stat-icon">📐</div>
+                        <div class="growth-stat-info">
+                            <h4>Altura Actual</h4>
+                            <p id="currentHeight">85 cm</p>
+                        </div>
+                    </div>
+                    <div class="growth-stat-item">
+                        <div class="growth-stat-icon">⚖️</div>
+                        <div class="growth-stat-info">
+                            <h4>Peso Actual</h4>
+                            <p id="currentWeight">12 kg</p>
+                        </div>
+                    </div>
+                    <div class="growth-stat-item">
+                        <div class="growth-stat-icon">🎯</div>
+                        <div class="growth-stat-info">
+                            <h4>Comparación</h4>
+                            <p id="heightComparison">¡Tan alto como 6 pelotas! ⚽</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sistema de Logros -->
+    <section class="achievements-section" id="achievements">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">🏆 Logros Desbloqueados</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Cada día es una nueva victoria
+            </p>
+
+            <div class="achievements-grid" id="achievementsGrid">
+                <!-- Achievements will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendario de Hitos -->
+    <section class="milestones-section" id="milestones">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">📅 Calendario de Hitos</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Momentos especiales que nunca olvidaremos
+            </p>
+
+            <div class="calendar-container" data-aos="zoom-in">
+                <div class="calendar-header">
+                    <button class="calendar-nav" id="prevMonth">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h3 id="calendarMonth">2024</h3>
+                    <button class="calendar-nav" id="nextMonth">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar will be loaded here -->
+                </div>
+            </div>
+
+            <div class="milestones-list" id="milestonesList">
+                <!-- Milestones will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Selector de Temas -->
+    <section class="theme-selector-section" id="themeSelector">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">🌈 Personaliza tu Experiencia</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Elige el tema que más te guste
+            </p>
+
+            <div class="themes-grid">
+                <div class="theme-card" data-theme="default" data-aos="zoom-in">
+                    <div class="theme-preview theme-default"></div>
+                    <h4>Galaxia Mágica</h4>
+                    <p>Tema original con colores vibrantes</p>
+                </div>
+
+                <div class="theme-card" data-theme="ocean" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="theme-preview theme-ocean"></div>
+                    <h4>Océano Profundo</h4>
+                    <p>Azules relajantes del mar</p>
+                </div>
+
+                <div class="theme-card" data-theme="sunset" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="theme-preview theme-sunset"></div>
+                    <h4>Atardecer Dorado</h4>
+                    <p>Cálidos tonos del atardecer</p>
+                </div>
+
+                <div class="theme-card" data-theme="forest" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="theme-preview theme-forest"></div>
+                    <h4>Bosque Encantado</h4>
+                    <p>Verdes naturales y frescos</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparador de Fotos -->
+    <section class="photo-compare-section" id="photoCompare">
+        <div class="container">
+            <h2 class="section-title" data-aos="fade-up">📸 Antes & Después</h2>
+            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
+                Desliza para ver cómo ha crecido Mateo
+            </p>
+
+            <div class="compare-container" data-aos="zoom-in">
+                <div class="compare-slider">
+                    <div class="compare-image before">
+                        <img src="images/img3.jpg" alt="Mateo Antes">
+                        <div class="compare-label">Antes</div>
+                    </div>
+                    <div class="compare-image after">
+                        <img src="images/mateo_star.jpg" alt="Mateo Ahora">
+                        <div class="compare-label">Ahora</div>
+                    </div>
+                    <div class="compare-divider" id="compareDivider">
+                        <div class="compare-handle">
+                            <i class="fas fa-arrows-alt-h"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
 
     <!-- Modals (Glassmorphism Style) -->
