@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Familia Mateo</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+
+<body>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Panel de Administración</h1>
+                <p>Acceso exclusivo para administradores</p>
+            </div>
+            <form id="adminLoginForm">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="adminEmail" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="adminPassword" placeholder="Contraseña" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                </button>
+            </form>
+            <a href="index.html" class="back-link">
+                <i class="fas fa-arrow-left"></i> Volver a la página principal
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-dashboard hidden">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-crown"></i>
+                <h2>Admin Panel</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Resumen</span>
+                </button>
+                <button class="nav-item" data-section="content">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar Contenido</span>
+                </button>
+                <button class="nav-item" data-section="photos">
+                    <i class="fas fa-images"></i>
+                    <span>Gestión de Fotos</span>
+                </button>
+                <button class="nav-item" data-section="stories">
+                    <i class="fas fa-book"></i>
+                    <span>Cuentos</span>
+                </button>
+                <button class="nav-item" data-section="music">
+                    <i class="fas fa-music"></i>
+                    <span>Playlist</span>
+                </button>
+                <button class="nav-item" data-section="achievements">
+                    <i class="fas fa-trophy"></i>
+                    <span>Logros</span>
+                </button>
+                <button class="nav-item" data-section="milestones">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Hitos</span>
+                </button>
+                <button class="nav-item" data-section="settings">
+                    <i class="fas fa-cog"></i>
+                    <span>Configuración</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button id="viewSiteBtn" class="footer-btn">
+                    <i class="fas fa-external-link-alt"></i>
+                    Ver Sitio
+                </button>
+                <button id="logoutAdminBtn" class="footer-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Cerrar Sesión
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="content-header">
+                <div class="header-left">
+                    <h1 id="sectionTitle">Resumen</h1>
+                    <p id="sectionSubtitle">Vista general del sitio web</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="adminUserName">Administrador</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Sections -->
+            <div class="content-body">
+
+                <!-- Overview Section -->
+                <section id="overviewSection" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon blue">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalVisits">0</h3>
+                                <p>Visitas Totales</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon green">
+                                <i class="fas fa-images"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalPhotos">0</h3>
+                                <p>Fotos Subidas</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon purple">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalComments">0</h3>
+                                <p>Comentarios</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon orange">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalLikes">0</h3>
+                                <p>Me Gusta</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-actions">
+                        <h2>Acciones Rápidas</h2>
+                        <div class="actions-grid">
+                            <button class="action-card" onclick="switchSection('photos')">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Subir Foto</span>
+                            </button>
+                            <button class="action-card" onclick="switchSection('stories')">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Nuevo Cuento</span>
+                            </button>
+                            <button class="action-card" onclick="switchSection('achievements')">
+                                <i class="fas fa-trophy"></i>
+                                <span>Agregar Logro</span>
+                            </button>
+                            <button class="action-card" onclick="switchSection('content')">
+                                <i class="fas fa-edit"></i>
+                                <span>Editar Contenido</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Content Editor Section -->
+                <section id="contentSection" class="content-section">
+                    <div class="editor-container">
+                        <h2>Editor de Contenido</h2>
+                        <p class="section-desc">Edita los textos y contenidos de la página principal</p>
+
+                        <div class="editor-grid">
+                            <!-- Hero Section -->
+                            <div class="editor-card">
+                                <h3><i class="fas fa-star"></i> Sección Hero</h3>
+                                <div class="form-group">
+                                    <label>Título Principal</label>
+                                    <input type="text" id="heroTitle" class="form-input"
+                                        placeholder="Mateo, Luis & Jennifer">
+                                </div>
+                                <div class="form-group">
+                                    <label>Subtítulo</label>
+                                    <textarea id="heroSubtitle" class="form-textarea"
+                                        rows="2">Donde cada foto es una página de nuestra historia mágica.</textarea>
+                                </div>
+                                <button class="save-btn" onclick="saveHeroContent()">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+
+                            <!-- Mateo Today -->
+                            <div class="editor-card">
+                                <h3><i class="fas fa-calendar-day"></i> Mateo Hoy</h3>
+                                <div class="form-group">
+                                    <label>Frase del Día</label>
+                                    <input type="text" id="dailyQuote" class="form-input"
+                                        placeholder="¿Por qué estás en MI cuarto?">
+                                </div>
+                                <div class="form-group">
+                                    <label>Actividad Favorita</label>
+                                    <input type="text" id="favoriteActivity" class="form-input"
+                                        placeholder="Conducir su coche rojo">
+                                </div>
+                                <button class="save-btn" onclick="saveMateToday()">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+
+                            <!-- Fun Facts -->
+                            <div class="editor-card">
+                                <h3><i class="fas fa-lightbulb"></i> Datos de Mateo</h3>
+                                <div class="form-group">
+                                    <label>Fecha de Nacimiento</label>
+                                    <input type="date" id="mateoBirthdate" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Altura (cm)</label>
+                                    <input type="number" id="mateoHeight" class="form-input" placeholder="85">
+                                </div>
+                                <div class="form-group">
+                                    <label>Peso (kg)</label>
+                                    <input type="number" id="mateoWeight" class="form-input" placeholder="12">
+                                </div>
+                                <button class="save-btn" onclick="saveMateData()">
+                                    <i class="fas fa-save"></i> Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Photos Management Section -->
+                <section id="photosSection" class="content-section">
+                    <div class="photos-manager">
+                        <div class="section-header">
+                            <h2>Gestión de Fotos</h2>
+                            <button class="primary-btn" onclick="openUploadModal()">
+                                <i class="fas fa-plus"></i> Subir Nueva Foto
+                            </button>
+                        </div>
+
+                        <div id="photosGrid" class="admin-photos-grid">
+                            <!-- Photos will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stories Section -->
+                <section id="storiesSection" class="content-section">
+                    <div class="stories-manager">
+                        <div class="section-header">
+                            <h2>Gestión de Cuentos</h2>
+                            <button class="primary-btn" onclick="openStoryModal()">
+                                <i class="fas fa-plus"></i> Nuevo Cuento
+                            </button>
+                        </div>
+
+                        <div id="storiesList" class="stories-list">
+                            <!-- Stories will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Music Section -->
+                <section id="musicSection" class="content-section">
+                    <div class="music-manager">
+                        <div class="section-header">
+                            <h2>Gestión de Playlist</h2>
+                            <button class="primary-btn" onclick="openMusicModal()">
+                                <i class="fas fa-plus"></i> Agregar Canción
+                            </button>
+                        </div>
+
+                        <div id="musicList" class="music-list">
+                            <!-- Music items will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Achievements Section -->
+                <section id="achievementsSection" class="content-section">
+                    <div class="achievements-manager">
+                        <div class="section-header">
+                            <h2>Gestión de Logros</h2>
+                            <button class="primary-btn" onclick="openAchievementModal()">
+                                <i class="fas fa-plus"></i> Nuevo Logro
+                            </button>
+                        </div>
+
+                        <div id="achievementsList" class="achievements-list">
+                            <!-- Achievements will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Milestones Section -->
+                <section id="milestonesSection" class="content-section">
+                    <div class="milestones-manager">
+                        <div class="section-header">
+                            <h2>Gestión de Hitos</h2>
+                            <button class="primary-btn" onclick="openMilestoneModal()">
+                                <i class="fas fa-plus"></i> Nuevo Hito
+                            </button>
+                        </div>
+
+                        <div id="milestonesList" class="milestones-list">
+                            <!-- Milestones will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings Section -->
+                <section id="settingsSection" class="content-section">
+                    <div class="settings-container">
+                        <h2>Configuración del Sitio</h2>
+
+                        <div class="settings-grid">
+                            <div class="settings-card">
+                                <h3><i class="fas fa-palette"></i> Tema y Colores</h3>
+                                <div class="form-group">
+                                    <label>Color Principal</label>
+                                    <input type="color" id="primaryColor" class="color-input" value="#6366f1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Color Secundario</label>
+                                    <input type="color" id="secondaryColor" class="color-input" value="#ec4899">
+                                </div>
+                                <button class="save-btn" onclick="saveThemeSettings()">
+                                    <i class="fas fa-save"></i> Guardar Tema
+                                </button>
+                            </div>
+
+                            <div class="settings-card">
+                                <h3><i class="fas fa-info-circle"></i> Información del Sitio</h3>
+                                <div class="form-group">
+                                    <label>Título del Sitio</label>
+                                    <input type="text" id="siteTitle" class="form-input" value="Familia Mateo">
+                                </div>
+                                <div class="form-group">
+                                    <label>Descripción</label>
+                                    <textarea id="siteDescription" class="form-textarea"
+                                        rows="3">Un viaje mágico por nuestros recuerdos</textarea>
+                                </div>
+                                <button class="save-btn" onclick="saveSiteInfo()">
+                                    <i class="fas fa-save"></i> Guardar Información
+                                </button>
+                            </div>
+
+                            <div class="settings-card">
+                                <h3><i class="fas fa-database"></i> Datos y Backup</h3>
+                                <button class="action-btn" onclick="exportData()">
+                                    <i class="fas fa-download"></i> Exportar Datos
+                                </button>
+                                <button class="action-btn" onclick="importData()">
+                                    <i class="fas fa-upload"></i> Importar Datos
+                                </button>
+                                <button class="action-btn danger" onclick="clearCache()">
+                                    <i class="fas fa-trash"></i> Limpiar Caché
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Upload Photo Modal -->
+    <div id="uploadPhotoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Subir Nueva Foto</h2>
+                <button class="close-modal" onclick="closeModal('uploadPhotoModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="uploadPhotoForm">
+                <div class="form-group">
+                    <label>Seleccionar Imagen</label>
+                    <div class="file-upload">
+                        <input type="file" id="photoFileInput" accept="image/*" required>
+                        <div class="file-preview" id="photoPreview"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Título/Descripción</label>
+                    <input type="text" id="photoTitle" class="form-input" placeholder="Ej: Mateo en el parque" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="photoCategory" class="form-select">
+                        <option value="family">Familia</option>
+                        <option value="fun">Diversión</option>
+                        <option value="special">Momentos Especiales</option>
+                        <option value="daily">Día a Día</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('uploadPhotoModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-upload"></i> Subir Foto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Story Modal -->
+    <div id="storyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="storyModalTitle">Nuevo Cuento</h2>
+                <button class="close-modal" onclick="closeModal('storyModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="storyForm">
+                <input type="hidden" id="storyId">
+                <div class="form-group">
+                    <label>Título del Cuento</label>
+                    <input type="text" id="storyTitle" class="form-input" placeholder="Ej: La Gran Aventura de Mateo"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label>Emoji</label>
+                    <input type="text" id="storyEmoji" class="form-input" placeholder="🌟" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label>Contenido del Cuento</label>
+                    <textarea id="storyContent" class="form-textarea" rows="10"
+                        placeholder="Escribe aquí la historia..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('storyModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-save"></i> Guardar Cuento
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Logro</h2>
+                <button class="close-modal" onclick="closeModal('achievementModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="achievementForm">
+                <div class="form-group">
+                    <label>Título del Logro</label>
+                    <input type="text" id="achievementTitle" class="form-input" placeholder="Ej: Primeros Pasos"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <input type="text" id="achievementDesc" class="form-input" placeholder="Dio sus primeros pasos"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label>Emoji/Icono</label>
+                    <input type="text" id="achievementIcon" class="form-input" placeholder="🚶" maxlength="2">
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="achievementDate" class="form-input" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('achievementModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-save"></i> Guardar Logro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Milestone Modal -->
+    <div id="milestoneModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nuevo Hito</h2>
+                <button class="close-modal" onclick="closeModal('milestoneModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="milestoneForm">
+                <div class="form-group">
+                    <label>Título del Hito</label>
+                    <input type="text" id="milestoneTitle" class="form-input" placeholder="Ej: Primera Palabra"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="milestoneDesc" class="form-textarea" rows="3" placeholder="Detalles del hito..."
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Fecha</label>
+                    <input type="date" id="milestoneDate" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Emoji</label>
+                    <input type="text" id="milestoneIcon" class="form-input" placeholder="🎉" maxlength="2">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('milestoneModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-save"></i> Guardar Hito
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="admin-script.js"></script>
+</body>
+
+</html>
