@@ -416,43 +416,43 @@ function loadDailyQuote() {
     }
 }
 
-// --- Playlist Data with WORKING Audio URLs ---
+// --- Playlist Data with LOCAL Audio Files ---
 const playlistSongs = [
     {
         title: "Baby Shark",
         artist: "Pinkfong",
         emoji: "🦈",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-01.mp3"
+        audioUrl: "music/baby_shark.mp3"
     },
     {
         title: "Wheels on the Bus",
         artist: "Cocomelon",
         emoji: "🚌",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-02.mp3"
+        audioUrl: "music/wheels_on_the_bus.mp3"
     },
     {
         title: "Twinkle Twinkle Little Star",
         artist: "Super Simple Songs",
         emoji: "⭐",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-03.mp3"
+        audioUrl: "music/twinkle_twinkle.mp3"
     },
     {
         title: "Old MacDonald",
         artist: "Cocomelon",
         emoji: "🐄",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-04.mp3"
+        audioUrl: "music/old_macdonald.mp3"
     },
     {
         title: "If You're Happy",
         artist: "Super Simple Songs",
         emoji: "😊",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-05.mp3"
+        audioUrl: "music/if_youre_happy.mp3"
     },
     {
         title: "Head Shoulders Knees",
         artist: "Super Simple Songs",
         emoji: "🎵",
-        audioUrl: "https://www.soundjay.com/human/sounds/applause-06.mp3"
+        audioUrl: "music/head_shoulders.mp3"
     }
 ];
 
@@ -600,7 +600,11 @@ function playSong(index) {
 
     currentAudio.addEventListener('error', (e) => {
         console.error('Audio error:', e);
-        alert('Error al cargar el audio. Intenta con otra canción.');
+        const errorMsg = `No se pudo cargar "${song.title}". 
+        
+Por favor, agrega el archivo de audio en la carpeta "music/" con el nombre correcto.`;
+        alert(errorMsg);
+        closePlayer();
     });
 
     // Play audio
@@ -883,6 +887,31 @@ function renderGallery() {
         // Add Event Listeners immediately
         card.querySelector('.card-image').addEventListener('click', () => openPostModal(item.img, item.id, item.title, item.desc));
 
+        // Like button functionality
+        const likeBtn = card.querySelector('.like-btn');
+        if (likeBtn && db) {
+            likeBtn.addEventListener('click', () => {
+                const photoId = item.id;
+                const likeRef = db.collection('likes').doc(photoId);
+
+                likeRef.get().then(doc => {
+                    const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+                    likeRef.set({ count: currentCount + 1 });
+
+                    // Celebration effect
+                    celebrateLike(likeBtn);
+                });
+            });
+        }
+
+        // Comment button functionality
+        const commentBtn = card.querySelector('.comment-btn');
+        if (commentBtn) {
+            commentBtn.addEventListener('click', () => {
+                openPostModal(item.img, item.id, item.title, item.desc);
+            });
+        }
+
         // Load initial likes count
         if (db) {
             db.collection('likes').doc(item.id).onSnapshot(doc => {
@@ -891,6 +920,12 @@ function renderGallery() {
                     const countSpan = card.querySelector(`.like-btn[data-id="${item.id}"] .count`);
                     if (countSpan) countSpan.textContent = count;
                 }
+            });
+
+            // Load initial comments count
+            db.collection('comments').where('photoId', '==', item.id).onSnapshot(snapshot => {
+                const countSpan = card.querySelector(`.comment-btn[data-id="${item.id}"] .count`);
+                if (countSpan) countSpan.textContent = snapshot.size;
             });
         }
 
