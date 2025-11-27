@@ -585,7 +585,111 @@ async function deleteStory(id) {
 
 async function loadMusicManager() {
     const musicList = document.getElementById('musicList');
-    musicList.innerHTML = '<p style="text-align: center; color: #64748b;">La gestión de música estará disponible próximamente</p>';
+    musicList.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <button class="primary-btn" onclick="openMusicModal()">
+                <i class="fas fa-plus"></i> Agregar Canción
+            </button>
+        </div>
+        <div id="songsContainer">
+            <p style="text-align: center; color: #64748b;">Cargando playlist...</p>
+        </div>
+    `;
+
+    try {
+        const snapshot = await db.collection('music').orderBy('timestamp', 'desc').get();
+        const container = document.getElementById('songsContainer');
+
+        if (snapshot.empty) {
+            container.innerHTML = '<p style="text-align: center; color: #64748b;">No hay canciones. ¡Sube la primera!</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const item = createMusicItem(doc.id, data);
+            container.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error('Error loading music:', error);
+        document.getElementById('songsContainer').innerHTML = '<p style="text-align: center; color: #ef4444;">Error al cargar música</p>';
+    }
+}
+
+function createMusicItem(id, data) {
+    const item = document.createElement('div');
+    item.className = 'list-item';
+
+    item.innerHTML = `
+        <div class="list-item-info">
+            <h4><i class="fas fa-music"></i> ${data.title}</h4>
+            <audio controls src="${data.url}" style="margin-top: 10px; width: 100%; height: 30px;"></audio>
+        </div>
+        <div class="list-item-actions">
+            <button class="delete-btn" onclick="deleteSong('${id}')">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        </div>
+    `;
+
+    return item;
+}
+
+function openMusicModal() {
+    document.getElementById('musicModal').classList.add('active');
+}
+
+document.getElementById('musicForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const title = document.getElementById('musicTitle').value;
+    const fileInput = document.getElementById('musicFile');
+
+    if (!fileInput.files[0]) {
+        showNotification('Selecciona un archivo de audio', 'error');
+        return;
+    }
+
+    try {
+        showNotification('Subiendo canción...', 'info');
+
+        const file = fileInput.files[0];
+        const filename = `music/${Date.now()}_${file.name}`;
+        const storageRef = storage.ref(filename);
+
+        await storageRef.put(file);
+        const url = await storageRef.getDownloadURL();
+
+        await db.collection('music').add({
+            title: title,
+            url: url,
+            emoji: '🎵',
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        showNotification('Canción agregada exitosamente', 'success');
+        closeModal('musicModal');
+        document.getElementById('musicForm').reset();
+        loadMusicManager();
+
+    } catch (error) {
+        showNotification('Error al subir: ' + error.message, 'error');
+    }
+});
+
+async function deleteSong(id) {
+    if (!confirm('¿Eliminar esta canción?')) return;
+
+    try {
+        await db.collection('music').doc(id).delete();
+        showNotification('Canción eliminada', 'success');
+        loadMusicManager();
+    } catch (error) {
+        showNotification('Error: ' + error.message, 'error');
+    }
 }
 
 // ========================================

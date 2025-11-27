@@ -585,6 +585,35 @@
         </div>
     </div>
 
+    <!-- Music Modal -->
+    <div id="musicModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agregar Canción</h2>
+                <button class="close-modal" onclick="closeModal('musicModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="musicForm">
+                <div class="form-group">
+                    <label>Título de la Canción</label>
+                    <input type="text" id="musicTitle" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Archivo de Audio</label>
+                    <input type="file" id="musicFile" class="form-input" accept="audio/*" required>
+                    <small>Formatos: MP3, WAV</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn" onclick="closeModal('musicModal')">Cancelar</button>
+                    <button type="submit" class="primary-btn">
+                        <i class="fas fa-music"></i> Subir Canción
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="admin-script.js"></script>
 </body>
 

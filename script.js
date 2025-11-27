@@ -4,9 +4,8 @@ const firebaseConfig = {
     authDomain: "web-mateo.firebaseapp.com",
     projectId: "web-mateo",
     storageBucket: "web-mateo.firebasestorage.app",
-    messagingSenderId: "1022636533086",
-    appId: "1:1022636533086:web:5fa482ea817a3d74409bcf",
-    measurementId: "G-G6RCZJC2DJ"
+    messagingSenderId: "1091095734859",
+    appId: "1:1091095734859:web:8b8e5f6a3c4d2e1f9a8b7c"
 };
 
 // Initialize Firebase
