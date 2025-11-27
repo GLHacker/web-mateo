@@ -32,6 +32,115 @@ if (typeof AOS !== 'undefined') {
     });
 }
 
+// ========================================
+// 🌟 PREMIUM FEATURES
+// ========================================
+
+// --- Custom Cursor Trail ---
+const cursorTrail = document.querySelector('.cursor-trail');
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+
+document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+function animateCursor() {
+    cursorX += (mouseX - cursorX) * 0.2;
+    cursorY += (mouseY - cursorY) * 0.2;
+
+    if (cursorTrail) {
+        cursorTrail.style.left = cursorX + 'px';
+        cursorTrail.style.top = cursorY + 'px';
+    }
+
+    requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// --- Dark Mode Toggle ---
+const darkModeToggle = document.getElementById('darkModeToggle');
+const body = document.body;
+
+// Check saved preference
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+}
+
+if (darkModeToggle) {
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+
+        darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+
+        // Celebration effect
+        confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.1 }
+        });
+    });
+}
+
+// --- Visitor Counter ---
+const visitorCountElement = document.getElementById('visitorCount');
+
+function initVisitorCounter() {
+    if (!db) return;
+
+    const counterRef = db.collection('stats').doc('visitors');
+
+    // Increment on page load
+    counterRef.get().then(doc => {
+        const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+        counterRef.set({ count: currentCount + 1 });
+    });
+
+    // Listen to changes
+    counterRef.onSnapshot(doc => {
+        if (doc.exists && visitorCountElement) {
+            const count = doc.data().count || 0;
+            animateCounter(visitorCountElement, count);
+        }
+    });
+}
+
+function animateCounter(element, target) {
+    const current = parseInt(element.textContent) || 0;
+    const increment = Math.ceil((target - current) / 20);
+
+    if (current < target) {
+        element.textContent = current + increment;
+        setTimeout(() => animateCounter(element, target), 50);
+    } else {
+        element.textContent = target;
+    }
+}
+
+// Initialize counter when Firebase is ready
+if (db) {
+    initVisitorCounter();
+}
+
+// --- Confetti on Like ---
+function celebrateLike(element) {
+    const rect = element.getBoundingClientRect();
+    const x = (rect.left + rect.width / 2) / window.innerWidth;
+    const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { x, y },
+        colors: ['#ff00cc', '#FFD700', '#00d4ff']
+    });
+}
+
 // --- Data: Gallery ---
 const galleryData = [
     { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
@@ -325,6 +434,10 @@ modalLikeBtn.onclick = () => {
     } else {
         modalLikeBtn.classList.add('liked');
         modalLikeBtn.innerHTML = '<i class="fas fa-heart"></i>';
+
+        // 🎊 CONFETTI CELEBRATION!
+        celebrateLike(modalLikeBtn);
+
         ref.get().then(doc => {
             const count = doc.exists ? (doc.data().count || 0) : 0;
             ref.set({ count: count + 1 });

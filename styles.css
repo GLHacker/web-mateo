@@ -1,11 +1,20 @@
 :root {
-    --primary: #ff00cc;
-    --secondary: #333399;
-    --glass: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --text: #ffffff;
     --text-muted: rgba(255, 255, 255, 0.7);
+    --glass: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
     --gradient: linear-gradient(45deg, #ff00cc, #333399);
+    --cursor-color: #FFD700;
+}
+
+/* Dark Mode Variables */
+body.dark-mode {
+    --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --text: #e0e0e0;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --glass: rgba(0, 0, 0, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -16,10 +25,68 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background: #0f0c29;
+    background: var(--bg);
     color: var(--text);
     overflow-x: hidden;
+    position: relative;
     min-height: 100vh;
+    cursor: none;
+    /* Hide default cursor */
+    transition: background 0.5s ease, color 0.3s ease;
+}
+
+/* Custom Cursor Trail */
+.cursor-trail {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cursor-color);
+    pointer-events: none;
+    z-index: 99999;
+    mix-blend-mode: difference;
+    transition: transform 0.15s ease;
+    box-shadow: 0 0 20px var(--cursor-color);
+    animation: pulse-cursor 2s infinite;
+}
+
+@keyframes pulse-cursor {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Visitor Counter */
+.visitor-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    background: rgba(255, 215, 0, 0.2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-left: 15px;
+    animation: countUp 1s ease;
+}
+
+@keyframes countUp {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* Animated Background */
@@ -93,37 +160,75 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: rgba(15, 12, 41, 0.3);
+    background: var(--glass);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--glass-border);
     z-index: 1000;
+    transition: background 0.3s ease;
 }
 
 .logo {
-    font-family: 'Playfair Display', serif;
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .highlight {
-    color: #ff00cc;
-    text-shadow: 0 0 10px rgba(255, 0, 204, 0.5);
+    background: var(--gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .nav-links {
     display: flex;
     gap: 15px;
+    flex-wrap: wrap;
 }
 
 .nav-btn {
-    background: var(--glass);
+    background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--glass-border);
     color: var(--text);
-    padding: 8px 20px;
-    border-radius: 30px;
+    padding: 10px 20px;
+    border-radius: 25px;
     cursor: pointer;
     transition: all 0.3s;
     font-family: 'Outfit', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.nav-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+#darkModeToggle {
+    position: relative;
+}
+
+#darkModeToggle i {
+    transition: transform 0.5s ease;
+}
+
+body.dark-mode #darkModeToggle i {
+    transform: rotate(180deg);
 }
 
 .nav-btn:hover {

@@ -38,11 +38,22 @@
         <div class="blob blob-3"></div>
     </div>
 
+    <!-- Custom Cursor Trail -->
+    <div class="cursor-trail"></div>
+
     <!-- Navigation -->
     <nav class="glass-nav">
-        <div class="logo">Familia <span class="highlight">Mateo</span></div>
+        <div class="logo">
+            Familia <span class="highlight">Mateo</span>
+            <span class="visitor-counter" id="visitorCounter">
+                <i class="fas fa-eye"></i> <span id="visitorCount">0</span> visitas
+            </span>
+        </div>
         <div class="nav-links">
-            <button id="storiesBtn" class="nav-btn highlight-btn"><i class="fas fa-moon"></i> Cuentos</button>
+            <button id="darkModeToggle" class="nav-btn" title="Cambiar tema">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button id="storiesBtn" class="nav-btn highlight-btn"><i class="fas fa-book-open"></i> Cuentos</button>
             <button id="loginBtn" class="nav-btn"><i class="fas fa-lock"></i> Admin</button>
             <button id="logoutBtn" class="nav-btn hidden"><i class="fas fa-sign-out-alt"></i> Salir</button>
             <button id="uploadBtn" class="nav-btn hidden"><i class="fas fa-cloud-upload-alt"></i> Subir</button>
@@ -156,6 +167,11 @@
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Custom Script -->
     <script src="script.js"></script>
 </body>
 
