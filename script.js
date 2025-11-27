@@ -138,7 +138,7 @@ function celebrateLike(element) {
         particleCount: 100,
         spread: 70,
         origin: { x, y },
-        colors: ['#ff00cc', '#FFD700', '#00d4ff']
+        colors: ['#f6ad55', '#f687b3', '#4fd1c5']
     });
 }
 
@@ -646,7 +646,7 @@ Por favor, agrega el archivo de audio en la carpeta "music/" con el nombre corre
             particleCount: 100,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ['#ff00cc', '#FFD700', '#00d4ff']
+            colors: ['#f6ad55', '#f687b3', '#4fd1c5']
         });
     }).catch(e => {
         console.log('Autoplay prevented:', e);
@@ -696,9 +696,9 @@ function startVisualizer() {
             const barHeight = (dataArray[i] / 255) * canvas.height;
 
             const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
-            gradient.addColorStop(0, '#ff00cc');
-            gradient.addColorStop(0.5, '#FFD700');
-            gradient.addColorStop(1, '#00d4ff');
+            gradient.addColorStop(0, '#f6ad55');
+            gradient.addColorStop(0.5, '#f687b3');
+            gradient.addColorStop(1, '#4fd1c5');
 
             ctx.fillStyle = gradient;
             ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
@@ -1640,6 +1640,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadCalendar();
     initThemeSelector();
     initPhotoCompare();
+    renderGallery();
 
     // Actualizar estadísticas cada hora
     setInterval(updateStatsDashboard, 1000 * 60 * 60);
