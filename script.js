@@ -58,7 +58,7 @@ const galleryData = [
 const storiesData = [
     {
         title: "El Viaje de la Estrella Curiosa",
-        img: "https://picsum.photos/id/1042/800/600",
+        img: "images/standing.jpg", // Mateo Explorador
         text: `
             <p>En la inmensidad del cosmos, donde el silencio es música y la oscuridad es un lienzo, vivía una pequeña estrella llamada Lyra. A diferencia de sus hermanas, que se conformaban con brillar estáticas en sus constelaciones, Lyra sentía una inquietud vibrante en su núcleo de luz. Se preguntaba qué existía más allá del terciopelo negro de la noche, especialmente en ese pequeño punto azul y verde que giraba a lo lejos: la Tierra.</p>
             <p>"No debes moverte", le decían las estrellas mayores con voz de gravedad. "Nuestro propósito es ser guías inmutables". Pero la curiosidad de Lyra era una fuerza más poderosa que la gravedad misma. Una noche, cuando la luna cerró sus ojos plateados, Lyra decidió emprender el viaje prohibido. Se soltó del firmamento y descendió como una lágrima de luz, cruzando nebulosas y esquivando cometas.</p>
@@ -68,7 +68,7 @@ const storiesData = [
     },
     {
         title: "El Bosque de los Susurros",
-        img: "https://picsum.photos/id/1039/800/600",
+        img: "images/grandpa.jpg", // Mateo con Abuelo
         text: `
             <p>Existe un bosque que no aparece en los mapas, un lugar donde el tiempo no se mide en horas, sino en el crecimiento de los musgos y el canto de los grillos. Se llama el Bosque de los Susurros. Dicen los antiguos que los árboles allí no solo tienen raíces en la tierra, sino también en la memoria del mundo. Guardan secretos de épocas olvidadas y susurran verdades a quienes tienen el coraje de escuchar en silencio.</p>
             <p>Un día, Mateo, con su espíritu aventurero, cruzó el umbral de este bosque. Al principio, el ruido de sus propios pasos sobre las hojas secas le impedía oír nada más. Pero a medida que se adentraba, se detuvo. Respiró hondo y cerró los ojos. Fue entonces cuando el bosque cobró vida. El viento no solo movía las ramas; cantaba melodías antiguas.</p>
@@ -78,7 +78,7 @@ const storiesData = [
     },
     {
         title: "El Océano de Nubes",
-        img: "https://picsum.photos/id/1053/800/600",
+        img: "images/videocall_smile.jpg", // Mateo Sonriendo (Videollamada)
         text: `
             <p>Mateo siempre había creído que el cielo era el límite, hasta que descubrió que podía navegar sobre él. Todo comenzó una tarde de lluvia, cuando dobló una hoja de papel con esmero y creó un pequeño barco. "Ojalá pudieras navegar de verdad", susurró. Y como si el universo estuviera esperando ese deseo, el barco comenzó a flotar, no sobre el agua, sino hacia arriba, hacia el techo, atravesándolo hasta llegar al cielo abierto.</p>
             <p>Sin dudarlo, Mateo se sujetó a la vela de papel y subió. De pronto, se encontró navegando en un Océano de Nubes. Era un paisaje onírico, donde las montañas eran de algodón blanco y el sol pintaba olas de oro y rosa. Peces voladores con alas de libélula saltaban entre los cúmulos, y ballenas hechas de bruma cantaban canciones graves que hacían vibrar el aire.</p>
@@ -88,7 +88,7 @@ const storiesData = [
     },
     {
         title: "El Guardián de los Sueños",
-        img: "https://picsum.photos/id/1016/800/600",
+        img: "images/elmo.jpg", // Mateo con Elmo
         text: `
             <p>En el valle donde nacen los arcoíris, vive un pequeño guardián llamado Oliver. Su trabajo no es proteger tesoros de oro, sino algo mucho más valioso: los sueños de los niños. Oliver tiene una linterna mágica que no alumbra con luz, sino con imaginación. Cada noche, sube a la montaña más alta y abre su linterna, liberando miles de luciérnagas de colores.</p>
             <p>Una noche, una de sus luciérnagas se perdió y llegó a la ventana de Mateo. Mateo estaba triste porque había tenido una pesadilla. La pequeña luz danzó sobre su almohada, pintando en el aire historias de dragones amigables y castillos de nubes. Mateo sonrió dormido, y Oliver, desde lejos, supo que su misión estaba cumplida.</p>
@@ -97,7 +97,7 @@ const storiesData = [
     },
     {
         title: "La Melodía del Viento",
-        img: "https://picsum.photos/id/1025/800/600",
+        img: "images/red_car_1.jpg", // Mateo en Coche
         text: `
             <p>El viento no solo sopla; también canta. Pero muy pocos saben escuchar su canción. Mateo descubrió este secreto una tarde de otoño, mientras jugaba con las hojas secas en el parque. Notó que si corría rápido, el viento silbaba una melodía alegre, pero si se quedaba quieto, el viento tarareaba una canción de cuna.</p>
             <p>Intrigado, Mateo decidió formar una orquesta. Usó ramas como batutas y piedras como tambores. "¡Sopla fuerte!", gritó al cielo. Y el viento, encantado de tener un director, sopló con fuerza, haciendo bailar a los árboles y crujir a las hojas en una sinfonía perfecta. Los pájaros se unieron con sus trinos y hasta el río pareció aplaudir con sus olas.</p>
@@ -117,6 +117,7 @@ const galleryContainer = document.querySelector('.masonry-grid');
 const storiesBtn = document.getElementById('storiesBtn');
 const storiesModal = document.getElementById('storiesModal');
 const closeStoriesBtn = storiesModal ? storiesModal.querySelector('.close-modal') : null;
+const backToMenuBtn = document.getElementById('backToMenuBtn');
 
 let currentPostId = null;
 
@@ -181,13 +182,27 @@ if (storiesBtn && storiesModal) {
     };
 }
 
-// Close Stories Logic
+// Close Stories Logic (Helper Function)
+function closeStories() {
+    storiesModal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restore background scrolling
+}
+
+// X Button
 if (closeStoriesBtn) {
     closeStoriesBtn.onclick = (e) => {
         e.preventDefault();
-        e.stopPropagation(); // Stop event bubbling
-        storiesModal.style.display = 'none';
-        document.body.style.overflow = 'auto'; // Restore background scrolling
+        e.stopPropagation();
+        closeStories();
+    };
+}
+
+// Back to Menu Button
+if (backToMenuBtn) {
+    backToMenuBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeStories();
     };
 }
 
@@ -276,9 +291,14 @@ function openPostModal(src, id, title, desc) {
 }
 
 // Close Modal
-document.querySelector('.close-modal').onclick = () => {
-    postModal.style.display = 'none';
-};
+if (postModal) {
+    const closePostBtn = postModal.querySelector('.close-modal');
+    if (closePostBtn) {
+        closePostBtn.onclick = () => {
+            postModal.style.display = 'none';
+        };
+    }
+}
 
 window.onclick = (e) => {
     if (e.target == postModal) postModal.style.display = 'none';

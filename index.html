@@ -79,13 +79,18 @@
     <!-- Stories Modal -->
     <div id="storiesModal" class="modal-backdrop">
         <div class="glass-modal full-screen">
-            <button class="close-modal"
-                onclick="document.getElementById('storiesModal').style.display='none'">&times;</button>
+            <button class="close-modal">&times;</button> <!-- JS handles this now -->
             <div id="storiesContainer" class="stories-container">
                 <!-- Stories will be loaded here -->
             </div>
+
+            <!-- New Explicit Back Button -->
+            <button id="backToMenuBtn" class="floating-back-btn">
+                <i class="fas fa-arrow-left"></i> Volver al Menú
+            </button>
+
             <div class="story-controls">
-                <span>Haz clic para pasar de página...</span>
+                <span>Toca para leer el siguiente cuento...</span>
             </div>
         </div>
     </div>

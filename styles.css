@@ -299,23 +299,13 @@ body {
 @keyframes fadeInUp {
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateX(0);
     }
 }
 
 .story-controls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
-    text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.9rem;
-    pointer-events: none;
-    /* Let clicks pass through */
-    z-index: 10000;
+    display: none;
+    /* Hide old controls, we use the back button now */
 }
 
 @keyframes pulse {
@@ -741,4 +731,67 @@ body {
     cursor: pointer;
     margin-top: 20px;
     width: 100%;
+}
+
+/* --- Stories Animations & Floating Button --- */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Floating Back Button */
+.floating-back-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 10001;
+    /* Higher than modal content */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    animation: slideInRight 0.5s ease forwards 1s;
+    /* Delay entrance */
+    opacity: 0;
+    transform: translateX(50px);
+}
+
+.floating-back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.floating-back-btn i {
+    font-size: 1.1rem;
+}
+
+@keyframes slideInRight {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.story-controls {
+    display: none;
+    /* Hide old controls, we use the back button now */
 }
