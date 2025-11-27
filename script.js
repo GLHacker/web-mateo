@@ -414,48 +414,51 @@ function loadDailyQuote() {
     }
 }
 
-// --- Playlist Data with REAL YouTube Videos ---
+// --- Playlist Data with Audio URLs ---
 const playlistSongs = [
     {
         title: "Baby Shark",
         artist: "Pinkfong",
         emoji: "🦈",
-        youtubeId: "XqZsoesa55w" // Baby Shark Dance
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
     },
     {
         title: "Wheels on the Bus",
         artist: "Cocomelon",
         emoji: "🚌",
-        youtubeId: "e_04ZrNroTo" // Wheels on the Bus
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
     },
     {
         title: "Twinkle Twinkle Little Star",
         artist: "Super Simple Songs",
         emoji: "⭐",
-        youtubeId: "yCjJyiqpAuU" // Twinkle Twinkle
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"
     },
     {
         title: "Old MacDonald",
         artist: "Cocomelon",
         emoji: "🐄",
-        youtubeId: "hlWiI4xVXKY" // Old MacDonald
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
     },
     {
         title: "If You're Happy",
         artist: "Super Simple Songs",
         emoji: "😊",
-        youtubeId: "l4WNrvVjiTw" // If You're Happy
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3"
     },
     {
         title: "Head Shoulders Knees",
         artist: "Super Simple Songs",
         emoji: "🎵",
-        youtubeId: "h4eueDYPTIg" // Head Shoulders
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3"
     }
 ];
 
-let currentPlayer = null;
+let currentAudio = null;
 let currentSongIndex = -1;
+let audioContext = null;
+let analyser = null;
+let animationId = null;
 
 function loadPlaylist() {
     const playlistContainer = document.getElementById('playlistItems');
@@ -478,28 +481,28 @@ function loadPlaylist() {
 function playSong(index) {
     const song = playlistSongs[index];
 
-    // Create or update video player
-    let playerContainer = document.getElementById('musicPlayer');
-    if (!playerContainer) {
-        playerContainer = document.createElement('div');
-        playerContainer.id = 'musicPlayer';
-        playerContainer.className = 'music-player-container';
-        document.body.appendChild(playerContainer);
-    }
-
     // If same song, toggle play/pause
-    if (currentSongIndex === index && currentPlayer) {
+    if (currentSongIndex === index && currentAudio) {
         const btn = document.getElementById(`playBtn${index}`);
-        if (btn.classList.contains('playing')) {
-            currentPlayer.pauseVideo();
-            btn.innerHTML = '<i class="fas fa-play"></i>';
-            btn.classList.remove('playing');
-        } else {
-            currentPlayer.playVideo();
+        if (currentAudio.paused) {
+            currentAudio.play();
             btn.innerHTML = '<i class="fas fa-pause"></i>';
             btn.classList.add('playing');
+            startVisualizer();
+        } else {
+            currentAudio.pause();
+            btn.innerHTML = '<i class="fas fa-play"></i>';
+            btn.classList.remove('playing');
+            stopVisualizer();
         }
         return;
+    }
+
+    // Stop current audio
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        stopVisualizer();
     }
 
     // Reset all buttons
@@ -508,29 +511,48 @@ function playSong(index) {
         btn.classList.remove('playing');
     });
 
-    // Update current song
+    // Create new audio
+    currentAudio = new Audio(song.audioUrl);
     currentSongIndex = index;
 
-    // Show player with YouTube embed
+    // Create or update player
+    let playerContainer = document.getElementById('musicPlayer');
+    if (!playerContainer) {
+        playerContainer = document.createElement('div');
+        playerContainer.id = 'musicPlayer';
+        playerContainer.className = 'music-player-container';
+        document.body.appendChild(playerContainer);
+    }
+
     playerContainer.innerHTML = `
         <div class="player-header">
             <div class="now-playing">
                 <span class="pulse-dot"></span>
-                Reproduciendo: ${song.emoji} ${song.title}
+                ${song.emoji} ${song.title}
             </div>
             <button class="close-player" onclick="closePlayer()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <iframe
-            id="youtubePlayer"
-            width="100%"
-            height="200"
-            src="https://www.youtube.com/embed/${song.youtubeId}?autoplay=1&enablejsapi=1"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen>
-        </iframe>
+        <canvas id="visualizer" width="360" height="100"></canvas>
+        <div class="player-controls">
+            <button class="control-btn" onclick="previousSong()">
+                <i class="fas fa-backward"></i>
+            </button>
+            <button class="control-btn play-pause-btn" onclick="togglePlay()" id="mainPlayBtn">
+                <i class="fas fa-pause"></i>
+            </button>
+            <button class="control-btn" onclick="nextSong()">
+                <i class="fas fa-forward"></i>
+            </button>
+        </div>
+        <div class="progress-container">
+            <span id="currentTime">0:00</span>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <span id="duration">0:00</span>
+        </div>
     `;
 
     playerContainer.style.display = 'block';
@@ -539,6 +561,25 @@ function playSong(index) {
     const btn = document.getElementById(`playBtn${index}`);
     btn.innerHTML = '<i class="fas fa-pause"></i>';
     btn.classList.add('playing');
+
+    // Setup audio events
+    currentAudio.addEventListener('loadedmetadata', () => {
+        document.getElementById('duration').textContent = formatTime(currentAudio.duration);
+    });
+
+    currentAudio.addEventListener('timeupdate', () => {
+        const progress = (currentAudio.currentTime / currentAudio.duration) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+        document.getElementById('currentTime').textContent = formatTime(currentAudio.currentTime);
+    });
+
+    currentAudio.addEventListener('ended', () => {
+        nextSong();
+    });
+
+    // Play audio
+    currentAudio.play();
+    setupVisualizer();
 
     // Confetti!
     confetti({
@@ -549,20 +590,123 @@ function playSong(index) {
     });
 }
 
+function setupVisualizer() {
+    const canvas = document.getElementById('visualizer');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+    }
+
+    const source = audioContext.createMediaElementSource(currentAudio);
+    source.connect(analyser);
+    analyser.connect(audioContext.destination);
+
+    startVisualizer();
+}
+
+function startVisualizer() {
+    const canvas = document.getElementById('visualizer');
+    if (!canvas || !analyser) return;
+
+    const ctx = canvas.getContext('2d');
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    function draw() {
+        animationId = requestAnimationFrame(draw);
+
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.fillStyle = 'rgba(15, 15, 30, 0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / bufferLength) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = (dataArray[i] / 255) * canvas.height;
+
+            const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
+            gradient.addColorStop(0, '#ff00cc');
+            gradient.addColorStop(0.5, '#FFD700');
+            gradient.addColorStop(1, '#00d4ff');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+            x += barWidth + 1;
+        }
+    }
+
+    draw();
+}
+
+function stopVisualizer() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
+    }
+}
+
+function togglePlay() {
+    if (!currentAudio) return;
+
+    const btn = document.getElementById('mainPlayBtn');
+    const playlistBtn = document.getElementById(`playBtn${currentSongIndex}`);
+
+    if (currentAudio.paused) {
+        currentAudio.play();
+        btn.innerHTML = '<i class="fas fa-pause"></i>';
+        if (playlistBtn) playlistBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        startVisualizer();
+    } else {
+        currentAudio.pause();
+        btn.innerHTML = '<i class="fas fa-play"></i>';
+        if (playlistBtn) playlistBtn.innerHTML = '<i class="fas fa-play"></i>';
+        stopVisualizer();
+    }
+}
+
+function nextSong() {
+    const nextIndex = (currentSongIndex + 1) % playlistSongs.length;
+    playSong(nextIndex);
+}
+
+function previousSong() {
+    const prevIndex = currentSongIndex === 0 ? playlistSongs.length - 1 : currentSongIndex - 1;
+    playSong(prevIndex);
+}
+
 function closePlayer() {
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    stopVisualizer();
+
     const playerContainer = document.getElementById('musicPlayer');
     if (playerContainer) {
         playerContainer.style.display = 'none';
-        playerContainer.innerHTML = '';
     }
 
-    // Reset buttons
     document.querySelectorAll('.play-btn').forEach(btn => {
         btn.innerHTML = '<i class="fas fa-play"></i>';
         btn.classList.remove('playing');
     });
 
     currentSongIndex = -1;
+}
+
+function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
 // Initialize FASE 3 features
