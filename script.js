@@ -19,7 +19,7 @@ try {
     storage = firebase.storage();
     console.log("Firebase initialized");
 } catch (e) {
-    console.error("Firebase init error (Expected if keys are missing):", e);
+    console.error("Firebase init error:", e);
 }
 
 // DOM Elements
@@ -32,7 +32,6 @@ const closeLogin = document.getElementById('closeLogin');
 const closeUpload = document.getElementById('closeUpload');
 const loginForm = document.getElementById('loginForm');
 const uploadForm = document.getElementById('uploadForm');
-const galleryGrid = document.getElementById('galleryGrid');
 
 // Lightbox Elements
 const lightbox = document.getElementById('lightbox');
@@ -42,68 +41,19 @@ const commentsList = document.getElementById('commentsList');
 const commentForm = document.getElementById('commentForm');
 let currentImageId = null;
 
-// --- Initialize Particles.js ---
-if (typeof particlesJS !== 'undefined') {
-    particlesJS('particles-js', {
-        particles: {
-            number: { value: 80, density: { enable: true, value_area: 800 } },
-            color: { value: '#667eea' },
-            shape: { type: 'circle' },
-            opacity: { value: 0.5, random: false },
-            size: { value: 3, random: true },
-            line_linked: {
-                enable: true,
-                distance: 150,
-                color: '#667eea',
-                opacity: 0.4,
-                width: 1
-            },
-            move: {
-                enable: true,
-                speed: 2,
-                direction: 'none',
-                random: false,
-                straight: false,
-                out_mode: 'out',
-                bounce: false
-            }
-        },
-        interactivity: {
-            detect_on: 'canvas',
-            events: {
-                onhover: { enable: true, mode: 'repulse' },
-                onclick: { enable: true, mode: 'push' },
-                resize: true
-            }
-        },
-        retina_detect: true
-    });
-}
-
-// --- Initialize AOS ---
-if (typeof AOS !== 'undefined') {
-    AOS.init({
-        duration: 1000,
-        once: true,
-        offset: 100
-    });
-}
-
 // --- Authentication ---
-
-// Check Auth State
 if (auth) {
     auth.onAuthStateChanged(user => {
         if (user) {
             console.log("User logged in:", user.email);
-            loginBtn.classList.add('hidden');
-            logoutBtn.classList.remove('hidden');
-            uploadBtn.classList.remove('hidden');
+            if (loginBtn) loginBtn.classList.add('hidden');
+            if (logoutBtn) logoutBtn.classList.remove('hidden');
+            if (uploadBtn) uploadBtn.classList.remove('hidden');
         } else {
             console.log("User logged out");
-            loginBtn.classList.remove('hidden');
-            logoutBtn.classList.add('hidden');
-            uploadBtn.classList.add('hidden');
+            if (loginBtn) loginBtn.classList.remove('hidden');
+            if (logoutBtn) logoutBtn.classList.add('hidden');
+            if (uploadBtn) uploadBtn.classList.add('hidden');
         }
     });
 }
@@ -119,7 +69,7 @@ if (loginForm) {
             .then(() => {
                 loginModal.style.display = "none";
                 loginForm.reset();
-                alert("¡Bienvenido Luis!");
+                alert("¡Bienvenido!");
             })
             .catch((error) => {
                 alert("Error: " + error.message);
@@ -183,13 +133,101 @@ if (uploadForm) {
     });
 }
 
-// --- Lightbox & Comments ---
+// --- Like Functionality ---
+document.querySelectorAll('.like-btn').forEach(btn => {
+    const photoId = btn.getAttribute('data-photo');
 
-// Add click events to photo cards
-document.querySelectorAll('.photo-frame').forEach(frame => {
-    frame.addEventListener('click', () => {
-        const img = frame.querySelector('img');
-        openLightbox(img.src, 'static_' + img.alt);
+    // Load like count
+    if (db) {
+        db.collection('likes').doc(photoId).onSnapshot(doc => {
+            if (doc.exists) {
+                const count = doc.data().count || 0;
+                btn.querySelector('.count').textContent = count;
+            }
+        });
+    }
+
+    btn.addEventListener('click', () => {
+        if (!db) {
+            alert('Conecta Firebase para dar me gusta');
+            return;
+        }
+
+        const icon = btn.querySelector('i');
+        const countSpan = btn.querySelector('.count');
+
+        // Toggle like
+        if (btn.classList.contains('liked')) {
+            btn.classList.remove('liked');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+
+            // Decrease count
+            db.collection('likes').doc(photoId).get().then(doc => {
+                const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+                const newCount = Math.max(0, currentCount - 1);
+                db.collection('likes').doc(photoId).set({ count: newCount });
+            });
+        } else {
+            btn.classList.add('liked');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+
+            // Increase count
+            db.collection('likes').doc(photoId).get().then(doc => {
+                const currentCount = doc.exists ? (doc.data().count || 0) : 0;
+                db.collection('likes').doc(photoId).set({ count: currentCount + 1 });
+            });
+        }
+    });
+});
+
+// --- Comment Functionality ---
+document.querySelectorAll('.comment-btn').forEach(btn => {
+    const photoId = btn.getAttribute('data-photo');
+
+    // Load comment count
+    if (db) {
+        db.collection('comments').where('photoId', '==', 'static_' + photoId).onSnapshot(snapshot => {
+            btn.querySelector('.count').textContent = snapshot.size;
+        });
+    }
+
+    btn.addEventListener('click', () => {
+        const photoItem = btn.closest('.photo-item');
+        const img = photoItem.querySelector('img');
+        openLightbox(img.src, 'static_' + photoId);
+    });
+});
+
+// --- Share Functionality ---
+document.querySelectorAll('.share-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const photoItem = btn.closest('.photo-item');
+        const caption = photoItem.querySelector('.photo-caption').textContent;
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'Familia Mateo',
+                text: caption,
+                url: window.location.href
+            }).catch(err => console.log('Error sharing:', err));
+        } else {
+            // Fallback: copy link
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('¡Enlace copiado al portapapeles!');
+            });
+        }
+    });
+});
+
+// --- Lightbox & Comments ---
+document.querySelectorAll('.photo-item img').forEach(img => {
+    img.addEventListener('click', () => {
+        const photoItem = img.closest('.photo-item');
+        const likeBtn = photoItem.querySelector('.like-btn');
+        const photoId = likeBtn.getAttribute('data-photo');
+        openLightbox(img.src, 'static_' + photoId);
     });
 });
 
@@ -253,7 +291,7 @@ if (commentForm) {
     });
 }
 
-// Smooth scroll for navigation
+// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
