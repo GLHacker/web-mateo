@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seeding Final Content...</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body style="background:#0f172a; color:#f1f5f9; font-family:sans-serif; padding:40px; text-align:center;">
+    <h1>🎨 Seeding Final Content...</h1>
+    <div id="status" style="font-size:1.5rem; margin-top:20px; color:#fbbf24;">Running...</div>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDesr25T22dRcgQ_mckKnj-OlRs5rXZShw",
+            authDomain: "web-mateo.firebaseapp.com",
+            projectId: "web-mateo",
+            storageBucket: "web-mateo.firebasestorage.app",
+            messagingSenderId: "1091095734859",
+            appId: "1:1091095734859:web:8b8e5f6a3c4d2e1f9a8b7c"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 20 Photo-Accurate Gallery Posts (from previous seed)
+        const posts = [
+            { imageUrl: "images/closeup.jpg", caption: "Esta foto captura uno de esos momentos perfectos donde Mateo nos regala su sonrisa más genuina. Sus ojitos brillantes están llenos de curiosidad y alegría. Cada arruga de su nariz cuando sonríe nos derrite el corazón. Momentos como estos nos recuerdan por qué cada día es especial.", likes: 145, comments: [] },
+            { imageUrl: "images/elmo.jpg", caption: "Mateo y Elmo son inseparables. Aquí los vemos en plena conversación (o al menos eso cree Mateo). Le cuenta sus secretos al oído y le da abrazos tan fuertes que casi lo deja sin aire. Hoy organizaron una fiesta de té imaginaria donde Elmo fue el invitado de honor. ¡La imaginación de este niño no tiene límites!", likes: 268, comments: [] },
+            { imageUrl: "images/family_studio.jpg", caption: "Nuestra primera sesión de fotos profesional como familia. Fue todo un reto lograr que Mateo se quedara quieto, pero valió cada segundo. Esta imagen captura perfectamente nuestro amor: Luis con su mano protectora, Jennifer con su dulzura y Mateo siendo el centro de todo nuestro universo.", likes: 520, comments: [] },
+            { imageUrl: "images/grandpa.jpg", caption: "La relación entre Mateo y su abuelo es algo mágico. Aquí están en su rincón favorito, donde el abuelo le cuenta historias de cuando él era joven. Mateo lo escucha fascinado, aunque probablemente no entienda ni la mitad. El amor entre generaciones no necesita palabras.", likes: 385, comments: [] },
+            { imageUrl: "images/img1.jpg", caption: "Explorando el jardín, Mateo descubre un mundo nuevo cada día. Cada brizna de hierba, cada insecto, cada flor es un motivo de asombro. Esta foto lo captura agachado, examinando algo con total concentración. Su curiosidad natural es inspiradora.", likes: 195, comments: [] },
+            { imageUrl: "images/img2.jpg", caption: "¡El día que Mateo aprendió a gatear! Este fue el comienzo de una nueva era en casa. Ya no había rincón seguro. En esta foto, vemos su determinación mientras se impulsa hacia adelante. Sus rodillitas regordetas y esa expresión de concentración total son adorables.", likes: 245, comments: [] },
+            { imageUrl: "images/img3.jpg", caption: "Día perfecto en el parque. Mateo acababa de conquistar el tobogán por primera vez sin ayuda. Esta foto captura ese momento de orgullo justo después de su gran logro. Su postura dice 'lo logré' y nosotros no podríamos estar más orgullosos de nuestro pequeño valiente.", likes: 178, comments: [] },
+            { imageUrl: "images/img4.jpg", caption: "Después de una tarde llena de aventuras, juegos y risas, Mateo finalmente se rindió al sueño. Esta foto lo muestra descansando pacíficamente, con sus bracitos extendidos y esa expresión de absoluta tranquilidad. Verlo dormir es recordar que, aunque crezca rápido, siempre será nuestro bebé.", likes: 580, comments: [] },
+            { imageUrl: "images/img5.jpg", caption: "La hora de la comida es... interesante, por decir lo menos. Mateo tiene su propia filosofía: la comida es arte y su lienzo es toda la cocina. En esta foto, más puré está en su cara que en su boca, pero esa sonrisa traviesa hace que todo valga la pena. Siempre hay tiempo para limpiar después.", likes: 220, comments: [] },
+            { imageUrl: "images/laughing_bed.jpg", caption: "Las cosquillas antes de dormir son nuestra tradición sagrada. Esta foto captura el momento exacto de una carcajada pura y sin filtros. La risa de Mateo llena toda la habitación y nos hace olvidar cualquier preocupación. Estos son los momentos que querremos recordar para siempre.", likes: 395, comments: [] },
+            { imageUrl: "images/mateo_bed.jpg", caption: "Buenos días desde nuestra cama. Mateo decidió que nuestro cuarto es el mejor lugar para empezar el día. Aquí está, recién despertado, con el pelo revuelto y esa mirada soñolienta que dice 'cinco minutos más'. No hay mejor despertador que esta carita.", likes: 310, comments: [] },
+            { imageUrl: "images/mateo_star.jpg", caption: "¡Nuestro pequeño ganó su primera estrella dorada! La maestra dijo que compartió sus juguetes sin que nadie se lo pidiera. Estamos criando a un niño con un corazón enorme. Esta foto lo muestra sosteniendo su premio con tanto orgullo que casi brilla más que la estrella misma.", likes: 445, comments: [] },
+            { imageUrl: "images/red_car_1.jpg", caption: "Mateo y su coche rojo favorito. Este juguete ha sido su compañero fiel desde que dio sus primeros pasos. Aquí lo vemos empujándolo por el pasillo, haciendo sus propios efectos de sonido 'vroom vroom'. La concentración en su carita es de un verdadero piloto profesional.", likes: 365, comments: [] },
+            { imageUrl: "images/red_car_2.jpg", caption: "Sesión de 'mecánica' con el coche rojo. Mateo está convencido de que puede arreglarlo (aunque no esté roto). Con su destornillador de juguete en mano, revisa cada rueda con seriedad absoluta. Ya tiene la actitud de un verdadero profesional. ¿Futuro ingeniero? El tiempo lo dirá.", likes: 290, comments: [] },
+            { imageUrl: "images/standing.jpg", caption: "El día más emocionante: ¡Mateo se puso de pie solo por primera vez! Sin apoyo, sin ayuda, solo su pura determinación. Esta foto lo captura en ese momento triunfal, con las piernitas temblando un poco pero firmes. Cuando soltó el sofá y se mantuvo en pie, todos aplaudimos. ¡Bravo Mateo, el mundo se ve diferente desde allá arriba!", likes: 680, comments: [] },
+            { imageUrl: "images/three_generations.jpg", caption: "Tres generaciones en una sola foto. Ver a Mateo con su padre y su abuelo es ver el pasado, presente y futuro unidos. Tienen los mismos ojos, la misma sonrisa, el mismo gesto cuando están pensando. Un legado de amor que perdura.", likes: 615, comments: [] },
+            { imageUrl: "images/videocall_dad.jpg", caption: "Aunque papá a veces tiene que trabajar desde lejos, la tecnología nos mantiene cerca. Mateo no entiende muy bien qué es una pantalla, así que le da besos y trata de agarrar a papá a través del vidrio. Esta foto captura ese momento tierno donde ambos comparten una sonrisa a pesar de la distancia.", likes: 205, comments: [] },
+            { imageUrl: "images/videocall_party.jpg", caption: "Cumpleaños diferente, pero no menos especial. Aunque la familia no pudo venir en persona, todos se conectaron para cantar 'Feliz Cumpleaños'. Mateo sopló su vela mientras docenas de caras sonrientes lo miraban desde la pantalla. El amor traspasa cualquier distancia tecnológica.", likes: 275, comments: [] },
+            { imageUrl: "images/videocall_smile.jpg", caption: "Mateo acaba de aprender a saludar con la mano y ahora saluda a TODO EL MUNDO. En esta videollamada, está practicando su nuevo talento con los tíos. Cada 'hola' viene acompañado de esa sonrisa radiante que ilumina cualquier pantalla. Ya es un experto en conquistar corazones a distancia.", likes: 235, comments: [] },
+            { imageUrl: "images/videocall_yellow.jpg", caption: "Día amarillo para nuestro rayito de sol. Mateo eligió su outfit del día: todo lo que fuera amarillo. Camiseta amarilla, pantalones amarillos y una actitud que brilla más que el mismo sol. En esta videollamada con la abuela, está mostrando orgulloso su look. La moda según Mateo: mientras más color, mejor.", likes: 285, comments: [] }
+        ];
+
+        // 8 EPIC Stories (5 previous + 3 NEW)
+        const stories = [
+            {
+                title: "Mateo y el Reino de los Juguetes Perdidos",
+                emoji: "🧸",
+                content: "Había una vez, en una noche donde la luna brillaba como una moneda de plata recién pulida, un niño llamado Mateo que no podía dormir. Daba vueltas en su cama, mirando las sombras que bailaban en el techo. De repente, escuchó un sonido muy peculiar debajo de su cama. No era un monstruo (Mateo sabía que los monstruos no existían), sino un sonido como de campanitas oxidadas: '¡Cling, clang, clong!'.\n\nMateo, valiente como un león, se asomó. Para su sorpresa, vio una pequeña puerta de madera tallada en la pata de su cama. La puerta se abrió y salió un soldadito de plomo con el uniforme un poco despintado. '¡Saludos, Mateo!' dijo el soldadito con voz firme. 'Soy el General Hojalata. Necesitamos tu ayuda en el Reino de los Juguetes Perdidos'.\n\nMateo no lo dudó. Se hizo pequeñito, pequeñito (como por arte de magia) y cruzó la puerta. Del otro lado había un mundo increíble. Montañas hechas de bloques de construcción, ríos de canicas brillantes y árboles que daban pelotas de goma como frutos. Pero algo estaba mal. El cielo estaba gris, como si estuviera hecho de plastilina vieja.\n\n'El malvado Mago del Polvo ha robado la Alegría', explicó el General. 'Sin Alegría, los juguetes no pueden jugar'. Mateo miró a su alrededor. Vio muñecas tristes sentadas en bancos de parque, coches de carreras sin ruedas y osos de peluche a los que se les había salido el relleno. Mateo sintió un apretón en el corazón. Él sabía lo importante que era jugar.\n\n'¿Qué debo hacer?', preguntó Mateo. 'Debes encontrar la Risa de Cristal', dijo el General. 'Está escondida en la Cueva del Olvido'. Mateo emprendió el viaje. Cruzó el Bosque de los Puzzles Desarmados y navegó por el Lago de la Limonada. Finalmente, llegó a la Cueva donde estaba la Risa de Cristal, custodiada por el Mago del Polvo. Mateo hizo lo único que se le ocurrió: empezó a contar chistes. La risa se esparció y el Mago desapareció. Todos los juguetes celebraron y Mateo volvió a su cama justo cuando el sol salía.",
+                imageUrl: "images/mateo_hero.png"
+            },
+            {
+                title: "La Gran Aventura en el Fondo del Mar",
+                emoji: "🌊",
+                content: "Mateo estaba en la playa construyendo el castillo de arena más grande del mundo. De repente, una ola dejó una caracola gigante. Al escucharla, oyó una voz: '¡Ayuda!'. Era Sebastián, un cangrejo ermitaño. 'La Princesa Sirena ha perdido su collar de perlas mágicas y sin él, el mar perderá su color'.\n\nSebastián le dio a Mateo algas mágicas para respirar bajo el agua. ¡Glub, glub! Mateo se sumergió. El mundo submarino era fascinante con corales de colores y peces brillantes. 'El collar se rompió y las perlas se esparcieron', explicó Sebastián.\n\nLa primera perla estaba en el Jardín de las Anémonas que hacían cosquillas. Mateo se rió mucho para pasar y agarrar la perla blanca. La segunda perla la tenía un pulpo gigante de mal humor. Mateo le regaló sus guantes de invierno y el pulpo le dio la perla rosa. La tercera estaba en una cueva oscura. Mateo usó su reloj con luz para iluminar y la morena se hipnotizó, dejándole tomar la perla negra.\n\nCon las tres perlas, Mateo nadó al Palacio de Coral. La Princesa lloraba lágrimas que se convertían en burbujas. Al recibir las perlas, el mar brilló con un azul intenso. 'Gracias, Mateo. Eres el guardián del océano', dijo ella, dándole una escama dorada. Cuando Mateo salió del agua, guardó la escama sabiendo que sus amigos del mar siempre estarían ahí.",
+                imageUrl: "images/mateo_diver.png"
+            },
+            {
+                title: "El Bosque de los Árboles Cantarines",
+                emoji: "🌳",
+                content: "Persiguiendo una mariposa azul, Mateo se adentró en un bosque mágico donde los árboles cantaban. Un roble con voz grave: 'Bum, bum'. Un sauce tarareaba: 'La, la'. Los pinos silbaban: 'Fiuuu'. Mateo se sentó maravillado a escuchar.\n\nDe pronto, la música paró. Un pajarito le susurró: 'Es el Silencio Gris. Ha venido a robar nuestras canciones'. Una niebla espesa avanzaba apagando colores y sonidos. Mateo sacó su armónica y sopló una melodía alegre. La nota musical brilló como una luciérnaga.\n\nLa nota tocó al Roble que despertó cantando. Luego al Sauce. Mateo caminó hacia la niebla tocando con valentía. Los árboles cantaron más fuerte que nunca en una sinfonía natural. La niebla, que odiaba el ruido y la alegría, se disolvió. El bosque recuperó sus colores y los animales bailaron alrededor de Mateo.\n\nEl Abuelo Ceiba le dio una hoja de plata que nunca se secaría. 'Gracias, pequeño músico. Nos devolviste nuestra voz'. Mateo volvió a casa tarareando, sabiendo que la música espanta cualquier tristeza.",
+                imageUrl: "images/story3.jpg"
+            },
+            {
+                title: "Mateo, el Astronauta de Sueños",
+                emoji: "🚀",
+                content: "Con su pijama de estrellas brillantes, Mateo cerró los ojos y su cama se transformó en el cohete 'Apolo Mateo'. Su perro Max, ahora con gafas y auriculares, anunció: 'Despegue inminente. Destino: La Galaxia de los Sueños'.\n\nEl cohete salió disparado dejando purpurina. Mateo voló entre asteroides de queso y cometas de helado. Su misión: encender las estrellas apagadas. Llegó a la Nebulosa Oscura donde las estrellas dormían roncando. Usó su Rayo de Cosquillas en cada estrella que se retorcía de risa y ¡puf! se encendía brillante.\n\nMateo fue de estrella en estrella hasta que vio algo enorme: un Agujero Negro Glotón comiendo la luz. '¡Tengo hambre!', rugía. Mateo esparció Polvo de Sueño sobre él. El Agujero Negro bostezó y se durmió profundamente.\n\nLa galaxia estaba a salvo. Las estrellas formaron la cara de Mateo en el cielo. 'Misión cumplida, Comandante', dijo Max. Mateo volvió a casa, despertando con una sonrisa, sabiendo que las estrellas le guiñaban cada noche.",
+                imageUrl: "images/mateo_space.png"
+            },
+            {
+                title: "El Dragón que Comía Fresas",
+                emoji: "🍓",
+                content: "En la Montaña Humeante vivía el dragón Fuego. Todos le temían, pero Mateo decidió visitarlo llevando fresas frescas. Cuando llegó a la cueva, el dragón le preguntó: '¿Vienes a luchar?'. 'No', dijo Mateo. 'Vengo a hacer un picnic'.\n\nEl dragón probó una fresa y sus ojos brillaron. '¡Me encantan!'. Resultó que era vegetariano. El humo de su cueva era porque intentaba hornear pasteles pero se le quemaban. Mateo le enseñó a controlar su fuego para tostar malvaviscos perfectos.\n\nPasaron la tarde comiendo fresas y leyendo cuentos. El dragón contó historias de cuando era amigo de los dinosaurios. Cuando Mateo bajó al pueblo, les contó la verdad. Vieron al dragón bajar con pasteles de fresa perfectos. Se convirtió en el panadero del pueblo y Mateo, su mejor amigo, siempre tenía pasteles gratis.",
+                imageUrl: "images/story1.jpg"
+            },
+            {
+                title: "Mateo y la Ciudad de las Nubes",
+                emoji: "☁️",
+                content: "Un día de mucho viento, Mateo perseguía su cometa roja cuando una ráfaga lo elevó al cielo. Voló más y más alto hasta que aterrizó suavemente en una ciudad hecha completamente de nubes esponjosas. Las casas eran nubes rosadas, los puentes nubes grises y las fuentes lanzaban gotas de lluvia que caían como confeti.\n\n'¡Bienvenido a Nebulus!' dijo una niña de pelo plateado llamada Ciela. Era la princesa de las nubes. 'Necesitamos tu ayuda. El Rey Sol está demasiado fuerte y nuestras nubes se están evaporando'. Mateo vio que algunas nubes desaparecían como algodón de azúcar mojado.\n\nJuntos volaron en un cisne de vapor hacia el Palacio del Rey Sol. Mateo le explicó que las nubes son importantes porque traen la lluvia que hace crecer las flores. El Rey Sol, que amaba las flores, entendió. Prometió brillar solo la mitad del día.\n\nPero ahora las nubes estaban muy grises y tristes. Mateo tuvo una idea: pintarlas con los colores del arcoíris usando pinceles de viento. Ciela y Mateo pintaron nubes rosas, naranjas, amarillas y moradas. El cielo era un lienzo de colores. Como recompensa, le dieron a Mateo una nube portátil en un frasco. Cuando lo abriera, podría volar de nuevo a Nebulus.",
+                imageUrl: "images/mateo_space.png"
+            },
+            {
+                title: "El Jardín de los Gigantes",
+                emoji: "🌿",
+                content: "Mateo encontró una lupa mágica en el ático de su abuelo. Al mirar a través de ella, ¡zap! se encogió hasta el tamaño de un pulgar. De repente, el jardín de su casa era una selva gigantesca. Las margaritas eran árboles enormes, las rocas eran montañas y las hormigas eran del tamaño de perros.\n\n'¡Ayuda!' gritó una voz chillona. Era Tita, una mariquita atrapada bajo un pétalo caído. Mateo empujó con todas sus fuerzas y la liberó. '¡Gracias! Soy Tita, la exploradora de jardines. ¿Qué haces aquí tan pequeño?'. Mateo le mostró la lupa. 'Necesito encontrar la forma de volver a mi tamaño'.\n\nTita conocía una leyenda: en el centro del jardín había una Flor Mágica que concedía un deseo. El camino era peligroso. Primero cruzaron el Río de Rocío montando una hoja de menta como balsa. Luego escalaron la Montaña de Tierra esquivando lombrices gigantes. Finalmente, atravesaron el Bosque de Hierba donde los saltamontes saltaban como dinosaurios.\n\nAl llegar al centro, encontraron la Flor Mágica brillando con luz dorada. Mateo estaba a punto de pedir volver a su tamaño cuando vio a Tita triste. '¿Qué pasa?', preguntó. 'Siempre quise tener alas más grandes para volar más lejos', confesó. Mateo sonrió y pidió que Tita tuviera las alas más hermosas del jardín. ¡Pum! Tita ahora tenía alas iridiscentes.\n\n'¡Pero tú querías volver a tu tamaño!', exclamó Tita. 'No te preocupes', dijo Mateo mirando la lupa. Al girarla al revés, volvió a su tamaño normal. Tita, ahora pequeña de nuevo pero con alas brillantes, le agradeció. Mateo aprendió que ayudar a otros es más importante que cualquier deseo.",
+                imageUrl: "images/story2.jpg"
+            },
+            {
+                title: "Mateo y el Tesoro del Pirata",
+                emoji: "🏴‍☠️",
+                content: "Mientras jugaba en la playa, Mateo cavó en la arena y su pala golpeó algo duro. ¡Era un cofre de madera antiguo! Al abrirlo, salió una nube de humo dorado y apareció un fantasma pirata traslúcido. 'Yo soy el Capitán Barbanegra... bueno, Barbablanca ahora. ¡Arrrr!'\n\nEl fantasma explicó que hace 300 años escondió su tesoro más preciado, pero olvidó dónde. 'El mapa está dividido en tres partes. La primera la tiene la Sirena del Faro, la segunda el Cangrejo Ermitaño Mayor y la tercera... la tengo yo... ¿dónde la puse?'. Mateo decidió ayudarlo.\n\nPrimero fueron al faro. La Sirena era una estatua de piedra que cobraba vida de noche. 'Te daré la primera parte del mapa si me traes la Perla del Alba', dijo. Mateo buceó hasta encontrar una ostra gigante al amanecer. Cuando el primer rayo de sol tocó la ostra, se abrió revelando una perla rosada. La Sirena le dio el primer fragmento del mapa.\n\nLuego buscaron al Cangrejo Ermitaño Mayor en la Cueva de las Mareas. Era tan viejo que su caparazón tenía musgo. 'Ganaré si respondes mi acertijo: ¿Qué tiene olas pero no es el mar?'. Mateo pensó y respondió: '¡El viento!'. El Cangrejo rió y le dio el segundo fragmento.\n\nFinalmente, Barbanegra recordó que había escondido su parte en su sombrero fantasmal. Al unir los tres fragmentos, el mapa mostró que el tesoro estaba... ¡en el cofre original! Al abrirlo de nuevo, encontraron cartas de amor de la esposa de Barbanegra. 'Este es mi verdadero tesoro', lloró de alegría el fantasma. 'Gracias, pequeño grumete. Ahora puedo descansar en paz'. Se desvaneció sonriendo. Mateo se quedó con el cofre vacío, pero lleno de la mejor aventura de su vida.",
+                imageUrl: "images/mateo_diver.png"
+            }
+        ];
+
+        async function seed() {
+            try {
+                document.getElementById('status').innerText = "Limpiando datos antiguos...";
+                document.getElementById('status').style.color = "#fbbf24";
+
+                const postsSnapshot = await db.collection('posts').get();
+                const deleteBatch = db.batch();
+                postsSnapshot.forEach(doc => deleteBatch.delete(doc.ref));
+
+                const storiesSnapshot = await db.collection('stories').get();
+                storiesSnapshot.forEach(doc => deleteBatch.delete(doc.ref));
+
+                await deleteBatch.commit();
+                console.log("✓ Datos antiguos eliminados");
+
+                document.getElementById('status').innerText = "Agregando contenido final (8 cuentos + 20 fotos)...";
+                document.getElementById('status').style.color = "#6366f1";
+
+                const batch = db.batch();
+
+                posts.forEach(post => {
+                    const docRef = db.collection('posts').doc();
+                    batch.set(docRef, { ...post, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                });
+
+                stories.forEach(story => {
+                    const docRef = db.collection('stories').doc();
+                    batch.set(docRef, { ...story, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+                });
+
+                await batch.commit();
+                console.log("✓ Contenido final cargado");
+                document.getElementById('status').innerText = "✅ ¡LISTO! 8 cuentos + 20 fotos cargados";
+                document.getElementById('status').style.color = "#22c55e";
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById('status').innerText = "❌ ERROR: " + error.message;
+                document.getElementById('status').style.color = "#ef4444";
+            }
+        }
+
+        seed();
+    </script>
+</body>
+
+</html>

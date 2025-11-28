@@ -4,593 +4,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mateo, Luis & Jennifer | Family Album</title>
-    <meta name="description" content="Un viaje mágico por nuestros recuerdos">
+    <title>Mateo - Página Oficial</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;1,400&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Animations (AOS) -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-
-    <!-- 3D & Animation Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
-
-    <link rel="stylesheet" href="styles.css">
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css?v=8.0">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
+    <!-- 3D Background -->
+    <canvas id="webgl-canvas" style="position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.1;"></canvas>
 
-    <!-- ✨ 3D Background Canvas -->
-    <canvas id="webgl-canvas"></canvas>
+    <div class="admin-dashboard" style="display: flex;"> <!-- Reusing admin-dashboard class for layout -->
 
-    <!-- Overlay Gradient for readability -->
-    <div class="overlay-gradient"></div>
-
-    <!-- Custom Cursor Trail -->
-    <!-- Custom Cursor Trail Removed for Clean Design -->
-
-    <!-- Barra de Progreso de Scroll -->
-    <div class="scroll-progress" id="scrollProgress"></div>
-
-    <!-- Navigation -->
-    <nav class="glass-nav">
-        <div class="logo">
-            Familia <span class="highlight">Mateo</span>
-            <span class="visitor-counter" id="visitorCounter">
-                <i class="fas fa-eye"></i> <span id="visitorCount">0</span> visitas
-            </span>
-        </div>
-        <div class="nav-links">
-            <button id="darkModeToggle" class="nav-btn" title="Cambiar tema">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button id="storiesBtn" class="nav-btn highlight-btn"><i class="fas fa-book-open"></i> Cuentos</button>
-            <button id="adminPanelBtn" class="nav-btn" onclick="window.open('admin-panel.html', '_blank')"><i
-                    class="fas fa-crown"></i> Panel Admin</button>
-            <button id="loginBtn" class="nav-btn hidden"><i class="fas fa-lock"></i> Admin</button>
-            <button id="logoutBtn" class="nav-btn hidden"><i class="fas fa-sign-out-alt"></i> Salir</button>
-            <button id="uploadBtn" class="nav-btn hidden"><i class="fas fa-cloud-upload-alt"></i> Subir</button>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <header class="hero">
-        <div class="hero-content" data-aos="fade-up" data-aos-duration="1500">
-            <span class="badge">Bienvenido a nuestro cuento</span>
-            <h1>Mateo, Luis <br>& <span class="gradient-text">Jennifer</span></h1>
-            <p>Donde cada foto es una página de nuestra historia mágica.</p>
-            <div class="scroll-indicator">
-                <span>Leer Historia</span>
-                <i class="fas fa-chevron-down bounce"></i>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-child"></i>
+                <h2>Mateo Web</h2>
             </div>
-        </div>
-    </header>
 
-    <!-- Gallery Section -->
-    <main class="gallery-section">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-right">Capítulos de Vida 📖</h2>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="showSection('home')">
+                    <i class="fas fa-home"></i>
+                    <span>Inicio</span>
+                </button>
+                <button class="nav-item" onclick="showSection('stories')">
+                    <i class="fas fa-book-open"></i>
+                    <span>Cuentos Infantiles</span>
+                </button>
+                <button class="nav-item" onclick="showSection('gallery')">
+                    <i class="fas fa-images"></i>
+                    <span>Galería Social</span>
+                </button>
+                <button class="nav-item" onclick="showSection('games')">
+                    <i class="fas fa-gamepad"></i>
+                    <span>Juegos</span>
+                </button>
+                <button class="nav-item" onclick="window.location.href='admin-panel.html'">
+                    <i class="fas fa-lock"></i>
+                    <span>Admin</span>
+                </button>
+            </nav>
 
-            <!-- Dynamic Gallery Container -->
-            <div class="masonry-grid">
-                <!-- Content will be loaded by script.js -->
+            <div class="sidebar-footer">
+                <p>© 2025 Familia Mateo</p>
             </div>
-        </div>
-    </main>
+        </aside>
 
-    <!-- ========================================
-         🎮 FASE 2: INTERACTIVE SECTIONS
-         ======================================== -->
+        <!-- Main Content -->
+        <main class="main-content">
 
-    <!-- Quiz Section -->
-    <section class="quiz-section" id="quizSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🎯 ¿Cuánto Conoces a Mateo?</h2>
-            <div class="quiz-container" data-aos="zoom-in">
-                <div id="quizContent" class="quiz-content">
-                    <!-- Quiz will be loaded here -->
+            <!-- Top Header with 3D Animation -->
+            <header class="top-header-3d">
+                <div class="header-3d-text">
+                    <span>Luis</span>
+                    <span>Mateo</span>
+                    <span>Jennifer</span>
                 </div>
-                <div id="quizResult" class="quiz-result hidden">
-                    <h3 id="resultTitle"></h3>
-                    <p id="resultMessage"></p>
-                    <button class="gradient-btn" onclick="restartQuiz()">Jugar de Nuevo</button>
-                </div>
-            </div>
-        </div>
-    </section>
+                <p class="header-subtitle">Nuestra Aventura Familiar</p>
+            </header>
 
-    <!-- Timeline Section -->
-    <section class="timeline-section" id="timelineSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">⏰ Línea de Tiempo Mágica</h2>
-            <div class="timeline" id="timeline">
-                <!-- Timeline will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Guestbook Section -->
-    <section class="guestbook-section" id="guestbookSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">💌 Libro de Visitas</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Deja un mensaje especial para Mateo y su familia
-            </p>
-
-            <div class="guestbook-form" data-aos="zoom-in">
-                <form id="guestbookForm">
-                    <input type="text" id="guestName" placeholder="Tu nombre" required>
-                    <textarea id="guestMessage" placeholder="Tu mensaje..." rows="4" required></textarea>
-                    <button type="submit" class="gradient-btn">
-                        <i class="fas fa-paper-plane"></i> Enviar Mensaje
-                    </button>
-                </form>
-            </div>
-
-            <div class="guestbook-messages" id="guestbookMessages">
-                <!-- Messages will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- ========================================
-         🎬 FASE 3: DYNAMIC CONTENT
-         ======================================== -->
-
-    <!-- Mateo Today Section -->
-    <section class="mateo-today-section" id="mateoTodaySection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🌟 Mateo Hoy</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Lo último de nuestro pequeño héroe
-            </p>
-
-            <div class="mateo-today-grid">
-                <div class="today-card" data-aos="flip-left">
-                    <div class="card-icon">📸</div>
-                    <h3>Foto del Día</h3>
-                    <div id="photoOfDay" class="photo-of-day">
-                        <img src="images/mateo_star.jpg" alt="Mateo Hoy">
-                    </div>
-                    <p id="photoCaption">¡Brillando como siempre! ⭐</p>
+            <!-- Sections -->
+            <div id="homeSection" class="content-section">
+                <div class="welcome-banner"
+                    style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white; padding: 40px; border-radius: 20px; margin-bottom: 30px; text-align: center;">
+                    <h1>¡Bienvenido al Mundo de Mateo! 🌍</h1>
+                    <p>Aquí compartimos las aventuras, risas y primeros pasos de nuestro pequeño.</p>
                 </div>
 
-                <div class="today-card" data-aos="flip-left" data-aos-delay="100">
-                    <div class="card-icon">💬</div>
-                    <h3>Frase del Día</h3>
-                    <div class="quote-box">
-                        <p id="dailyQuote">"¿Por qué estás en MI cuarto?"</p>
-                        <span class="quote-author">- Mateo, siendo el rey 👑</span>
-                    </div>
-                </div>
-
-                <div class="today-card" data-aos="flip-left" data-aos-delay="200">
-                    <div class="card-icon">🎮</div>
-                    <h3>Actividad Favorita</h3>
-                    <div class="activity-box">
-                        <p id="favoriteActivity">Conducir su coche rojo a toda velocidad 🏎️</p>
+                <!-- Games Preview / Quick Access -->
+                <div class="games-preview">
+                    <h2>🎮 Juegos para Mateo (1 Año+)</h2>
+                    <div class="games-grid-home">
+                        <button class="game-btn" onclick="startGame('shapes')">
+                            <i class="fas fa-shapes"></i>
+                            Formas
+                        </button>
+                        <button class="game-btn" onclick="startGame('colors')">
+                            <i class="fas fa-palette"></i>
+                            Colores
+                        </button>
+                        <button class="game-btn" onclick="startGame('counting')">
+                            <i class="fas fa-sort-numeric-up"></i>
+                            Contar
+                        </button>
+                        <button class="game-btn" onclick="startGame('animals')">
+                            <i class="fas fa-paw"></i>
+                            Animales
+                        </button>
+                        <button class="game-btn" onclick="startGame('music')">
+                            <i class="fas fa-music"></i>
+                            Música
+                        </button>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Fun Facts Section -->
-    <section class="fun-facts-section" id="funFactsSection">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🎉 Datos Curiosos de Mateo</h2>
-
-            <div class="facts-grid">
-                <div class="fact-card" data-aos="zoom-in">
-                    <div class="fact-icon">🎂</div>
-                    <h3>Edad</h3>
-                    <p id="mateoAge">Calculando...</p>
+            <div id="storiesSection" class="content-section hidden">
+                <div class="section-header">
+                    <h2>📚 Cuentos Mágicos</h2>
+                    <p>Historias ilustradas protagonizadas por Mateo</p>
                 </div>
-
-                <div class="fact-card" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="fact-icon">😊</div>
-                    <h3>Sonrisas al Día</h3>
-                    <p>Infinitas ∞</p>
-                </div>
-
-                <div class="fact-card" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="fact-icon">❤️</div>
-                    <h3>Nivel de Ternura</h3>
-                    <p>100/10</p>
-                </div>
-
-                <div class="fact-card" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="fact-icon">🚗</div>
-                    <h3>Coches Favoritos</h3>
-                    <p>Rojos y rápidos</p>
-                </div>
-
-                <div class="fact-card" data-aos="zoom-in" data-aos-delay="400">
-                    <div class="fact-icon">👨‍👩‍👦</div>
-                    <h3>Familia</h3>
-                    <p>Luis, Jennifer & Mateo</p>
-                </div>
-
-                <div class="fact-card" data-aos="zoom-in" data-aos-delay="500">
-                    <div class="fact-icon">🌟</div>
-                    <h3>Superpoder</h3>
-                    <p>Alegrar cualquier día</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Music Section Removed -->
-
-    <!-- ========================================
-         ✨ NUEVAS FUNCIONALIDADES PREMIUM
-         ======================================== -->
-
-    <!-- Dashboard de Estadísticas -->
-    <section class="stats-dashboard-section" id="statsDashboard">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">📊 Dashboard de Mateo</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Estadísticas mágicas en tiempo real
-            </p>
-
-            <div class="stats-grid">
-                <div class="stat-card" data-aos="flip-up">
-                    <div class="stat-icon">📅</div>
-                    <div class="stat-value" id="daysAlive">0</div>
-                    <div class="stat-label">Días de Vida</div>
-                    <div class="stat-progress">
-                        <div class="stat-progress-bar" style="width: 100%"></div>
-                    </div>
-                </div>
-
-                <div class="stat-card" data-aos="flip-up" data-aos-delay="100">
-                    <div class="stat-icon">⏰</div>
-                    <div class="stat-value" id="hoursAlive">0</div>
-                    <div class="stat-label">Horas de Aventuras</div>
-                    <div class="stat-progress">
-                        <div class="stat-progress-bar" style="width: 85%"></div>
-                    </div>
-                </div>
-
-                <div class="stat-card" data-aos="flip-up" data-aos-delay="200">
-                    <div class="stat-icon">😊</div>
-                    <div class="stat-value">∞</div>
-                    <div class="stat-label">Sonrisas Dadas</div>
-                    <div class="stat-progress">
-                        <div class="stat-progress-bar" style="width: 100%"></div>
-                    </div>
-                </div>
-
-                <div class="stat-card" data-aos="flip-up" data-aos-delay="300">
-                    <div class="stat-icon">🚶</div>
-                    <div class="stat-value" id="stepsEstimate">5,000+</div>
-                    <div class="stat-label">Pasos Dados</div>
-                    <div class="stat-progress">
-                        <div class="stat-progress-bar" style="width: 70%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Medidor de Crecimiento -->
-    <section class="growth-meter-section" id="growthMeter">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">📏 Medidor de Crecimiento</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                ¡Mira cómo crece nuestro pequeño gigante!
-            </p>
-
-            <div class="growth-container" data-aos="zoom-in">
-                <div class="growth-ruler">
-                    <div class="ruler-marks">
-                        <div class="ruler-mark" style="bottom: 0%"><span>0 cm</span></div>
-                        <div class="ruler-mark" style="bottom: 25%"><span>25 cm</span></div>
-                        <div class="ruler-mark" style="bottom: 50%"><span>50 cm</span></div>
-                        <div class="ruler-mark" style="bottom: 75%"><span>75 cm</span></div>
-                        <div class="ruler-mark" style="bottom: 100%"><span>100 cm</span></div>
-                    </div>
-                    <div class="growth-indicator" id="growthIndicator">
-                        <div class="growth-marker">
-                            <span class="growth-value" id="heightValue">85 cm</span>
-                            <div class="growth-emoji">👶</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="growth-stats">
-                    <div class="growth-stat-item">
-                        <div class="growth-stat-icon">📐</div>
-                        <div class="growth-stat-info">
-                            <h4>Altura Actual</h4>
-                            <p id="currentHeight">85 cm</p>
-                        </div>
-                    </div>
-                    <div class="growth-stat-item">
-                        <div class="growth-stat-icon">⚖️</div>
-                        <div class="growth-stat-info">
-                            <h4>Peso Actual</h4>
-                            <p id="currentWeight">12 kg</p>
-                        </div>
-                    </div>
-                    <div class="growth-stat-item">
-                        <div class="growth-stat-icon">🎯</div>
-                        <div class="growth-stat-info">
-                            <h4>Comparación</h4>
-                            <p id="heightComparison">¡Tan alto como 6 pelotas! ⚽</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Sistema de Logros -->
-    <section class="achievements-section" id="achievements">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🏆 Logros Desbloqueados</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Cada día es una nueva victoria
-            </p>
-
-            <div class="achievements-grid" id="achievementsGrid">
-                <!-- Achievements will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Calendario de Hitos -->
-    <section class="milestones-section" id="milestones">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">📅 Calendario de Hitos</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Momentos especiales que nunca olvidaremos
-            </p>
-
-            <div class="calendar-container" data-aos="zoom-in">
-                <div class="calendar-header">
-                    <button class="calendar-nav" id="prevMonth">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <h3 id="calendarMonth">2024</h3>
-                    <button class="calendar-nav" id="nextMonth">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-                <div class="calendar-grid" id="calendarGrid">
-                    <!-- Calendar will be loaded here -->
+                <div class="stories-grid" id="storiesGrid">
+                    <!-- Stories injected here -->
                 </div>
             </div>
 
-            <div class="milestones-list" id="milestonesList">
-                <!-- Milestones will be loaded here -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Selector de Temas -->
-    <section class="theme-selector-section" id="themeSelector">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">🌈 Personaliza tu Experiencia</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Elige el tema que más te guste
-            </p>
-
-            <div class="themes-grid">
-                <div class="theme-card" data-theme="default" data-aos="zoom-in">
-                    <div class="theme-preview theme-default"></div>
-                    <h4>Galaxia Mágica</h4>
-                    <p>Tema original con colores vibrantes</p>
+            <div id="gallerySection" class="content-section hidden">
+                <div class="section-header">
+                    <h2>📸 Galería Familiar</h2>
+                    <p>Momentos inolvidables. ¡Dale like y comenta!</p>
                 </div>
-
-                <div class="theme-card" data-theme="ocean" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="theme-preview theme-ocean"></div>
-                    <h4>Océano Profundo</h4>
-                    <p>Azules relajantes del mar</p>
-                </div>
-
-                <div class="theme-card" data-theme="sunset" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="theme-preview theme-sunset"></div>
-                    <h4>Atardecer Dorado</h4>
-                    <p>Cálidos tonos del atardecer</p>
-                </div>
-
-                <div class="theme-card" data-theme="forest" data-aos="zoom-in" data-aos-delay="300">
-                    <div class="theme-preview theme-forest"></div>
-                    <h4>Bosque Encantado</h4>
-                    <p>Verdes naturales y frescos</p>
+                <!-- Instagram Style Feed -->
+                <div class="social-feed" id="socialFeed">
+                    <!-- Posts injected here -->
                 </div>
             </div>
-        </div>
-    </section>
 
-    <!-- Comparador de Fotos -->
-    <section class="photo-compare-section" id="photoCompare">
-        <div class="container">
-            <h2 class="section-title" data-aos="fade-up">📸 Antes & Después</h2>
-            <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">
-                Desliza para ver cómo ha crecido Mateo
-            </p>
-
-            <div class="compare-container" data-aos="zoom-in">
-                <div class="compare-slider">
-                    <div class="compare-image before">
-                        <img src="images/img3.jpg" alt="Mateo Antes">
-                        <div class="compare-label">Antes</div>
+            <!-- Games Section (Full View) -->
+            <div id="gamesSection" class="content-section hidden">
+                <div class="section-header">
+                    <h2>🎮 Zona de Juegos</h2>
+                    <p>Aprendizaje divertido y sensorial</p>
+                </div>
+                <div class="games-grid-full">
+                    <!-- Same buttons but larger/styled differently -->
+                    <div class="game-card-large" onclick="startGame('bubbles')" style="background: #E0F2FE;">
+                        <span class="game-icon">🧼</span>
+                        <h3>Pop de Burbujas</h3>
+                        <p>Explota las burbujas flotantes</p>
                     </div>
-                    <div class="compare-image after">
-                        <img src="images/mateo_star.jpg" alt="Mateo Ahora">
-                        <div class="compare-label">Ahora</div>
+                    <div class="game-card-large" onclick="startGame('animals')" style="background: #FEF3C7;">
+                        <span class="game-icon">🐶</span>
+                        <h3>Sonidos Animales</h3>
+                        <p>Aprende cómo hacen los animales</p>
                     </div>
-                    <div class="compare-divider" id="compareDivider">
-                        <div class="compare-handle">
-                            <i class="fas fa-arrows-alt-h"></i>
-                        </div>
+                    <div class="game-card-large" onclick="startGame('peekaboo')" style="background: #D1FAE5;">
+                        <span class="game-icon">🙈</span>
+                        <h3>Peek-a-boo</h3>
+                        <p>Encuentra a Mateo</p>
+                    </div>
+                    <div class="game-card-large" onclick="startGame('piano')" style="background: #FCE7F3;">
+                        <span class="game-icon">🎹</span>
+                        <h3>Colores Musicales</h3>
+                        <p>Crea música con colores</p>
+                    </div>
+                    <div class="game-card-large" onclick="startGame('memory')" style="background: #E0E7FF;">
+                        <span class="game-icon">🧠</span>
+                        <h3>Memoria Simple</h3>
+                        <p>Encuentra las parejas</p>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
 
+        </main>
+    </div>
 
-
-    <!-- Modals (Glassmorphism Style) -->
-
-    <!-- Stories Modal -->
-    <div id="storiesModal" class="modal-backdrop">
-        <div class="glass-modal full-screen">
-            <button class="close-modal">&times;</button> <!-- JS handles this now -->
-            <div id="storiesContainer" class="stories-container">
-                <!-- Stories will be loaded here -->
-            </div>
-
-            <!-- New Explicit Back Button -->
-            <button id="backToMenuBtn" class="floating-back-btn">
-                <i class="fas fa-arrow-left"></i> Volver al Menú
-            </button>
-
-            <div class="story-controls">
-                <span>Toca para leer el siguiente cuento...</span>
-            </div>
+    <!-- Game Modal Overlay -->
+    <div id="gameModal" class="game-modal hidden">
+        <button class="close-game-btn" onclick="closeGame()">&times;</button>
+        <div id="gameContainer" class="game-container">
+            <!-- Game Canvas/Elements injected here -->
         </div>
     </div>
 
-    <!-- Lightbox/Comment Modal -->
-    <div id="postModal" class="modal-backdrop">
-        <div class="glass-modal">
-            <button class="close-modal">&times;</button>
-            <div class="modal-layout">
-                <div class="modal-media">
-                    <img id="modalImg" src="" alt="">
-                </div>
-                <div class="modal-interactions">
-                    <div class="modal-header">
-                        <div class="avatar">F</div>
-                        <span>Familia Mateo</span>
-                    </div>
-                    <div class="comments-container" id="modalComments">
-                        <!-- Comments will load here -->
-                    </div>
-                    <div class="modal-footer">
-                        <div class="action-row">
-                            <button id="modalLikeBtn" class="action-icon"><i class="far fa-heart"></i></button>
-                            <button class="action-icon"><i class="far fa-comment"></i></button>
-                            <button class="action-icon"><i class="far fa-paper-plane"></i></button>
-                        </div>
-                        <div class="likes-info"><span id="modalLikes">0</span> Me gusta</div>
-                        <form id="commentForm" class="comment-input-area">
-                            <input type="text" id="commentName" placeholder="Tu nombre" required>
-                            <input type="text" id="commentText" placeholder="Agrega un comentario..." required>
-                            <button type="submit">Publicar</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Auth Modals -->
-    <div id="loginModal" class="modal-backdrop">
-        <div class="glass-modal small">
-            <button class="close-simple-modal">&times;</button>
-            <h2>Admin Access</h2>
-            <form id="loginForm">
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button type="submit" class="gradient-btn">Entrar</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="uploadModal" class="modal-backdrop">
-        <div class="glass-modal small">
-            <button class="close-simple-modal">&times;</button>
-            <h2>Subir Recuerdo</h2>
-            <form id="uploadForm">
-                <input type="file" id="photoFile" required>
-                <input type="text" id="photoCaption" placeholder="Título o historia...">
-                <button type="submit" class="gradient-btn">Subir</button>
-            </form>
+    <!-- Story Modal -->
+    <div id="storyModal" class="story-modal hidden">
+        <div class="story-content-modal" id="storyContentModal">
+            <!-- Dynamic Content -->
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Confetti Library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-    <!-- Scripts de Efectos Visuales (Desactivados para diseño limpio) -->
-    <!-- <script src="particles.js"></script> -->
-    <!-- <script src="effects.js"></script> -->
-    <!-- <script src="premium-3d.js"></script> -->
-
-    <!-- 🎵 Floating Music Player -->
-    <div id="musicWidget" class="music-widget">
-        <button id="toggleMusicBtn" class="music-toggle-btn">
-            <div class="music-waves">
-                <span></span><span></span><span></span>
-            </div>
-            <i class="fas fa-music"></i>
-        </button>
-        <div class="music-panel glass-card">
-            <div class="music-header">
-                <h3>Playlist de Mateo 🎵</h3>
-                <button id="closeMusicBtn" class="icon-btn"><i class="fas fa-chevron-down"></i></button>
-            </div>
-
-            <div class="current-song-display">
-                <div class="song-art">
-                    <i class="fas fa-compact-disc spin-animation"></i>
-                </div>
-                <div class="song-details">
-                    <span id="currentSongTitle" class="scrolling-text">Selecciona una canción</span>
-                    <div class="time-display">
-                        <span id="currentTime">0:00</span>
-                        <span id="totalTime">0:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="player-controls">
-                <button id="prevBtn" class="control-btn"><i class="fas fa-step-backward"></i></button>
-                <button id="playBtn" class="control-btn play-btn"><i class="fas fa-play"></i></button>
-                <button id="nextBtn" class="control-btn"><i class="fas fa-step-forward"></i></button>
-            </div>
-
-            <div class="progress-area" id="progressArea">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-
-            <div class="playlist-wrapper">
-                <div id="playlistContainer" class="playlist-list">
-                    <!-- Songs will be loaded here -->
-                </div>
-            </div>
-        </div>
-        <audio id="audioPlayer"></audio>
-    </div>
-
-    <!-- Custom Script -->
-    <script src="script.js"></script>
+    <script src="games.js"></script>
+    <script src="script.js?v=8.0"></script>
 </body>
 
 </html>

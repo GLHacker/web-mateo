@@ -1,4 +1,8 @@
-// Firebase Configuration
+// ==========================================
+// 🚀 MATEO WEB - CORE LOGIC
+// ==========================================
+
+// --- Firebase Configuration ---
 const firebaseConfig = {
     apiKey: "AIzaSyDesr25T22dRcgQ_mckKnj-OlRs5rXZShw",
     authDomain: "web-mateo.firebaseapp.com",
@@ -8,7 +12,7 @@ const firebaseConfig = {
     appId: "1:1091095734859:web:8b8e5f6a3c4d2e1f9a8b7c"
 };
 
-// Initialize Firebase
+// --- Initialization ---
 let app, auth, db, storage;
 
 try {
@@ -16,29 +20,442 @@ try {
     auth = firebase.auth();
     db = firebase.firestore();
     storage = firebase.storage();
-    console.log("Firebase initialized");
+    console.log("✅ Firebase initialized successfully");
 } catch (e) {
-    console.error("Firebase init error:", e);
+    console.error("❌ Firebase init error:", e);
+    showError("No se pudo conectar con el servidor. Algunas funciones pueden no estar disponibles.");
 }
 
-// Initialize AOS
-if (typeof AOS !== 'undefined') {
-    AOS.init({
-        once: true,
-        offset: 100,
-        duration: 800,
-        easing: 'ease-out-cubic'
+// --- Utility Functions ---
+
+/**
+ * Displays a user-friendly error message
+ * @param {string} message - The error message to display
+ */
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-toast';
+    errorDiv.innerText = message;
+    document.body.appendChild(errorDiv);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        errorDiv.classList.add('fade-out');
+        setTimeout(() => errorDiv.remove(), 500);
+    }, 5000);
+}
+
+/**
+ * Safe Speech Synthesis
+ * @param {string} text - Text to speak
+ */
+function safeSpeak(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Stop previous speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+// --- Story Management ---
+
+/**
+ * Fetches stories from Firestore with error handling
+ */
+async function fetchStories() {
+    if (!db) return [];
+    try {
+        const snapshot = await db.collection('stories').orderBy('timestamp', 'desc').get();
+        return snapshot.docs.map(doc => doc.data());
+    } catch (error) {
+        console.error("Error loading stories:", error);
+        showError("Error al cargar los cuentos. Revisa tu conexión.");
+        return null;
+    }
+}
+
+/**
+ * Renders stories grid
+ */
+async function renderStories() {
+    const grid = document.getElementById('storiesGrid');
+    if (!grid) return;
+
+    grid.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x"></i><p>Cargando cuentos...</p></div>';
+
+    const stories = await fetchStories();
+
+    if (!stories) {
+        grid.innerHTML = '<div class="error-message"><p>⚠️ No se pudieron cargar los cuentos.</p></div>';
+        return;
+    }
+
+    if (stories.length === 0) {
+        grid.innerHTML = '<div class="empty-message"><p>No hay cuentos disponibles aún.</p></div>';
+        return;
+    }
+
+    grid.innerHTML = '';
+
+    stories.forEach((story, index) => {
+        const card = document.createElement('div');
+        card.className = 'story-card';
+        const imgUrl = story.imageUrl || story.img || 'https://via.placeholder.com/400x300?text=Cuento';
+
+        card.innerHTML = `
+            <img src="${imgUrl}" alt="${story.title}" loading="lazy">
+            <div class="story-card-content">
+                <h3>${story.emoji || ''} ${story.title}</h3>
+                <button class="read-btn" aria-label="Leer ${story.title}">Leer Historia</button>
+            </div>
+        `;
+        card.onclick = () => openStoryModal(stories, index);
+        grid.appendChild(card);
     });
 }
 
-// ========================================
-// 🌟 PREMIUM FEATURES
-// ========================================
+// --- Story Reader (Full Screen with 3D Effects) ---
 
-// ========================================
-// 🌌 3D BACKGROUND (Three.js)
-// ========================================
+function openStoryModal(stories, startIndex) {
+    const modal = document.getElementById('storyModal');
+    const content = document.getElementById('storyContentModal');
 
+    if (!modal || !content) return;
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+
+    const story = stories[startIndex];
+    const imgUrl = story.imageUrl || story.img || 'https://via.placeholder.com/800x400?text=Cuento';
+
+    content.innerHTML = `
+        <div class="story-particles" id="storyParticles"></div>
+        
+        <div class="reader-header">
+            <span class="reader-title">${story.emoji || ''} ${story.title}</span>
+            <button class="close-reader-btn" onclick="closeStoryModal()" aria-label="Cerrar cuento">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="reader-content">
+            <img src="${imgUrl}" alt="${story.title}" class="reader-hero-img" id="heroImage">
+            <div class="reader-text">
+                ${formatStoryText(story.content)}
+            </div>
+        </div>
+    `;
+
+    // Reset container styles
+    Object.assign(content.style, {
+        background: 'transparent',
+        boxShadow: 'none',
+        maxWidth: '100%',
+        padding: '0',
+        height: '100%',
+        borderRadius: '0'
+    });
+
+    initStoryParticles();
+    initParallaxEffect();
+}
+
+function closeStoryModal() {
+    const modal = document.getElementById('storyModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = ''; // Restore scrolling
+
+        // Cleanup particles
+        const particlesContainer = document.getElementById('storyParticles');
+        if (particlesContainer) particlesContainer.innerHTML = '';
+    }
+}
+
+// --- 3D Effects Optimization ---
+
+function initStoryParticles() {
+    const container = document.getElementById('storyParticles');
+    if (!container) return;
+
+    // Limit particles for performance
+    const particles = ['✨', '⭐', '💫', '🌟'];
+    const particleCount = window.innerWidth < 768 ? 8 : 15; // Fewer particles on mobile
+
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.textContent = particles[Math.floor(Math.random() * particles.length)];
+        particle.style.left = Math.random() * 100 + '%';
+        particle.style.animationDelay = Math.random() * 5 + 's';
+        particle.style.fontSize = (Math.random() * 1 + 0.8) + 'rem';
+        fragment.appendChild(particle);
+    }
+
+    container.appendChild(fragment);
+}
+
+function initParallaxEffect() {
+    const modal = document.getElementById('storyModal');
+    const heroImg = document.getElementById('heroImage');
+
+    if (!heroImg || !modal) return;
+
+    // Use requestAnimationFrame for smooth performance
+    let ticking = false;
+
+    modal.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const scrolled = modal.scrollTop;
+                if (scrolled < 500) { // Only animate when visible
+                    heroImg.style.transform = `translateY(${scrolled * 0.4}px) scale(${1 + scrolled * 0.0001})`;
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+}
+
+function formatStoryText(text) {
+    if (!text) return '';
+
+    const emojiMap = {
+        'luna': '🌙', 'sol': '☀️', 'estrella': '⭐', 'mar': '🌊',
+        'dragón': '🐉', 'castillo': '🏰', 'tesoro': '💎', 'pirata': '🏴‍☠️',
+        'nube': '☁️', 'bosque': '🌲', 'árbol': '🌳', 'flor': '🌸',
+        'risa': '😄', 'magia': '✨', 'juguete': '🧸', 'música': '🎵'
+    };
+
+    return text.split('\n').map(p => {
+        if (p.trim().length === 0) return '';
+
+        let enhanced = p;
+        // Add illustrations sparingly (30% chance per paragraph)
+        if (Math.random() > 0.7) {
+            for (const [keyword, emoji] of Object.entries(emojiMap)) {
+                if (enhanced.toLowerCase().includes(keyword)) {
+                    enhanced = enhanced.replace(
+                        new RegExp(`\\b${keyword}\\b`, 'gi'),
+                        `$&<span class="story-illustration">${emoji}</span>`
+                    );
+                    break;
+                }
+            }
+        }
+        return `<p>${enhanced}</p>`;
+    }).join('');
+}
+
+// --- Social Feed Logic ---
+
+async function fetchPosts() {
+    if (!db) return [];
+    try {
+        const snapshot = await db.collection('posts').orderBy('timestamp', 'desc').get();
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (error) {
+        console.error("Error loading posts:", error);
+        return null;
+    }
+}
+
+async function renderFeed() {
+    const feed = document.getElementById('socialFeed');
+    if (!feed) return;
+
+    feed.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin fa-2x"></i></div>';
+
+    const posts = await fetchPosts();
+
+    if (!posts) {
+        feed.innerHTML = '<div class="error-message"><p>Error al cargar el feed.</p></div>';
+        return;
+    }
+
+    if (posts.length === 0) {
+        feed.innerHTML = '<div class="empty-message"><p>No hay publicaciones aún.</p></div>';
+        return;
+    }
+
+    feed.innerHTML = '';
+
+    posts.forEach(post => {
+        const card = document.createElement('div');
+        card.className = 'social-card';
+
+        const isLiked = localStorage.getItem(`liked_${post.id}`) === 'true';
+        const likeClass = isLiked ? 'liked' : '';
+        const likeIcon = isLiked ? 'fas fa-heart' : 'far fa-heart';
+
+        // Safe comments rendering
+        const commentsHtml = (post.comments || []).map(c => `
+            <div class="comment">
+                <span class="username">${escapeHtml(c.user)}:</span> ${escapeHtml(c.text)}
+            </div>
+        `).join('');
+
+        card.innerHTML = `
+            <div class="social-header">
+                <img src="images/standing.jpg" class="social-avatar" alt="User" loading="lazy">
+                <div class="social-user-info">
+                    <h4>Familia Mateo</h4>
+                    <span>${post.location || 'En Casa'}</span>
+                </div>
+            </div>
+            <img src="${post.imageUrl}" class="social-image" alt="Post" loading="lazy">
+            <div class="social-actions">
+                <button class="action-btn ${likeClass}" onclick="toggleLike('${post.id}', this)" aria-label="Me gusta">
+                    <i class="${likeIcon}"></i>
+                </button>
+                <button class="action-btn" aria-label="Comentar"><i class="far fa-comment"></i></button>
+                <button class="action-btn" aria-label="Compartir"><i class="far fa-paper-plane"></i></button>
+            </div>
+            <div class="social-content">
+                <span class="likes-count" id="likes-${post.id}">${post.likes || 0} Me gusta</span>
+                <div class="caption">
+                    <span class="username">Familia Mateo</span> ${post.caption}
+                </div>
+                <div class="comments-list" id="comments-${post.id}">
+                    ${commentsHtml}
+                </div>
+                <div class="comment-input-area">
+                    <input type="text" placeholder="Agrega un comentario..." id="input-${post.id}" aria-label="Escribir comentario">
+                    <button onclick="addComment('${post.id}')">Publicar</button>
+                </div>
+            </div>
+        `;
+        feed.appendChild(card);
+    });
+}
+
+// --- Interactions ---
+
+async function toggleLike(postId, btn) {
+    if (!db) return;
+
+    try {
+        const isLiked = localStorage.getItem(`liked_${postId}`) === 'true';
+        const newStatus = !isLiked;
+
+        // Optimistic UI update
+        const icon = btn.querySelector('i');
+        const likesCount = document.getElementById(`likes-${postId}`);
+        let currentLikes = parseInt(likesCount.innerText);
+
+        if (newStatus) {
+            btn.classList.add('liked');
+            icon.className = 'fas fa-heart';
+            currentLikes++;
+            confetti({ particleCount: 30, spread: 50, origin: { y: 0.7 } });
+        } else {
+            btn.classList.remove('liked');
+            icon.className = 'far fa-heart';
+            currentLikes--;
+        }
+
+        likesCount.innerText = `${currentLikes} Me gusta`;
+        localStorage.setItem(`liked_${postId}`, newStatus);
+
+        // Update Firebase
+        const postRef = db.collection('posts').doc(postId);
+        await postRef.update({
+            likes: firebase.firestore.FieldValue.increment(newStatus ? 1 : -1)
+        });
+    } catch (error) {
+        console.error("Error toggling like:", error);
+        showError("No se pudo dar like. Intenta de nuevo.");
+    }
+}
+
+async function addComment(postId) {
+    if (!db) return;
+
+    const input = document.getElementById(`input-${postId}`);
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    try {
+        const comment = {
+            user: "Invitado",
+            text: text,
+            timestamp: new Date().toISOString()
+        };
+
+        // Optimistic UI update
+        const commentsList = document.getElementById(`comments-${postId}`);
+        const newComment = document.createElement('div');
+        newComment.className = 'comment';
+        newComment.innerHTML = `<span class="username">${comment.user}:</span> ${escapeHtml(comment.text)}`;
+        commentsList.appendChild(newComment);
+
+        input.value = '';
+
+        // Update Firebase
+        const postRef = db.collection('posts').doc(postId);
+        await postRef.update({
+            comments: firebase.firestore.FieldValue.arrayUnion(comment)
+        });
+    } catch (error) {
+        console.error("Error adding comment:", error);
+        showError("No se pudo publicar el comentario.");
+    }
+}
+
+// --- Navigation ---
+
+function showSection(sectionId) {
+    // Hide all sections
+    document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
+
+    // Show target section
+    const target = document.getElementById(sectionId + 'Section');
+    if (target) {
+        target.classList.remove('hidden');
+        target.classList.add('fade-in');
+    }
+
+    // Update active nav state
+    document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.querySelector(`.nav-item[onclick="showSection('${sectionId}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Load content if needed
+    if (sectionId === 'stories') renderStories();
+    if (sectionId === 'gallery') renderFeed();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// --- Helpers ---
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// --- Initial Load ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Three.js background if available
+    if (typeof initThreeJS === 'function') initThreeJS();
+
+    // Load default section
+    showSection('home');
+});
+
+// --- 3D Background (Three.js) ---
 const initThreeJS = () => {
     const canvas = document.getElementById('webgl-canvas');
     if (!canvas) return;
@@ -55,77 +472,33 @@ const initThreeJS = () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // Particles
+    const particlesCount = 1000;
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 2000;
     const posArray = new Float32Array(particlesCount * 3);
 
     for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 15; // Spread
+        posArray[i] = (Math.random() - 0.5) * 20;
     }
 
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-    // Material
     const particlesMaterial = new THREE.PointsMaterial({
         size: 0.02,
-        color: 0x6366f1, // Primary color
+        color: 0x6366f1, // Primary Indigo
         transparent: true,
-        opacity: 0.8,
-        blending: THREE.AdditiveBlending
+        opacity: 0.4,
     });
 
-    // Mesh
     const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particlesMesh);
+    camera.position.z = 5;
 
-    // Lights
-    const pointLight = new THREE.PointLight(0xec4899, 2);
-    pointLight.position.set(2, 3, 4);
-    scene.add(pointLight);
-
-    camera.position.z = 3;
-
-    // Mouse Interaction
-    let mouseX = 0;
-    let mouseY = 0;
-    let targetX = 0;
-    let targetY = 0;
-
-    const windowHalfX = window.innerWidth / 2;
-    const windowHalfY = window.innerHeight / 2;
-
-    document.addEventListener('mousemove', (event) => {
-        mouseX = (event.clientX - windowHalfX);
-        mouseY = (event.clientY - windowHalfY);
-    });
-
-    // Animate
-    const clock = new THREE.Clock();
-
-    const tick = () => {
-        targetX = mouseX * 0.001;
-        targetY = mouseY * 0.001;
-
-        const elapsedTime = clock.getElapsedTime();
-
-        // Rotate entire system slowly
-        particlesMesh.rotation.y = .1 * elapsedTime;
-        particlesMesh.rotation.x = .05 * elapsedTime;
-
-        // Mouse interaction smoothing
-        particlesMesh.rotation.y += 0.5 * (targetX - particlesMesh.rotation.y);
-        particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
-
-        // Wave effect
-        particlesMesh.position.y = Math.sin(elapsedTime * 0.5) * 0.2;
-
+    const animate = () => {
+        requestAnimationFrame(animate);
+        particlesMesh.rotation.y += 0.001;
         renderer.render(scene, camera);
-        window.requestAnimationFrame(tick);
     };
+    animate();
 
-    tick();
-
-    // Resize
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
@@ -133,1584 +506,12 @@ const initThreeJS = () => {
     });
 };
 
-// ========================================
-// 🚀 GSAP ANIMATIONS
-// ========================================
-
-const initGSAP = () => {
-    gsap.registerPlugin(ScrollTrigger);
-
-    // Hero Text Stagger
-    gsap.from('.hero-content > *', {
-        y: 100,
-        opacity: 0,
-        duration: 1.5,
-        stagger: 0.2,
-        ease: 'power4.out'
-    });
-
-    // Section Titles
-    gsap.utils.toArray('.section-title').forEach(title => {
-        gsap.from(title, {
-            scrollTrigger: {
-                trigger: title,
-                start: 'top 80%',
-                toggleActions: 'play none none reverse'
-            },
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: 'power3.out'
-        });
-    });
-
-    // Cards Stagger
-    gsap.utils.toArray('.masonry-grid').forEach(grid => {
-        gsap.from(grid.children, {
-            scrollTrigger: {
-                trigger: grid,
-                start: 'top 75%'
-            },
-            y: 100,
-            opacity: 0,
-            duration: 1,
-            stagger: 0.1,
-            ease: 'back.out(1.7)'
-        });
-    });
-};
-
-// Initialize everything
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
     initThreeJS();
-    initGSAP();
-
-    // Vanilla Tilt for 3D Cards
-    VanillaTilt.init(document.querySelectorAll(".glass-card"), {
-        max: 15,
-        speed: 400,
-        glare: true,
-        "max-glare": 0.2,
-        scale: 1.05
-    });
-});
-
-// --- Dark Mode Toggle ---
-const darkModeToggle = document.getElementById('darkModeToggle');
-const body = document.body;
-
-// Check saved preference
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme === 'dark') {
-    body.classList.add('dark-mode');
-    if (darkModeToggle) darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-}
-
-if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        const isDark = body.classList.contains('dark-mode');
-
-        darkModeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-
-        // Celebration effect
-        confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.1 }
-        });
-    });
-}
-
-// --- Visitor Counter ---
-const visitorCountElement = document.getElementById('visitorCount');
-
-function initVisitorCounter() {
-    if (!db) return;
-
-    const counterRef = db.collection('stats').doc('visitors');
-
-    // Increment on page load
-    counterRef.get().then(doc => {
-        const currentCount = doc.exists ? (doc.data().count || 0) : 0;
-        counterRef.set({ count: currentCount + 1 });
-    });
-
-    // Listen to changes
-    counterRef.onSnapshot(doc => {
-        if (doc.exists && visitorCountElement) {
-            const count = doc.data().count || 0;
-            animateCounter(visitorCountElement, count);
-        }
-    });
-}
-
-function animateCounter(element, target) {
-    const current = parseInt(element.textContent) || 0;
-    const increment = Math.ceil((target - current) / 20);
-
-    if (current < target) {
-        element.textContent = current + increment;
-        setTimeout(() => animateCounter(element, target), 50);
-    } else {
-        element.textContent = target;
-    }
-}
-
-// Initialize counter when Firebase is ready
-if (db) {
-    initVisitorCounter();
-}
-
-
-
-// --- Confetti on Like ---
-function celebrateLike(element) {
-    const rect = element.getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-    confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { x, y },
-        colors: ['#f6ad55', '#f687b3', '#4fd1c5']
-    });
-}
-
-// ========================================
-// 🎮 FASE 2: INTERACTIVE FEATURES
-// ========================================
-
-// --- Quiz Data ---
-const quizData = [
-    {
-        question: "¿Cuál es el juguete favorito de Mateo?",
-        options: ["Pelota", "Coche rojo", "Muñeco de Elmo", "Bloques"],
-        correct: 2,
-        emoji: "🧸"
-    },
-    {
-        question: "¿Con quién le encanta hacer videollamadas?",
-        options: ["Sus amigos", "Su familia", "Sus primos", "Nadie"],
-        correct: 1,
-        emoji: "📱"
-    },
-    {
-        question: "¿Qué le gusta hacer más?",
-        options: ["Dormir", "Jugar", "Comer", "Llorar"],
-        correct: 1,
-        emoji: "🎮"
-    },
-    {
-        question: "¿Cuántas generaciones aparecen en las fotos?",
-        options: ["Una", "Dos", "Tres", "Cuatro"],
-        correct: 2,
-        emoji: "👨‍👩‍👦"
-    },
-    {
-        question: "¿Qué representa mejor a Mateo?",
-        options: ["Tristeza", "Alegría", "Enojo", "Sueño"],
-        correct: 1,
-        emoji: "😊"
-    }
-];
-
-let currentQuestion = 0;
-let score = 0;
-
-function loadQuiz() {
-    const quizContent = document.getElementById('quizContent');
-    if (!quizContent || currentQuestion >= quizData.length) {
-        showQuizResult();
-        return;
-    }
-
-    const q = quizData[currentQuestion];
-    quizContent.innerHTML = `
-        <div class="quiz-question">${q.emoji} ${q.question}</div>
-        <div class="quiz-options">
-            ${q.options.map((option, index) => `
-                <div class="quiz-option" onclick="checkAnswer(${index})">
-                    ${option}
-                </div>
-            `).join('')}
-        </div>
-        <div class="quiz-progress">Pregunta ${currentQuestion + 1} de ${quizData.length}</div>
-    `;
-}
-
-function checkAnswer(selected) {
-    const q = quizData[currentQuestion];
-    const options = document.querySelectorAll('.quiz-option');
-
-    options.forEach((opt, index) => {
-        opt.style.pointerEvents = 'none';
-        if (index === q.correct) {
-            opt.classList.add('correct');
-        } else if (index === selected) {
-            opt.classList.add('wrong');
-        }
-    });
-
-    if (selected === q.correct) {
-        score++;
-        confetti({
-            particleCount: 50,
-            spread: 60,
-            origin: { y: 0.6 }
-        });
-    }
-
-    setTimeout(() => {
-        currentQuestion++;
-        loadQuiz();
-    }, 1500);
-}
-
-function showQuizResult() {
-    const quizContent = document.getElementById('quizContent');
-    const quizResult = document.getElementById('quizResult');
-    const resultTitle = document.getElementById('resultTitle');
-    const resultMessage = document.getElementById('resultMessage');
-
-    quizContent.classList.add('hidden');
-    quizResult.classList.remove('hidden');
-
-    const percentage = (score / quizData.length) * 100;
-
-    if (percentage === 100) {
-        resultTitle.textContent = '🏆 ¡PERFECTO!';
-        resultMessage.textContent = `¡Conoces a Mateo mejor que nadie! ${score}/${quizData.length} correctas`;
-        confetti({
-            particleCount: 200,
-            spread: 100,
-            origin: { y: 0.6 }
-        });
-    } else if (percentage >= 60) {
-        resultTitle.textContent = '🌟 ¡Muy Bien!';
-        resultMessage.textContent = `¡Conoces bastante a Mateo! ${score}/${quizData.length} correctas`;
-    } else {
-        resultTitle.textContent = '💪 ¡Sigue Intentando!';
-        resultMessage.textContent = `Aún puedes aprender más sobre Mateo. ${score}/${quizData.length} correctas`;
-    }
-}
-
-function restartQuiz() {
-    currentQuestion = 0;
-    score = 0;
-    document.getElementById('quizContent').classList.remove('hidden');
-    document.getElementById('quizResult').classList.add('hidden');
-    loadQuiz();
-}
-
-// Initialize Quiz
-document.addEventListener('DOMContentLoaded', () => {
-    loadQuiz();
-    loadTimeline();
-    loadGuestbook();
-});
-
-// --- Timeline Data ---
-const timelineData = [
-    { date: '2023', icon: '🎂', title: 'Nace Mateo', desc: 'El día que cambió nuestras vidas para siempre. Una estrella brilló más fuerte ese día.' },
-    { date: '2024', icon: '👶', title: 'Primeros Pasos', desc: 'Mateo comenzó a explorar el mundo con sus propios pies, conquistando cada rincón de la casa.' },
-    { date: '2024', icon: '🚗', title: 'Primer Coche', desc: 'Su amor por los coches comenzó. Ahora es el piloto más rápido de la familia.' },
-    { date: '2024', icon: '❤️', title: 'Amor Familiar', desc: 'Cada día nos enseña el verdadero significado del amor incondicional.' },
-    { date: '2025', icon: '🌟', title: 'Futuro Brillante', desc: 'Las aventuras apenas comienzan. El mundo está esperando a este pequeño héroe.' }
-];
-
-function loadTimeline() {
-    const timeline = document.getElementById('timeline');
-    if (!timeline) return;
-
-    timeline.innerHTML = timelineData.map((item, index) => `
-        <div class="timeline-item" data-aos="fade-up" data-aos-delay="${index * 100}">
-            <div class="timeline-content">
-                <h3>${item.title}</h3>
-                <p>${item.desc}</p>
-            </div>
-            <div class="timeline-date">${item.date}</div>
-            <div class="timeline-icon">${item.icon}</div>
-        </div>
-    `).join('');
-}
-
-// --- Guestbook ---
-const guestbookForm = document.getElementById('guestbookForm');
-
-if (guestbookForm) {
-    guestbookForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        if (!db) return alert('Conecta Firebase');
-
-        const name = document.getElementById('guestName').value;
-        const message = document.getElementById('guestMessage').value;
-
-        db.collection('guestbook').add({
-            name: name,
-            message: message,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            guestbookForm.reset();
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-        });
-    });
-}
-
-function loadGuestbook() {
-    if (!db) return;
-
-    const messagesContainer = document.getElementById('guestbookMessages');
-    if (!messagesContainer) return;
-
-    db.collection('guestbook')
-        .orderBy('timestamp', 'desc')
-        .limit(20)
-        .onSnapshot(snapshot => {
-            messagesContainer.innerHTML = '';
-
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const messageEl = document.createElement('div');
-                messageEl.className = 'guestbook-message';
-
-                const initial = data.name.charAt(0).toUpperCase();
-                const date = data.timestamp ? data.timestamp.toDate().toLocaleDateString('es-ES') : 'Hoy';
-
-                messageEl.innerHTML = `
-                    <div class="message-header">
-                        <div class="message-avatar">${initial}</div>
-                        <div class="message-info">
-                            <h4>${data.name}</h4>
-                            <div class="message-date">${date}</div>
-                        </div>
-                    </div>
-                    <div class="message-text">${data.message}</div>
-                `;
-
-                messagesContainer.appendChild(messageEl);
-            });
-        });
-}
-
-// ========================================
-// 🎬 FASE 3: DYNAMIC CONTENT
-// ========================================
-
-// --- Mateo's Age Calculator ---
-function calculateAge() {
-    const birthDate = new Date('2024-01-15'); // Mateo tiene 1 año
-    const today = new Date();
-
-    const months = (today.getFullYear() - birthDate.getFullYear()) * 12 +
-        (today.getMonth() - birthDate.getMonth());
-    const days = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24));
-
-    const years = Math.floor(months / 12);
-    const remainingMonths = months % 12;
-
-    let ageText = '';
-    if (years > 0) {
-        ageText = `${years} año${years > 1 ? 's' : ''} y ${remainingMonths} mes${remainingMonths !== 1 ? 'es' : ''}`;
-    } else {
-        ageText = `${months} mes${months !== 1 ? 'es' : ''}`;
-    }
-
-    const ageElement = document.getElementById('mateoAge');
-    if (ageElement) {
-        ageElement.textContent = ageText;
-    }
-}
-
-// --- Daily Quotes Rotation ---
-const dailyQuotes = [
-    { quote: "¿Por qué estás en MI cuarto?", author: "Mateo, siendo el rey 👑" },
-    { quote: "¡Vroom vroom!", author: "Mateo, piloto profesional 🏎️" },
-    { quote: "*Risas contagiosas*", author: "Mateo, experto en felicidad 😊" },
-    { quote: "¡Mira abuelo!", author: "Mateo, amando a la familia 👴" },
-    { quote: "¡Más cuentos!", author: "Mateo, el lector 📚" }
-];
-
-function loadDailyQuote() {
-    const today = new Date().getDate();
-    const quoteIndex = today % dailyQuotes.length;
-    const selectedQuote = dailyQuotes[quoteIndex];
-
-    const quoteElement = document.getElementById('dailyQuote');
-    const authorElement = document.querySelector('.quote-author');
-
-    if (quoteElement && authorElement) {
-        quoteElement.textContent = `"${selectedQuote.quote}"`;
-        authorElement.textContent = `- ${selectedQuote.author}`;
-    }
-}
-
-// Music functions removed
-
-// Initialize FASE 3 features
-document.addEventListener('DOMContentLoaded', () => {
-    calculateAge();
-    loadDailyQuote();
-    // loadPlaylist(); // Music removed
-
-    // Update age every day
-    setInterval(calculateAge, 1000 * 60 * 60 * 24);
-});
-
-// --- Data: Gallery ---
-const galleryData = [
-    // NEW PHOTOS - Batch 4
-    {
-        id: 'mateo_bed',
-        img: 'images/mateo_bed.jpg',
-        title: 'El Dueño del Reino 👑',
-        desc: 'Con una actitud de rey, Mateo se adueña de cada espacio. "¿Por qué estás en MI cuarto?" dice su mirada traviesa. Porque cuando eres tan adorable, todo el mundo es tuyo.'
-    },
-    {
-        id: 'mateo_star',
-        img: 'images/mateo_star.jpg',
-        title: 'Eres una Estrella, Hijo ⭐',
-        desc: 'Con su chaqueta verde y esa sonrisa que ilumina todo, Mateo nos recuerda que no necesitas un escenario para brillar. Cada paso que da es un show de talento puro.'
-    },
-    // Previous photos
-    { id: 'family_studio', img: 'images/family_studio.jpg', title: 'Retrato de un Amor Eterno 🤍', desc: 'Una imagen que captura la esencia de nuestra unidad. En cada mirada se refleja la promesa de estar siempre juntos, construyendo un futuro lleno de luz y armonía.' },
-    { id: 'three_generations', img: 'images/three_generations.jpg', title: 'Raíces y Alas 🌳', desc: 'Abuelo, padre e hijo. El pasado que nos sostiene, el presente que construimos y el futuro que soñamos. La fortaleza de la sangre en una sola imagen.' },
-    { id: 'laughing_bed', img: 'images/laughing_bed.jpg', title: 'La Melodía de la Felicidad 🎶', desc: 'No existe sonido más puro que su carcajada espontánea. Es la música que llena nuestro hogar y nos recuerda que la felicidad está en los momentos más simples.' },
-    { id: 'videocall_yellow', img: 'images/videocall_yellow.jpg', title: 'Distancia Cero 💫', desc: 'La tecnología se vuelve cálida cuando hay amor del otro lado. Sus ojos curiosos traspasan la pantalla, haciéndonos sentir que estamos en la misma habitación.' },
-    { id: 'videocall_party', img: 'images/videocall_party.jpg', title: 'Fiesta en el Corazón 🎉', desc: 'Con su energía inagotable, Mateo nos enseña que la vida es una celebración constante. Cada día es una oportunidad para sonreír y bailar.' },
-    { id: 'grandpa', img: 'images/grandpa.jpg', title: 'El Legado del Amor 👴👶', desc: 'Tres generaciones unidas por un mismo hilo invisible. En los brazos del abuelo, Mateo descubre que el amor es un tesoro que se hereda y crece con el tiempo.' },
-    { id: 'videocall_smile', img: 'images/videocall_smile.jpg', title: 'Cerca del Corazón 📱', desc: 'Aunque haya kilómetros de distancia, una sonrisa suya rompe cualquier barrera. La tecnología nos une, pero es su alegría la que nos mantiene cerca.' },
-    { id: 'videocall_dad', img: 'images/videocall_dad.jpg', title: 'Siempre Contigo ❤️', desc: 'No importa la pantalla, la conexión entre padre e hijo traspasa cualquier cristal. Un vínculo que no conoce de distancias ni horarios.' },
-    { id: 'red_car_1', img: 'images/red_car_1.jpg', title: 'Piloto de Aventuras 🏎️', desc: 'Con su bólido rojo, Mateo está listo para conquistar cada rincón de la casa. ¡Cuidado mundo, ahí va el conductor más adorable!' },
-    { id: 'red_car_2', img: 'images/red_car_2.jpg', title: 'Velocidad y Risas 🏁', desc: 'La felicidad tiene cuatro ruedas y un conductor con la sonrisa más traviesa. Cada paseo es una nueva historia que contar.' },
-    { id: 'elmo', img: 'images/elmo.jpg', title: 'El Pequeño Guardián Rojo 🧸', desc: 'Dicen que la risa de Mateo tiene un poder secreto: es capaz de pintar de colores hasta el día más gris. Vestido de rojo, nos recuerda que la felicidad es un superpoder.' },
-    { id: 'standing', img: 'images/standing.jpg', title: 'El Explorador de Mundos 🌍', desc: 'Para Mateo, el suelo no es solo suelo, es un mapa inexplorado. Cada paso que da es la conquista de un nuevo universo, y nosotros somos los afortunados testigos de su aventura.' },
-    { id: 'closeup', img: 'images/closeup.jpg', title: 'Ventanas al Alma ✨', desc: 'Si miras de cerca, verás galaxias enteras en sus ojos. Guardan el secreto de la inocencia pura y la promesa de un futuro brillante.' },
-    { id: 'img3', img: 'images/img3.jpg', title: 'El Triángulo de Amor ❤️', desc: 'Luis, Jennifer y Mateo. Tres corazones que aprendieron a latir al mismo ritmo. Juntos, construyeron un refugio donde el amor nunca se agota.' },
-    { id: 'img1', img: 'images/img1.jpg', title: 'La Gran Carrera 🏎️', desc: 'No es solo un juguete, es su primer viaje hacia la libertad. Con las manos al volante, Mateo nos enseña que la vida hay que vivirla a toda velocidad y con una sonrisa.' },
-    { id: 'img2', img: 'images/img2.jpg', title: 'Sueños de Neón 🌃', desc: 'Aquella noche, las luces de la ciudad intentaron competir con su brillo, pero perdieron. Un momento congelado en el tiempo donde solo existía la magia.' },
-    { id: 'img4', img: 'images/img4.jpg', title: 'Héroe y Aprendiz 🦸‍♂️', desc: 'Un padre que enseña a volar, un hijo que enseña a soñar. En este abrazo se transmite la fuerza de un linaje y la ternura de un amor incondicional.' },
-    { id: 'img5', img: 'images/img5.jpg', title: 'La Fiesta de la Vida 🎉', desc: 'Porque cada día juntos es una celebración. Risas, colores y la certeza de que los mejores momentos son los que compartimos en familia.' }
-];
-
-// --- Data: Stories ---
-const storiesData = [
-    {
-        title: "El Viaje de la Estrella Curiosa",
-        img: "images/standing.jpg", // Mateo Explorador
-        text: `
-            <p>En la inmensidad del cosmos, donde el silencio es música y la oscuridad es un lienzo, vivía una pequeña estrella llamada Lyra. A diferencia de sus hermanas, que se conformaban con brillar estáticas en sus constelaciones, Lyra sentía una inquietud vibrante en su núcleo de luz. Se preguntaba qué existía más allá del terciopelo negro de la noche, especialmente en ese pequeño punto azul y verde que giraba a lo lejos: la Tierra.</p>
-            <p>"No debes moverte", le decían las estrellas mayores con voz de gravedad. "Nuestro propósito es ser guías inmutables". Pero la curiosidad de Lyra era una fuerza más poderosa que la gravedad misma. Una noche, cuando la luna cerró sus ojos plateados, Lyra decidió emprender el viaje prohibido. Se soltó del firmamento y descendió como una lágrima de luz, cruzando nebulosas y esquivando cometas.</p>
-            <p>Al entrar en la atmósfera terrestre, sintió el calor de la velocidad y el miedo a lo desconocido. Aterrizó suavemente en un jardín silencioso, justo sobre una hoja de rocío. Allí, vio a un niño, Mateo, que miraba al cielo con un telescopio de cartón. Mateo no buscaba mapas ni guías; buscaba magia. Cuando sus ojos se encontraron con el destello de Lyra, ella comprendió su verdadero propósito.</p>
-            <p>No había bajado para ver el mundo, sino para iluminar el sueño de alguien. Esa noche, Lyra aprendió que incluso la estrella más pequeña puede ser el sol del universo de una persona. Y aunque regresó al cielo antes del amanecer, su luz cambió para siempre: ahora brillaba con la calidez de quien ha conocido la esperanza de cerca.</p>
-        `
-    },
-    {
-        title: "El Bosque de los Susurros",
-        img: "images/grandpa.jpg", // Mateo con Abuelo
-        text: `
-            <p>Existe un bosque que no aparece en los mapas, un lugar donde el tiempo no se mide en horas, sino en el crecimiento de los musgos y el canto de los grillos. Se llama el Bosque de los Susurros. Dicen los antiguos que los árboles allí no solo tienen raíces en la tierra, sino también en la memoria del mundo. Guardan secretos de épocas olvidadas y susurran verdades a quienes tienen el coraje de escuchar en silencio.</p>
-            <p>Un día, Mateo, con su espíritu aventurero, cruzó el umbral de este bosque. Al principio, el ruido de sus propios pasos sobre las hojas secas le impedía oír nada más. Pero a medida que se adentraba, se detuvo. Respiró hondo y cerró los ojos. Fue entonces cuando el bosque cobró vida. El viento no solo movía las ramas; cantaba melodías antiguas.</p>
-            <p>"La fuerza no está en la dureza del tronco", le susurró un viejo roble, "sino en la flexibilidad de las ramas ante la tormenta". Un arroyo cercano añadió con voz cristalina: "Y la constancia, pequeño viajero, es capaz de tallar la piedra más dura". Mateo escuchaba fascinado, entendiendo que la naturaleza era una biblioteca viva.</p>
-            <p>Pasó la tarde aprendiendo el idioma de las flores y la paciencia de las piedras. Al salir del bosque, Mateo ya no era el mismo niño que había entrado. Llevaba consigo la sabiduría de la tierra: que para crecer alto como un árbol, primero hay que tener raíces profundas y saber escuchar los susurros del mundo.</p>
-        `
-    },
-    {
-        title: "El Océano de Nubes",
-        img: "images/videocall_smile.jpg", // Mateo Sonriendo (Videollamada)
-        text: `
-            <p>Mateo siempre había creído que el cielo era el límite, hasta que descubrió que podía navegar sobre él. Todo comenzó una tarde de lluvia, cuando dobló una hoja de papel con esmero y creó un pequeño barco. "Ojalá pudieras navegar de verdad", susurró. Y como si el universo estuviera esperando ese deseo, el barco comenzó a flotar, no sobre el agua, sino hacia arriba, hacia el techo, atravesándolo hasta llegar al cielo abierto.</p>
-            <p>Sin dudarlo, Mateo se sujetó a la vela de papel y subió. De pronto, se encontró navegando en un Océano de Nubes. Era un paisaje onírico, donde las montañas eran de algodón blanco y el sol pintaba olas de oro y rosa. Peces voladores con alas de libélula saltaban entre los cúmulos, y ballenas hechas de bruma cantaban canciones graves que hacían vibrar el aire.</p>
-            <p>Navegó hacia el horizonte, donde el día se encuentra con la noche. Allí conoció al Guardián del Atardecer, un anciano que pintaba las nubes de violeta antes de que salieran las estrellas. "¿Qué buscas tan lejos de casa?", le preguntó el Guardián. "Busco saber hasta dónde puedo llegar", respondió Mateo.</p>
-            <p>El anciano sonrió y le entregó un frasco con luz de estrella. "El único límite es tu propia imaginación", le dijo. Mateo regresó a su habitación justo cuando la lluvia paraba, pero en su bolsillo, el frasco brillaba intensamente. Había aprendido que el mundo es tan grande como uno se atreva a soñarlo.</p>
-        `
-    },
-    {
-        title: "El Guardián de los Sueños",
-        img: "images/elmo.jpg", // Mateo con Elmo
-        text: `
-            <p>En el valle donde nacen los arcoíris, vive un pequeño guardián llamado Oliver. Su trabajo no es proteger tesoros de oro, sino algo mucho más valioso: los sueños de los niños. Oliver tiene una linterna mágica que no alumbra con luz, sino con imaginación. Cada noche, sube a la montaña más alta y abre su linterna, liberando miles de luciérnagas de colores.</p>
-            <p>Una noche, una de sus luciérnagas se perdió y llegó a la ventana de Mateo. Mateo estaba triste porque había tenido una pesadilla. La pequeña luz danzó sobre su almohada, pintando en el aire historias de dragones amigables y castillos de nubes. Mateo sonrió dormido, y Oliver, desde lejos, supo que su misión estaba cumplida.</p>
-            <p>Desde entonces, cada vez que Mateo cierra los ojos, Oliver le envía una luciérnaga especial. Porque los sueños felices son el ingrediente secreto que hace que los niños despierten con ganas de comerse el mundo.</p>
-        `
-    },
-    {
-        title: "La Melodía del Viento",
-        img: "images/red_car_1.jpg", // Mateo en Coche
-        text: `
-            <p>El viento no solo sopla; también canta. Pero muy pocos saben escuchar su canción. Mateo descubrió este secreto una tarde de otoño, mientras jugaba con las hojas secas en el parque. Notó que si corría rápido, el viento silbaba una melodía alegre, pero si se quedaba quieto, el viento tarareaba una canción de cuna.</p>
-            <p>Intrigado, Mateo decidió formar una orquesta. Usó ramas como batutas y piedras como tambores. "¡Sopla fuerte!", gritó al cielo. Y el viento, encantado de tener un director, sopló con fuerza, haciendo bailar a los árboles y crujir a las hojas en una sinfonía perfecta. Los pájaros se unieron con sus trinos y hasta el río pareció aplaudir con sus olas.</p>
-            <p>Ese día, Mateo aprendió que la naturaleza está llena de música esperando a ser descubierta. Solo hace falta un corazón dispuesto a escuchar y un poco de imaginación para convertir un día cualquiera en un concierto inolvidable.</p>
-        `
-    }
-];
-
-// DOM Elements
-const postModal = document.getElementById('postModal');
-const modalImg = document.getElementById('modalImg');
-const modalComments = document.getElementById('modalComments');
-const modalLikeBtn = document.getElementById('modalLikeBtn');
-const modalLikes = document.getElementById('modalLikes');
-const commentForm = document.getElementById('commentForm');
-const galleryContainer = document.querySelector('.masonry-grid');
-const storiesBtn = document.getElementById('storiesBtn');
-const storiesModal = document.getElementById('storiesModal');
-const closeStoriesBtn = storiesModal ? storiesModal.querySelector('.close-modal') : null;
-const backToMenuBtn = document.getElementById('backToMenuBtn');
-
-let currentPostId = null;
-
-// --- Render Gallery ---
-async function renderGallery() {
-    if (!galleryContainer) return;
-
-    let allPhotos = [...galleryData]; // Start with static photos
-
-    if (db) {
-        try {
-            const snapshot = await db.collection('photos').orderBy('timestamp', 'desc').get();
-            const firebasePhotos = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                firebasePhotos.push({
-                    id: doc.id,
-                    img: data.url,
-                    title: data.caption,
-                    desc: data.category, // Using category as desc for now, or could be empty
-                    isFirebase: true
-                });
-            });
-            // Combine: Firebase photos first
-            allPhotos = [...firebasePhotos, ...allPhotos];
-        } catch (error) {
-            console.error("Error loading photos from Firebase:", error);
-        }
-    }
-
-    renderPhotosToDOM(allPhotos);
-}
-
-// Función auxiliar para renderizar las fotos en el DOM
-function renderPhotosToDOM(photosList) {
-    if (!galleryContainer) return;
-    galleryContainer.innerHTML = '';
-
-    photosList.forEach((item, index) => {
-        const card = document.createElement('div');
-        card.className = 'glass-card';
-        card.setAttribute('data-aos', 'zoom-in-up');
-        card.setAttribute('data-aos-delay', (index % 5) * 100);
-        card.setAttribute('data-id', item.id);
-
-        card.innerHTML = `
-            <div class="card-inner">
-                <div class="card-front">
-                    <div class="card-image">
-                        <img src="${item.img}" alt="${item.title}">
-                        <div class="card-overlay">
-                            <button class="view-btn"><i class="fas fa-expand"></i></button>
-                        </div>
-                    </div>
-                    <div class="card-content">
-                        <h3>${item.title}</h3>
-                        <p>${item.desc}</p>
-                        <div class="card-actions">
-                            <button class="action-btn like-btn" data-id="${item.id}"><i class="far fa-heart"></i> <span class="count">0</span></button>
-                            <button class="action-btn comment-btn" data-id="${item.id}"><i class="far fa-comment"></i> <span class="count">0</span></button>
-                            <button class="action-btn flip-btn" title="Ver secreto"><i class="fas fa-sync-alt"></i></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-back">
-                    <div class="secret-content">
-                        <div class="secret-icon">✨</div>
-                        <h3>Recuerdo Mágico</h3>
-                        <p>"${item.title}" es un momento que brillará por siempre en nuestra historia.</p>
-                        <div class="secret-decoration"></div>
-                        <button class="flip-back-btn">Volver a la foto</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        // Add Event Listeners immediately
-        card.querySelector('.card-image').addEventListener('click', () => openPostModal(item.img, item.id, item.title, item.desc));
-
-        // Like button functionality
-        const likeBtn = card.querySelector('.like-btn');
-        if (likeBtn && db) {
-            // Load initial likes
-            const likeRef = item.isFirebase ? db.collection('photos').doc(item.id) : db.collection('likes').doc(item.id);
-
-            likeRef.onSnapshot(doc => {
-                if (doc.exists) {
-                    const count = item.isFirebase ? (doc.data().likes || 0) : (doc.data().count || 0);
-                    const countSpan = likeBtn.querySelector('.count');
-                    if (countSpan) countSpan.textContent = count;
-                }
-            });
-
-            likeBtn.addEventListener('click', () => {
-                likeRef.get().then(doc => {
-                    if (doc.exists) {
-                        if (item.isFirebase) {
-                            const currentLikes = doc.data().likes || 0;
-                            likeRef.update({ likes: currentLikes + 1 });
-                        } else {
-                            const currentCount = doc.data().count || 0;
-                            likeRef.set({ count: currentCount + 1 });
-                        }
-                        celebrateLike(likeBtn);
-                    } else if (!item.isFirebase) {
-                        // Create doc for static photo if not exists
-                        likeRef.set({ count: 1 });
-                        celebrateLike(likeBtn);
-                    }
-                });
-            });
-
-            // Load initial comments count
-            db.collection('comments').where('photoId', '==', item.id).onSnapshot(snapshot => {
-                const countSpan = card.querySelector(`.comment-btn[data-id="${item.id}"] .count`);
-                if (countSpan) countSpan.textContent = snapshot.size;
-            });
-        }
-
-        // Flip functionality
-        const flipBtn = card.querySelector('.flip-btn');
-        const flipBackBtn = card.querySelector('.flip-back-btn');
-        const cardInner = card.querySelector('.card-inner');
-
-        if (flipBtn && cardInner) {
-            flipBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                cardInner.style.transform = 'rotateY(180deg)';
-            });
-        }
-
-        if (flipBackBtn && cardInner) {
-            flipBackBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                cardInner.style.transform = 'rotateY(0deg)';
-            });
-        }
-
-        galleryContainer.appendChild(card);
-    });
-
-    // Reiniciar AOS para las nuevas fotos
-    if (typeof AOS !== 'undefined') {
-        AOS.refresh();
-    }
-}
-
-// Call render on load
-document.addEventListener('DOMContentLoaded', renderGallery);
-
-// --- Stories Logic ---
-if (storiesBtn && storiesModal) {
-    storiesBtn.onclick = (e) => {
-        e.preventDefault();
-        renderStories();
-        storiesModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // Prevent background scrolling
-    };
-}
-
-// Close Stories Logic (Helper Function)
-function closeStories() {
-    storiesModal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore background scrolling
-}
-
-// X Button
-if (closeStoriesBtn) {
-    closeStoriesBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closeStories();
-    };
-}
-
-// Back to Menu Button
-if (backToMenuBtn) {
-    backToMenuBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        closeStories();
-    };
-}
-
-async function renderStories() {
-    const container = document.getElementById('storiesContainer');
-    if (!container) return;
-    container.innerHTML = ''; // Clear previous content
-
-    let allStories = [...storiesData]; // Start with static stories
-    console.log("Static stories loaded:", allStories.length);
-
-    if (db) {
-        try {
-            const snapshot = await db.collection('stories').orderBy('timestamp', 'desc').get();
-            const firebaseStories = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                firebaseStories.push({
-                    title: data.title,
-                    img: data.imageUrl || "images/standing.jpg", // Use uploaded image or default
-                    text: `<p>${data.content}</p>`
-                });
-            });
-            console.log("Firebase stories loaded:", firebaseStories.length);
-            allStories = [...firebaseStories, ...allStories]; // Add Firebase stories before static ones
-        } catch (error) {
-            console.error("Error loading stories from Firebase:", error);
-            // Even if Firebase fails, we proceed with static stories
-        }
-    }
-
-    // Render whatever stories we have
-    if (allStories.length > 0) {
-        allStories.forEach((story, index) => {
-            const slide = document.createElement('div');
-            slide.className = 'story-slide';
-            if (index === 0) slide.classList.add('active');
-
-            slide.innerHTML = `
-                <div class="story-content">
-                    <img src="${story.img}" alt="${story.title}" class="story-img">
-                    <div class="story-text">
-                        <h2>${story.title}</h2>
-                        ${story.text}
-                    </div>
-                </div>
-            `;
-            container.appendChild(slide);
-        });
-
-        // Carousel Logic
-        let currentStory = 0;
-        const slides = document.getElementsByClassName('story-slide');
-
-        container.onclick = (e) => {
-            if (e.target.closest('.close-modal') || e.target.closest('.floating-back-btn')) return;
-
-            if (slides.length > 0) {
-                slides[currentStory].classList.remove('active');
-                currentStory = (currentStory + 1) % slides.length;
-                slides[currentStory].classList.add('active');
-                slides[currentStory].scrollTop = 0;
-            }
-        };
-    } else {
-        container.innerHTML = '<p style="color: white; text-align: center; padding: 20px;">No hay cuentos disponibles en este momento.</p>';
-    }
-}
-
-// --- Modal Logic ---
-function openPostModal(src, id, title, desc) {
-    postModal.style.display = 'flex';
-    modalImg.src = src;
-    currentPostId = id;
-
-    // Reset
-    modalComments.innerHTML = `
-        <div class="comment-item">
-            <span class="comment-author">Familia Mateo</span>
-            ${title} - ${desc}
-        </div>
-    `;
-    modalLikeBtn.classList.remove('liked');
-    modalLikeBtn.innerHTML = '<i class="far fa-heart"></i>';
-    modalLikes.textContent = '0';
-
-    // Load Data
-    if (db) {
-        // Likes
-        db.collection('likes').doc(id).onSnapshot(doc => {
-            if (doc.exists) {
-                modalLikes.textContent = doc.data().count || 0;
-            }
-        });
-
-        // Comments
-        db.collection('comments').where('photoId', '==', id).orderBy('timestamp')
-            .onSnapshot(snapshot => {
-                // Clear comments but keep caption
-                const caption = modalComments.firstElementChild;
-                modalComments.innerHTML = '';
-                modalComments.appendChild(caption);
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const div = document.createElement('div');
-                    div.className = 'comment-item';
-                    div.innerHTML = `<span class="comment-author">${data.name}</span> ${data.text}`;
-                    modalComments.appendChild(div);
-                });
-            });
-    }
-}
-
-// Close Modal
-if (postModal) {
-    const closePostBtn = postModal.querySelector('.close-modal');
-    if (closePostBtn) {
-        closePostBtn.onclick = () => {
-            postModal.style.display = 'none';
-        };
-    }
-}
-
-// Modal Like Button
-if (modalLikeBtn && db) {
-    modalLikeBtn.addEventListener('click', () => {
-        if (!currentPostId) return;
-
-        const likeRef = db.collection('likes').doc(currentPostId);
-
-        likeRef.get().then(doc => {
-            const currentCount = doc.exists ? (doc.data().count || 0) : 0;
-            likeRef.set({ count: currentCount + 1 });
-
-            // Visual feedback
-            modalLikeBtn.classList.add('liked');
-            modalLikeBtn.innerHTML = '<i class="fas fa-heart"></i>';
-            celebrateLike(modalLikeBtn);
-        });
-    });
-}
-
-// Comment Form
-if (commentForm && db) {
-    commentForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        if (!currentPostId) return;
-
-        const name = document.getElementById('commentName').value;
-        const text = document.getElementById('commentText').value;
-
-        db.collection('comments').add({
-            photoId: currentPostId,
-            name: name,
-            text: text,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            commentForm.reset();
-            confetti({
-                particleCount: 50,
-                spread: 60,
-                origin: { y: 0.6 }
-            });
-        });
-    });
-}
-
-window.onclick = (e) => {
-    if (e.target == postModal) postModal.style.display = 'none';
-    if (e.target == document.getElementById('loginModal')) document.getElementById('loginModal').style.display = 'none';
-    if (e.target == document.getElementById('uploadModal')) document.getElementById('uploadModal').style.display = 'none';
-};
-
-// ========================================
-// ✨ NUEVAS FUNCIONALIDADES PREMIUM
-// ========================================
-
-// --- Dashboard de Estadísticas ---
-function updateStatsDashboard() {
-    const birthDate = new Date('2024-01-15');
-    const now = new Date();
-
-    // Calcular días vivos
-    const daysAlive = Math.floor((now - birthDate) / (1000 * 60 * 60 * 24));
-    const hoursAlive = Math.floor((now - birthDate) / (1000 * 60 * 60));
-
-    // Estimar pasos (promedio de pasos por día para un niño pequeño)
-    const estimatedSteps = daysAlive * 2000;
-
-    // Animar contadores
-    animateValue('daysAlive', 0, daysAlive, 2000);
-    animateValue('hoursAlive', 0, hoursAlive, 2000);
-
-    const stepsElement = document.getElementById('stepsEstimate');
-    if (stepsElement) {
-        stepsElement.textContent = estimatedSteps.toLocaleString() + '+';
-    }
-}
-
-function animateValue(id, start, end, duration) {
-    const element = document.getElementById(id);
-    if (!element) return;
-
-    const range = end - start;
-    const increment = range / (duration / 16);
-    let current = start;
-
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= end) {
-            element.textContent = Math.floor(end).toLocaleString();
-            clearInterval(timer);
-        } else {
-            element.textContent = Math.floor(current).toLocaleString();
-        }
-    }, 16);
-}
-
-// --- Sistema de Logros ---
-const achievementsData = [
-    {
-        id: 'first_steps',
-        badge: '👣',
-        title: 'Primeros Pasos',
-        desc: 'Conquistó el mundo con sus primeros pasos',
-        unlocked: true,
-        date: 'Enero 2024'
-    },
-    {
-        id: 'car_master',
-        badge: '🏎️',
-        title: 'Maestro del Coche',
-        desc: 'Experto en conducir su coche rojo',
-        unlocked: true,
-        date: 'Marzo 2024'
-    },
-    {
-        id: 'smile_king',
-        badge: '😊',
-        title: 'Rey de las Sonrisas',
-        desc: 'Alegró más de 1000 días',
-        unlocked: true,
-        date: 'Todo el tiempo'
-    },
-    {
-        id: 'explorer',
-        badge: '🗺️',
-        title: 'Explorador Valiente',
-        desc: 'Descubrió cada rincón de la casa',
-        unlocked: true,
-        date: 'Febrero 2024'
-    },
-    {
-        id: 'family_love',
-        badge: '❤️',
-        title: 'Amor Familiar',
-        desc: 'Unió a la familia con su ternura',
-        unlocked: true,
-        date: 'Desde siempre'
-    },
-    {
-        id: 'future_star',
-        badge: '⭐',
-        title: 'Estrella del Futuro',
-        desc: 'Desbloqueado al cumplir 2 años',
-        unlocked: false,
-        date: '???'
-    }
-];
-
-async function loadAchievements() {
-    const grid = document.getElementById('achievementsGrid');
-    if (!grid) return;
-
-    let allAchievements = [...achievementsData];
-
-    if (db) {
-        try {
-            const snapshot = await db.collection('achievements').orderBy('timestamp', 'desc').get();
-            const firebaseAchievements = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                firebaseAchievements.push({
-                    id: doc.id,
-                    badge: data.icon || "🏆",
-                    title: data.title,
-                    desc: data.description,
-                    unlocked: data.unlocked !== false,
-                    date: data.date ? new Date(data.date).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) : 'Reciente'
-                });
-            });
-            allAchievements = [...firebaseAchievements, ...allAchievements];
-        } catch (error) {
-            console.error("Error loading achievements:", error);
-        }
-    }
-
-    grid.innerHTML = allAchievements.map((achievement, index) => `
-        <div class="achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'}" 
-             data-aos="zoom-in" 
-             data-aos-delay="${index * 100}">
-            <div class="achievement-badge">${achievement.badge}</div>
-            <h4 class="achievement-title">${achievement.title}</h4>
-            <p class="achievement-desc">${achievement.desc}</p>
-            <div class="achievement-date">${achievement.unlocked ? achievement.date : '🔒 Bloqueado'}</div>
-        </div>
-    `).join('');
-
-    // Efecto de confetti al hacer hover en logros desbloqueados
-    document.querySelectorAll('.achievement-card.unlocked').forEach(card => {
-        card.addEventListener('mouseenter', function () {
-            const rect = this.getBoundingClientRect();
-            const x = (rect.left + rect.width / 2) / window.innerWidth;
-            const y = (rect.top + rect.height / 2) / window.innerHeight;
-
-            confetti({
-                particleCount: 30,
-                spread: 50,
-                origin: { x, y },
-                colors: ['#FFD700', '#ff00cc', '#00d4ff']
-            });
-        });
-    });
-}
-
-// --- Calendario de Hitos ---
-const milestonesData = [
-    { date: '2024-01-15', icon: '🎂', title: 'Nace Mateo', desc: 'El día más feliz de nuestras vidas' },
-    { date: '2024-02-10', icon: '👶', title: 'Primera Sonrisa', desc: 'Iluminó nuestro mundo' },
-    { date: '2024-03-20', icon: '👣', title: 'Primeros Pasos', desc: 'Comenzó su gran aventura' },
-    { date: '2024-04-15', icon: '🚗', title: 'Primer Coche', desc: 'Amor a primera vista con su coche rojo' },
-    { date: '2024-06-01', icon: '🗣️', title: 'Primeras Palabras', desc: 'Mamá y Papá nunca sonaron tan bien' },
-    { date: '2024-08-10', icon: '🎉', title: 'Primera Fiesta', desc: 'Celebró con toda la familia' },
-    { date: '2024-10-20', icon: '🏃', title: 'Corriendo', desc: 'Ya no hay quien lo alcance' },
-    { date: '2024-11-15', icon: '❤️', title: 'Amor Infinito', desc: 'Cada día nos enseña a amar más' }
-];
-
-let currentYear = 2024;
-
-async function loadMilestones() {
-    const list = document.getElementById('milestonesList');
-    if (!list) return;
-
-    // We need to update the global milestonesData for the calendar to work
-    // Hack: clear and repopulate
-    // Note: milestonesData is const, so we can't reassign. 
-    // But we can modify the array in place.
-
-    if (db) {
-        try {
-            const snapshot = await db.collection('milestones').orderBy('date', 'desc').get();
-            const firebaseMilestones = [];
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                firebaseMilestones.push({
-                    date: data.date,
-                    icon: data.icon || "🎉",
-                    title: data.title,
-                    desc: data.description
-                });
-            });
-
-            // Add to global array if not already there (simple check)
-            // Or just clear and reload everything? 
-            // Let's just append new ones to the beginning of the list for display
-            // But for the calendar, we need them in the array.
-
-            // Let's create a local merged list for display
-            const allMilestones = [...firebaseMilestones, ...milestonesData];
-
-            // Update global array for calendar (careful with duplicates if function called multiple times)
-            // Ideally we should have a separate function to fetch data and then render.
-            // For now, we'll just push to the global array if it's empty of firebase data
-            // But since we can't easily track that, let's just use the local list for rendering the list
-            // And for the calendar, we might miss the new ones unless we update the global variable.
-
-            // Since milestonesData is const, we can't reassign. We can push.
-            // Let's clear it first? No, it has static data.
-            // Let's just add the firebase ones to it if they aren't there.
-
-            firebaseMilestones.forEach(fm => {
-                if (!milestonesData.some(m => m.title === fm.title && m.date === fm.date)) {
-                    milestonesData.push(fm);
-                }
-            });
-
-            // Sort by date desc
-            milestonesData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        } catch (error) {
-            console.error("Error loading milestones:", error);
-        }
-    }
-
-    list.innerHTML = milestonesData.map((milestone, index) => `
-        <div class="milestone-item" data-aos="fade-left" data-aos-delay="${index * 50}">
-            <div class="milestone-icon">${milestone.icon}</div>
-            <div class="milestone-content">
-                <h4>${milestone.title}</h4>
-                <p>${milestone.desc}</p>
-            </div>
-            <div class="milestone-date">${new Date(milestone.date).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</div>
-        </div>
-    `).join('');
-
-    // Refresh calendar to show new milestones
-    loadCalendar();
-}
-
-function loadCalendar() {
-    const monthElement = document.getElementById('calendarMonth');
-    const gridElement = document.getElementById('calendarGrid');
-
-    if (!monthElement || !gridElement) return;
-
-    monthElement.textContent = currentYear;
-
-    // Crear calendario simple mostrando meses con hitos
-    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-    gridElement.innerHTML = months.map((month, index) => {
-        const monthNum = (index + 1).toString().padStart(2, '0');
-        const hasMilestone = milestonesData.some(m => m.date.startsWith(`${currentYear}-${monthNum}`));
-
-        return `
-            <div class="calendar-day ${hasMilestone ? 'has-milestone' : ''}" 
-                 onclick="showMonthMilestones(${index + 1})">
-                ${month}
-            </div>
-        `;
-    }).join('');
-}
-
-function showMonthMilestones(month) {
-    const monthStr = month.toString().padStart(2, '0');
-    const monthMilestones = milestonesData.filter(m => m.date.startsWith(`${currentYear}-${monthStr}`));
-
-    if (monthMilestones.length > 0) {
-        const messages = monthMilestones.map(m => `${m.icon} ${m.title}`).join('\n');
-        alert(`Hitos de este mes:\n\n${messages}`);
-    }
-}
-
-// Navegación del calendario
-document.getElementById('prevMonth')?.addEventListener('click', () => {
-    currentYear--;
-    loadCalendar();
-});
-
-document.getElementById('nextMonth')?.addEventListener('click', () => {
-    currentYear++;
-    loadCalendar();
-});
-
-// --- Selector de Temas ---
-function initThemeSelector() {
-    const themeCards = document.querySelectorAll('.theme-card');
-    const currentTheme = localStorage.getItem('selectedTheme') || 'default';
-
-    // Aplicar tema guardado
-    document.body.setAttribute('data-theme', currentTheme);
-
-    // Marcar tema activo
-    themeCards.forEach(card => {
-        if (card.getAttribute('data-theme') === currentTheme) {
-            card.classList.add('active');
-        }
-
-        card.addEventListener('click', function () {
-            const theme = this.getAttribute('data-theme');
-
-            // Remover clase active de todas las tarjetas
-            themeCards.forEach(c => c.classList.remove('active'));
-
-            // Agregar clase active a la tarjeta seleccionada
-            this.classList.add('active');
-
-            // Aplicar tema
-            document.body.setAttribute('data-theme', theme);
-            localStorage.setItem('selectedTheme', theme);
-
-            // Efecto de confetti
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 }
-            });
-
-            // Actualizar blobs de fondo
-            updateBackgroundBlobs(theme);
-        });
-    });
-}
-
-function updateBackgroundBlobs(theme) {
-    const blobs = document.querySelectorAll('.blob');
-    const colors = {
-        default: ['#ff00cc', '#333399', '#00d4ff'],
-        ocean: ['#0077be', '#00a8cc', '#00d4ff'],
-        sunset: ['#ff6b6b', '#ffa500', '#ffd700'],
-        forest: ['#2d5016', '#4a7c2e', '#6fa84a']
-    };
-
-    const themeColors = colors[theme] || colors.default;
-
-    blobs.forEach((blob, index) => {
-        blob.style.background = themeColors[index % themeColors.length];
-    });
-}
-
-// --- Comparador de Fotos ---
-function initPhotoCompare() {
-    const divider = document.getElementById('compareDivider');
-    const afterImage = document.querySelector('.compare-image.after');
-    const slider = document.querySelector('.compare-slider');
-
-    if (!divider || !afterImage || !slider) return;
-
-    let isDragging = false;
-
-    function updateComparison(x) {
-        const rect = slider.getBoundingClientRect();
-        const position = ((x - rect.left) / rect.width) * 100;
-
-        if (position >= 0 && position <= 100) {
-            divider.style.left = position + '%';
-            afterImage.style.clipPath = `inset(0 ${100 - position}% 0 0)`;
-        }
-    }
-
-    // Mouse events
-    divider.addEventListener('mousedown', () => {
-        isDragging = true;
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            updateComparison(e.clientX);
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        isDragging = false;
-    });
-
-    // Touch events
-    divider.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        e.preventDefault();
-    });
-
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging) {
-            const touch = e.touches[0];
-            updateComparison(touch.clientX);
-        }
-    });
-
-    document.addEventListener('touchend', () => {
-        isDragging = false;
-    });
-
-    // Click en el slider para mover el divisor
-    slider.addEventListener('click', (e) => {
-        if (e.target !== divider && !e.target.closest('.compare-handle')) {
-            updateComparison(e.clientX);
-        }
-    });
-}
-
-// --- Inicializar todas las nuevas funcionalidades ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Funcionalidades existentes
-    updateStatsDashboard();
-    loadAchievements();
-    loadMilestones();
-    loadCalendar();
-    initThemeSelector();
-    initPhotoCompare();
+    renderStories();
     renderGallery();
 
-    // Actualizar estadísticas cada hora
-    setInterval(updateStatsDashboard, 1000 * 60 * 60);
-
-    // Reinicializar AOS para las nuevas secciones
-    if (typeof AOS !== 'undefined') {
-        AOS.refresh();
-    }
-
-    // Load Site Settings
-    loadSiteSettings();
+    // Default to Home or Stories? Let's default to Home
+    showSection('home');
 });
-
-async function loadSiteSettings() {
-    if (!db) return;
-
-    try {
-        // Load Site Info
-        const siteDoc = await db.collection('settings').doc('site').get();
-        if (siteDoc.exists) {
-            const data = siteDoc.data();
-            if (data.title) document.title = data.title;
-            // Could also update a visible title element if one existed with a specific ID
-        }
-
-        // Load Theme
-        const themeDoc = await db.collection('settings').doc('theme').get();
-        if (themeDoc.exists) {
-            const data = themeDoc.data();
-            if (data.primaryColor) {
-                document.documentElement.style.setProperty('--primary-color', data.primaryColor);
-            }
-            if (data.secondaryColor) {
-                document.documentElement.style.setProperty('--secondary-color', data.secondaryColor);
-            }
-        }
-
-        // Load Content (Hero, Mateo Today, etc)
-        const contentDoc = await db.collection('settings').doc('content').get();
-        if (contentDoc.exists) {
-            const data = contentDoc.data();
-
-            // Hero
-            if (data.hero) {
-                const heroTitle = document.querySelector('.hero-content h1');
-                const heroSubtitle = document.querySelector('.hero-content p');
-                if (heroTitle && data.hero.title) heroTitle.textContent = data.hero.title;
-                if (heroSubtitle && data.hero.subtitle) heroSubtitle.textContent = data.hero.subtitle;
-            }
-
-            // Mateo Today
-            if (data.mateoToday) {
-                const quoteEl = document.getElementById('dailyQuote');
-                if (quoteEl && data.mateoToday.quote) quoteEl.textContent = `"${data.mateoToday.quote}"`;
-                // Activity could be used somewhere else
-            }
-
-            // Mateo Data (Age, etc)
-            if (data.mateoData && data.mateoData.birthdate) {
-                // Update age calculation with real birthdate
-                // We need to override the hardcoded date in calculateAge
-                // But calculateAge is already running. We can just re-run it with new date logic
-                // Or better, update a global variable.
-                // For now, let's just re-implement the logic here if needed or assume the user updates the code.
-                // Actually, let's update the calculateAge function to use a global variable if we wanted to be perfect,
-                // but for now let's just leave it as is or try to update the DOM directly.
-            }
-        }
-
-    } catch (error) {
-        console.error("Error loading settings:", error);
-    }
-}
-
-// ========================================
-// 🎵 MUSIC PLAYER LOGIC
-// ========================================
-
-const musicWidget = {
-    audio: document.getElementById('audioPlayer'),
-    toggleBtn: document.getElementById('toggleMusicBtn'),
-    panel: document.querySelector('.music-panel'),
-    closeBtn: document.getElementById('closeMusicBtn'),
-    playBtn: document.getElementById('playBtn'),
-    prevBtn: document.getElementById('prevBtn'),
-    nextBtn: document.getElementById('nextBtn'),
-    progressBar: document.getElementById('progressBar'),
-    progressArea: document.getElementById('progressArea'),
-    title: document.getElementById('currentSongTitle'),
-    currentTime: document.getElementById('currentTime'),
-    totalTime: document.getElementById('totalTime'),
-    playlistContainer: document.getElementById('playlistContainer'),
-    widget: document.getElementById('musicWidget'),
-
-    playlist: [],
-    currentIndex: 0,
-    isPlaying: false,
-
-    init: async function () {
-        if (!this.widget) return;
-
-        // Event Listeners
-        this.toggleBtn.addEventListener('click', () => this.togglePanel());
-        this.closeBtn.addEventListener('click', () => this.togglePanel());
-
-        this.playBtn.addEventListener('click', () => this.togglePlay());
-        this.prevBtn.addEventListener('click', () => this.playPrev());
-        this.nextBtn.addEventListener('click', () => this.playNext());
-
-        this.audio.addEventListener('timeupdate', (e) => this.updateProgress(e));
-        this.audio.addEventListener('ended', () => this.playNext());
-
-        this.progressArea.addEventListener('click', (e) => this.seek(e));
-
-        // Load Music
-        await this.loadPlaylist();
-    },
-
-    togglePanel: function () {
-        this.panel.classList.toggle('active');
-    },
-
-    loadPlaylist: async function () {
-        this.playlistContainer.innerHTML = '<div style="padding:10px; text-align:center; color:#888;">Cargando...</div>';
-
-        try {
-            let songs = [];
-
-            if (db) {
-                const snapshot = await db.collection('music').orderBy('timestamp', 'desc').get();
-                snapshot.forEach(doc => {
-                    songs.push({ id: doc.id, ...doc.data() });
-                });
-            }
-
-            // Fallback if no songs in DB
-            if (songs.length === 0) {
-                songs = [
-                    { title: "Canción de Cuna", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-                    { title: "Aventura Mágica", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" }
-                ];
-            }
-
-            this.playlist = songs;
-            this.renderPlaylist();
-
-            // Load first song without playing
-            if (this.playlist.length > 0) {
-                this.loadSong(0);
-            }
-
-        } catch (error) {
-            console.error("Error loading playlist:", error);
-            this.playlistContainer.innerHTML = '<div style="padding:10px; text-align:center; color:red;">Error al cargar</div>';
-        }
-    },
-
-    renderPlaylist: function () {
-        this.playlistContainer.innerHTML = '';
-
-        this.playlist.forEach((song, index) => {
-            const item = document.createElement('div');
-            item.className = `playlist-item ${index === this.currentIndex ? 'active' : ''}`;
-            item.innerHTML = `
-                <i class="fas fa-music playlist-icon"></i>
-                <span class="playlist-title">${song.title}</span>
-                ${index === this.currentIndex && this.isPlaying ? '<i class="fas fa-volume-up" style="color:var(--primary)"></i>' : ''}
-            `;
-
-            item.addEventListener('click', () => {
-                this.currentIndex = index;
-                this.loadSong(index);
-                this.playMusic();
-            });
-
-            this.playlistContainer.appendChild(item);
-        });
-    },
-
-    loadSong: function (index) {
-        const song = this.playlist[index];
-        this.title.textContent = song.title;
-        this.audio.src = song.url;
-        this.updatePlaylistUI();
-    },
-
-    playMusic: function () {
-        this.widget.classList.add('playing');
-        this.playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        this.audio.play();
-        this.isPlaying = true;
-        this.updatePlaylistUI();
-    },
-
-    pauseMusic: function () {
-        this.widget.classList.remove('playing');
-        this.playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        this.audio.pause();
-        this.isPlaying = false;
-        this.updatePlaylistUI();
-    },
-
-    togglePlay: function () {
-        if (this.isPlaying) {
-            this.pauseMusic();
-        } else {
-            this.playMusic();
-        }
-    },
-
-    playPrev: function () {
-        this.currentIndex--;
-        if (this.currentIndex < 0) {
-            this.currentIndex = this.playlist.length - 1;
-        }
-        this.loadSong(this.currentIndex);
-        this.playMusic();
-    },
-
-    playNext: function () {
-        this.currentIndex++;
-        if (this.currentIndex >= this.playlist.length) {
-            this.currentIndex = 0;
-        }
-        this.loadSong(this.currentIndex);
-        this.playMusic();
-    },
-
-    updateProgress: function (e) {
-        const { duration, currentTime } = e.srcElement;
-        if (isNaN(duration)) return;
-
-        const progressPercent = (currentTime / duration) * 100;
-        this.progressBar.style.width = `${progressPercent}%`;
-
-        this.currentTime.textContent = this.formatTime(currentTime);
-        this.totalTime.textContent = this.formatTime(duration);
-    },
-
-    seek: function (e) {
-        const width = this.progressArea.clientWidth;
-        const clickX = e.offsetX;
-        const duration = this.audio.duration;
-
-        this.audio.currentTime = (clickX / width) * duration;
-        if (!this.isPlaying) this.playMusic();
-    },
-
-    formatTime: function (seconds) {
-        const min = Math.floor(seconds / 60);
-        const sec = Math.floor(seconds % 60);
-        return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-    },
-
-    updatePlaylistUI: function () {
-        const items = this.playlistContainer.querySelectorAll('.playlist-item');
-        items.forEach((item, index) => {
-            if (index === this.currentIndex) {
-                item.classList.add('active');
-                if (this.isPlaying) {
-                    item.innerHTML = `
-                        <i class="fas fa-music playlist-icon"></i>
-                        <span class="playlist-title">${this.playlist[index].title}</span>
-                        <i class="fas fa-volume-up" style="color:var(--primary)"></i>
-                    `;
-                } else {
-                    item.innerHTML = `
-                        <i class="fas fa-music playlist-icon"></i>
-                        <span class="playlist-title">${this.playlist[index].title}</span>
-                    `;
-                }
-            } else {
-                item.classList.remove('active');
-                item.innerHTML = `
-                    <i class="fas fa-music playlist-icon"></i>
-                    <span class="playlist-title">${this.playlist[index].title}</span>
-                `;
-            }
-        });
-    }
-};
-
-// Initialize Music Player when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    musicWidget.init();
-});
-
